@@ -1,6 +1,6 @@
 # ECLIPSE
 
-![ECLIPSE banner](images/banner.png)
+![ECLIPSE banner](images/eclipse_banner.png)
 
 **E. coli Library for Integrated Pathogen Surveillance and Epidemiology**
 
