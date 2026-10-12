@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lineages & Pathotypes — ECLIPSE</title>
+<meta name="description" content="Literature-curated E. coli lineages and pathotypes with live genome counts from the ECLIPSE resource.">
+<style>
+
+:root {
+    --gold: #d4af37;
+    --navy: #0a1628;
+    --accent: #dc2626;
+    --accent-dark: #991b1b;
+    --accent-light: #fee2e2;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --text: #1e293b;
+    --muted: #64748b;
+    --border: #e2e8f0;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+}
+
+.argus-nav {
+    background: var(--navy); color: white; padding: 20px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    position: sticky; top: 0; z-index: 100;
+    border-bottom: 2px solid #dc262644;
+}
+.argus-nav .brand { display: flex; align-items: center; gap: 20px;
+    text-decoration: none; flex-shrink: 0; }
+.argus-nav .brand-emoji {
+    font-size: 5.6em; line-height: 1;
+    filter: drop-shadow(0 0 14px #dc2626aa); flex-shrink: 0;
+}
+.argus-nav .brand-text { display: flex; flex-direction: column; gap: 3px; }
+.argus-nav .brand-name {
+    font-weight: 900; font-size: 3.45em; letter-spacing: 2px;
+    color: var(--gold); line-height: 1;
+}
+.argus-nav .brand-tagline {
+    font-size: 1.0em; font-weight: 400;
+    color: #94a3b8; line-height: 1.15; max-width: 520px;
+}
+.argus-nav .links { display: flex; gap: 3px; align-items: center; flex-wrap: wrap; }
+.argus-nav .links a {
+    color: #cbd5e1; text-decoration: none;
+    padding: 7px 12px; border-radius: 6px;
+    font-size: 0.84em; font-weight: 500;
+    transition: all 0.15s; white-space: nowrap;
+}
+.argus-nav .links a:hover { background: rgba(255,255,255,0.08); color: white; }
+.argus-nav .links a.active {
+    background: #dc2626; color: white; font-weight: 700;
+    box-shadow: 0 3px 10px #dc262666;
+}
+
+.page-header {
+    background:
+        radial-gradient(circle at 15% 30%, #dc262626 0%, transparent 55%),
+        radial-gradient(circle at 85% 70%, #f59e0b1a 0%, transparent 45%),
+        linear-gradient(135deg, #0a1628 0%, #450a0a 55%, #7f1d1d 100%);
+    color: white; padding: 44px 32px 36px;
+    position: relative; overflow: hidden;
+}
+.page-header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px);
+    background-size: 36px 36px;
+    opacity: 0.6; pointer-events: none;
+}
+.page-header .inner { position: relative; z-index: 1; max-width: 1400px; }
+.page-header .module-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 0.78em; font-weight: 800; letter-spacing: 1.5px;
+    text-transform: uppercase; color: #fca5a5;
+    padding: 5px 14px; border-radius: 20px;
+    background: #dc262622; border: 1px solid #dc262644;
+    margin-bottom: 12px;
+}
+.page-header h1 {
+    font-size: 2.6em; margin-bottom: 6px; font-weight: 900;
+    letter-spacing: -0.5px; line-height: 1.1;
+}
+.page-header .subtitle { color: #cbd5e1; font-size: 1.05em; margin-bottom: 26px; }
+.stat-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px; max-width: 1400px;
+}
+.stat-card {
+    background: rgba(255,255,255,0.055);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px; padding: 14px 16px;
+    backdrop-filter: blur(8px);
+    transition: all 0.2s;
+}
+.stat-card:hover {
+    background: rgba(255,255,255,0.09);
+    border-color: #dc262666; transform: translateY(-2px);
+}
+.stat-card .value {
+    font-size: 1.65em; font-weight: 900;
+    color: #fca5a5; line-height: 1.1; letter-spacing: -0.5px;
+}
+.stat-card .label {
+    font-size: 0.74em; color: #cbd5e1;
+    text-transform: uppercase; letter-spacing: 0.6px;
+    margin-top: 4px; font-weight: 600;
+}
+
+main { max-width: 1500px; margin: 0 auto; padding: 28px 32px 60px; }
+
+.controls {
+    background: var(--card); border-radius: 12px;
+    padding: 16px 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    border: 1px solid var(--border);
+    margin-bottom: 22px;
+    display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+}
+.search-wrapper { position: relative; flex: 1; min-width: 260px; }
+.search-wrapper input {
+    width: 100%; padding: 10px 14px 10px 40px;
+    border: 2px solid var(--border); border-radius: 8px;
+    font-size: 0.95em; font-family: inherit; outline: none;
+    transition: border 0.15s;
+}
+.search-wrapper input:focus {
+    border-color: #dc2626; box-shadow: 0 0 0 3px #dc262622;
+}
+.search-wrapper::before {
+    content: '\1F50D'; position: absolute; left: 14px; top: 50%;
+    transform: translateY(-50%); font-size: 14px; opacity: 0.6;
+}
+.search-hint { font-size: 0.72em; color: var(--muted); margin-top: 4px; padding-left: 4px; }
+.search-hint code { background: #f1f5f9; padding: 1px 5px; border-radius: 3px; }
+
+.filter-label {
+    display: flex; flex-direction: column; gap: 4px;
+    font-size: 0.72em; color: var(--muted); font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.4px;
+}
+.filter-select {
+    padding: 9px 12px; border: 2px solid var(--border); border-radius: 8px;
+    background: white; font-size: 0.9em; font-family: inherit;
+    color: var(--text); min-width: 130px; cursor: pointer; outline: none;
+}
+.filter-select:focus { border-color: #dc2626; }
+
+.view-toggle {
+    display: flex; background: #f1f5f9;
+    border-radius: 8px; padding: 3px; gap: 2px;
+}
+.view-toggle button {
+    padding: 7px 14px; border: none; background: transparent;
+    font-family: inherit; font-size: 0.85em; font-weight: 700;
+    color: var(--muted); cursor: pointer; border-radius: 6px;
+    transition: all 0.15s;
+}
+.view-toggle button.active {
+    background: white; color: #dc2626;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.sel-counter {
+    padding: 6px 12px; background: var(--accent-light); color: var(--accent-dark);
+    border-radius: 20px; font-size: 0.78em; font-weight: 800;
+    white-space: nowrap; margin-left: auto;
+}
+
+.lineage-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(460px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+}
+.lineage-card {
+    background: var(--card); border-radius: 14px;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    transition: all 0.2s;
+    border-left: 5px solid #dc2626;
+}
+.lineage-card.moderate-risk { border-left-color: #f59e0b; }
+.lineage-card.low-risk { border-left-color: #64748b; }
+.lineage-card:hover {
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    transform: translateY(-2px);
+}
+.lineage-card-header {
+    padding: 18px 22px 14px;
+    border-bottom: 1px solid var(--border);
+}
+.lineage-card-top {
+    display: flex; align-items: center; gap: 12px;
+    flex-wrap: wrap; margin-bottom: 8px;
+}
+.st-badge {
+    display: inline-block; padding: 5px 14px; border-radius: 10px;
+    background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+    color: white; font-weight: 900; font-size: 1.15em;
+    font-family: 'SF Mono', Monaco, monospace;
+    letter-spacing: 0.5px;
+    box-shadow: 0 3px 10px rgba(220,38,38,0.35);
+}
+.lineage-card.low-risk .st-badge {
+    background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+    box-shadow: 0 3px 10px rgba(100,116,139,0.35);
+}
+.lineage-card.moderate-risk .st-badge {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    box-shadow: 0 3px 10px rgba(245,158,11,0.35);
+}
+.cat-badge, .risk-badge {
+    display: inline-block; padding: 3px 10px; border-radius: 12px;
+    font-weight: 800; font-size: 0.72em;
+    text-transform: uppercase; letter-spacing: 0.5px;
+}
+.lineage-card .name {
+    font-size: 1.1em; font-weight: 800;
+    color: var(--navy); line-height: 1.3;
+    margin-bottom: 4px;
+}
+.lineage-card .sublineages {
+    font-size: 0.78em; color: var(--muted);
+    font-style: italic;
+    margin-bottom: 10px;
+}
+.lineage-card .meta-row {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    padding: 10px 0 4px;
+    align-items: center;
+}
+.meta-chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 10px; border-radius: 8px;
+    background: #f1f5f9; font-size: 0.82em;
+    font-family: 'SF Mono', Monaco, monospace;
+    color: #334155; font-weight: 600;
+}
+.meta-chip.gene { background: #ede9fe; color: #5b21b6; }
+.meta-chip.live-count {
+    background: #f0fdf4; color: #15803d;
+    font-weight: 800;
+}
+.meta-chip.live-count.zero {
+    background: #f8fafc; color: #94a3b8; font-weight: 600;
+}
+
+.lineage-card-body {
+    padding: 14px 22px 18px;
+    flex-grow: 1;
+}
+.pathotype-row {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    margin-bottom: 12px;
+}
+.pathotype-pill {
+    display: inline-block; padding: 3px 11px; border-radius: 12px;
+    background: #ede9fe; color: #5b21b6;
+    font-weight: 800; font-size: 0.76em;
+    font-family: 'SF Mono', Monaco, monospace;
+    letter-spacing: 0.3px;
+}
+.virulence-row {
+    display: flex; flex-wrap: wrap; gap: 5px;
+    margin-bottom: 12px;
+}
+.gene-pill {
+    display: inline-block; padding: 2px 9px; border-radius: 8px;
+    background: #fef3c7; color: #92400e;
+    font-size: 0.75em;
+    font-family: 'SF Mono', Monaco, monospace;
+    font-weight: 700;
+}
+.detail-section {
+    margin-top: 10px;
+    font-size: 0.88em;
+    color: #475569;
+    line-height: 1.55;
+}
+.detail-section strong {
+    color: var(--navy);
+    display: block; margin-bottom: 3px;
+    text-transform: uppercase; letter-spacing: 0.3px;
+    font-size: 0.75em;
+}
+
+.lineage-card .expand {
+    border-top: 1px solid var(--border);
+    background: #fafbfc;
+}
+.lineage-card .expand summary {
+    padding: 12px 22px;
+    cursor: pointer; list-style: none;
+    font-weight: 800; font-size: 0.85em;
+    color: var(--accent-dark);
+    display: flex; align-items: center; gap: 8px;
+    transition: background 0.15s;
+}
+.lineage-card .expand summary:hover { background: #f1f5f9; }
+.lineage-card .expand summary::-webkit-details-marker { display: none; }
+.lineage-card .expand summary::before {
+    content: '\25B8'; color: #dc2626; font-size: 1.1em;
+}
+.lineage-card .expand[open] summary::before { content: '\25BE'; }
+.expand-content {
+    padding: 0 22px 20px;
+    font-size: 0.85em; color: #475569;
+    line-height: 1.6;
+}
+.expand-content h4 {
+    font-size: 0.85em; color: var(--navy);
+    margin: 12px 0 4px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    font-weight: 800;
+}
+.ref-list { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
+.ref-link {
+    display: inline-block; padding: 2px 8px; border-radius: 6px;
+    background: #e0f2fe; color: #075985;
+    font-size: 0.75em; font-family: 'SF Mono', Monaco, monospace;
+    text-decoration: none; font-weight: 700;
+}
+.ref-link:hover { background: #bae6fd; }
+.ref-link.doi { background: #f3e8ff; color: #6b21a8; }
+
+.pathotype-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 16px;
+    margin-bottom: 40px;
+}
+.pathotype-card {
+    background: var(--card); border-radius: 12px;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    padding: 18px 20px;
+    transition: all 0.15s;
+    border-left: 4px solid #7c3aed;
+}
+.pathotype-card:hover {
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    transform: translateY(-2px);
+}
+.pathotype-card .pt-name {
+    display: flex; align-items: baseline; gap: 10px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+}
+.pathotype-card .pt-short {
+    font-weight: 900; font-size: 1.15em;
+    color: #7c3aed;
+    font-family: 'SF Mono', Monaco, monospace;
+    letter-spacing: 0.5px;
+}
+.pathotype-card .pt-full {
+    font-size: 0.88em; color: #475569;
+    font-weight: 600;
+}
+.pathotype-card .pt-cat {
+    display: inline-block; padding: 2px 9px; border-radius: 10px;
+    background: #ede9fe; color: #5b21b6;
+    font-weight: 800; font-size: 0.72em;
+    text-transform: uppercase; letter-spacing: 0.4px;
+    margin-bottom: 10px;
+}
+.pathotype-card .pt-desc {
+    font-size: 0.87em; color: #475569;
+    line-height: 1.55; margin-bottom: 10px;
+}
+.pathotype-card .pt-genes {
+    display: flex; flex-wrap: wrap; gap: 4px;
+    margin-bottom: 10px;
+}
+.pathotype-card .pt-gene {
+    display: inline-block; padding: 2px 8px; border-radius: 6px;
+    background: #fef3c7; color: #92400e;
+    font-size: 0.72em;
+    font-family: 'SF Mono', Monaco, monospace;
+    font-weight: 700;
+}
+.pathotype-card .pt-risk {
+    display: inline-block; padding: 3px 10px; border-radius: 10px;
+    font-weight: 800; font-size: 0.76em;
+    text-transform: uppercase; letter-spacing: 0.4px;
+}
+
+.lineage-table {
+    width: 100%; border-collapse: collapse;
+    background: var(--card); border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    border: 1px solid var(--border);
+    font-size: 0.85em;
+}
+.lineage-table thead th {
+    background: #f1f5f9; padding: 11px 13px;
+    text-align: left; font-weight: 800;
+    color: #334155; font-size: 0.78em;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    border-bottom: 2px solid var(--border);
+    cursor: pointer; user-select: none;
+    white-space: nowrap;
+}
+.lineage-table thead th:hover { background: #e2e8f0; }
+.lineage-table tbody td {
+    padding: 10px 13px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+}
+.lineage-table tbody tr:hover td { background: #fafbfc; }
+.lineage-table .st-cell {
+    font-family: 'SF Mono', Monaco, monospace;
+    font-weight: 800; color: #dc2626;
+}
+.lineage-table .count-cell {
+    font-family: 'SF Mono', Monaco, monospace;
+    font-weight: 700; text-align: right;
+    color: #0f172a;
+}
+
+.section-title {
+    font-size: 1.3em; color: var(--navy); margin: 30px 0 8px;
+    font-weight: 800; padding-bottom: 8px;
+    border-bottom: 3px solid #dc2626;
+    display: inline-block;
+}
+.section-desc {
+    color: var(--muted); font-size: 0.92em;
+    margin-bottom: 18px; max-width: 860px;
+}
+
+.argus-footer {
+    background: var(--navy); color: #94a3b8; padding: 32px;
+    text-align: center; font-size: 0.86em; margin-top: 60px;
+    border-top: 2px solid #dc262633;
+}
+.argus-footer a { color: var(--gold); text-decoration: none; }
+.argus-footer a:hover { text-decoration: underline; }
+.argus-footer .footer-line { margin: 6px 0; }
+.argus-footer .full-name {
+    color: #cbd5e1; font-size: 0.95em;
+    letter-spacing: 0.2px; font-weight: 600;
+}
+.argus-footer .full-name strong { color: var(--gold); }
+
+@media (max-width: 900px) {
+    .argus-nav { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .argus-nav .brand-tagline { max-width: 100%; }
+    .argus-nav .brand-emoji { font-size: 3.6em; }
+    .argus-nav .brand-name { font-size: 2.2em; }
+    .lineage-grid, .pathotype-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 700px) {
+    .page-header { padding: 28px 20px 24px; }
+    .page-header h1 { font-size: 1.8em; }
+    main { padding: 20px 16px 40px; }
+    .argus-nav { padding: 14px 16px; }
+    .controls { padding: 12px 14px; }
+}
+
+</style>
+</head>
+<body>
+
+<nav class="argus-nav">
+    <a class="brand" href="index.html">
+        <span class="brand-emoji">🌑</span>
+        <span class="brand-text">
+            <span class="brand-name"><span style="color:#7c3aed">E</span><span style="color:#6366f1">C</span><span style="color:#3b82f6">L</span><span style="color:#06b6d4">I</span><span style="color:#10b981">P</span><span style="color:#f59e0b">S</span><span style="color:#ec4899">E</span></span>
+            <span class="brand-tagline">E. coli Library for Integrated Pathogen Surveillance and Epidemiology</span>
+        </span>
+    </a>
+    <div class="links"><a href="index.html">Home</a><a href="pages/mlst.html">MLST</a><a href="pages/phylogroups.html">Phylogroups</a><a href="pages/serotypes.html">Serotypes</a><a href="pages/chtyper.html">CHTyper</a><a href="master.html">Master</a><a href="pages/amr.html">AMR</a><a href="pages/vfdb.html">Virulence</a><a href="pages/plasmid.html">Plasmid</a><a href="statistics.html">Statistics</a><a href="geography.html">Geography</a><a href="lineages.html" class="active">Lineages</a><a href="downloads.html">Downloads</a><a href="about.html">About</a></div>
+</nav>
+
+<header class="page-header">
+    <div class="inner">
+        <div class="module-eyebrow">👑 REFERENCE MODULE</div>
+        <h1>Lineages & Pathotypes</h1>
+        <div class="subtitle">Literature-curated E. coli lineages with live genome counts</div>
+        <div class="stat-row" id="stat-row"></div>
+    </div>
+</header>
+
+<main>
+
+    <h2 class="section-title">🧬 Lineage catalogue</h2>
+    <p class="section-desc">
+        Curated from the literature. Each card shows the lineage's known biology,
+        plus the live count of genomes in ECLIPSE that match its MLST sequence type.
+        Filter by category, risk, or phylogroup. Click any reference badge to open PubMed.
+    </p>
+
+    <div class="controls">
+        <div style="flex:1;min-width:260px;">
+            <div class="search-wrapper">
+                <input type="text" id="search" placeholder="Search ST, name, gene, pathotype, serotype...">
+            </div>
+            <div class="search-hint">
+                Tip: type <code>ST131</code>, <code>UPEC</code>, <code>CTX-M</code>, or <code>O25</code>
+            </div>
+        </div>
+        <div class="filter-label">
+            <span>Category</span>
+            <select class="filter-select" id="flt-category">
+                <option value="">All</option>
+                <option value="Animal-Associated">Animal-Associated</option><option value="Commensal/Pathogenic">Commensal/Pathogenic</option><option value="Diarrheagenic">Diarrheagenic</option><option value="High-Risk Clone">High-Risk Clone</option><option value="Resistance-Associated">Resistance-Associated</option>
+            </select>
+        </div>
+        <div class="filter-label">
+            <span>Risk</span>
+            <select class="filter-select" id="flt-risk">
+                <option value="">All</option>
+                <option value="VERY HIGH">VERY HIGH</option><option value="HIGH">HIGH</option><option value="MODERATE">MODERATE</option><option value="LOW to MODERATE">LOW to MODERATE</option>
+            </select>
+        </div>
+        <div class="filter-label">
+            <span>Phylogroup</span>
+            <select class="filter-select" id="flt-phylogroup">
+                <option value="">All</option>
+                <option value="A">A</option><option value="B1">B1</option><option value="B2">B2</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option>
+            </select>
+        </div>
+        <div class="view-toggle" id="view-toggle">
+            <button class="active" data-view="cards">Cards</button>
+            <button data-view="table">Table</button>
+        </div>
+        <span class="sel-counter" id="sel-counter">—</span>
+    </div>
+
+    <div id="cards-view">
+        <div class="lineage-grid" id="lineage-grid"></div>
+    </div>
+
+    <div id="table-view" style="display:none;">
+        <table class="lineage-table">
+            <thead>
+                <tr>
+                    <th data-sort="st">ST</th>
+                    <th data-sort="name">Name</th>
+                    <th data-sort="category">Category</th>
+                    <th data-sort="risk">Risk</th>
+                    <th data-sort="serotype">Serotype</th>
+                    <th data-sort="phylogroup">Phylogroup</th>
+                    <th data-sort="count" style="text-align:right;">ECLIPSE count</th>
+                </tr>
+            </thead>
+            <tbody id="lineage-tbody"></tbody>
+        </table>
+    </div>
+
+    <h2 class="section-title" style="margin-top:48px;">🦠 Pathotype reference</h2>
+    <p class="section-desc">
+        The major E. coli pathotypes — diarrheagenic, extraintestinal, hybrid, and animal-associated —
+        with their defining virulence genes and clinical characteristics.
+    </p>
+    <div class="pathotype-grid" id="pathotype-grid"></div>
+
+</main>
+
+<footer class="argus-footer">
+    <div class="footer-line full-name">
+        <strong>ECLIPSE</strong> — E. coli Library for Integrated Pathogen Surveillance and Epidemiology
+    </div>
+    <div class="footer-line">
+        Part of the <strong style="color:#d4af37;">ARGUS</strong> family ·
+        University of Ghana Medical School · MIT License
+    </div>
+    <div class="footer-line">
+        Data updated 2026-10-12 16:41:06 ·
+        <a href="https://github.com/bbeckley-hub/eclipse">GitHub</a> ·
+        <a href="about.html">About</a> ·
+        <a href="mailto:brownbeckley94@gmail.com">Contact</a>
+    </div>
+</footer>
+
+<script>
+
+const LINEAGES = [{"st": "ST10", "st_num": 10, "name": "Diverse Commensal/Pathogenic Clone", "category": "Commensal/Pathogenic", "risk": "LOW to MODERATE", "outbreak": "LOW", "sublineages": ["ST10-1", "ST10-2", "ST10-3"], "serotype": "O2:H6", "phylogroup": "A", "fumC": "fumC10", "fimH": "fimH54", "clermont_complex": "STc10", "pathotypes": ["Commensal", "UPEC", "ETEC", "EAEC"], "virulence_genes": ["fimH", "eltA", "estA", "aggR", "aap"], "resistance_summary": "common: Ampicillin, Tetracycline · genes: blaTEM, tet(A) · emerging: ESBLs, Fluoroquinolones", "resistance_note": "", "epidemiology_summary": "Global, highly diverse", "clinical_summary": "spectrum: Commensal to pathogenic · infections: UTI, Diarrhea when virulent · importance: Genetic background for horizontal gene transfer", "first_identified": "", "references": [" PMID: 32985020", "PMID: 39382271", "PMID: 35000591", "PMID: 40591063", "PMID: 38072242", "PMID: 29897467", "PMID: 32985020"], "live_count": 104}, {"st": "ST11", "st_num": 11, "name": "EHEC O157:H7 Clone", "category": "Diarrheagenic", "risk": "VERY HIGH", "outbreak": "VERY HIGH", "sublineages": ["ST11-1", "ST11-2"], "serotype": "O157:H7", "phylogroup": "E", "fumC": "fumC12", "fimH": "fimH9", "clermont_complex": "STc11", "pathotypes": ["EHEC", "STEC"], "virulence_genes": ["stx1", "stx2", "eae", "ehxA", "tccP", "espA"], "resistance_summary": "common: Streptomycin, Sulfonamides, Tetracycline · genes: strA-strB, sul2, tet(B)", "resistance_note": "Avoid antibiotics due to HUS risk", "epidemiology_summary": "high incidence: North America, Europe, Japan, Argentina · medium incidence: Australia, South Africa, Chile · emerging regions: Africa, Asia", "clinical_summary": "primary infections: Hemorrhagic colitis, HUS · complications: Hemolytic uremic syndrome (5-15%) · mortality: Low for diarrhea, high for HUS", "first_identified": "", "references": [" PMID: 36144444", "PMID: 22355013", "PMID: 32946720", "PMID: 19245340", "PMID: 25819955", "PMID: 26311863", "PMID: 39083224"], "live_count": 1}, {"st": "ST38", "st_num": 38, "name": "Pandemic ESBL/ExPEC Clone (Companion Animal & Human)", "category": "High-Risk Clone", "risk": "HIGH", "outbreak": "MODERATE", "sublineages": ["ST38-1", "ST38-2"], "serotype": "O7:H4", "phylogroup": "D", "fumC": "fumC22", "fimH": "fimH17", "clermont_complex": "STc38", "pathotypes": ["UPEC", "SEPEC", "ExPEC"], "virulence_genes": ["fimH", "iutA", "fyuA", "traT"], "resistance_summary": "esbl: blaCTX-M-15, blaCTX-M-14 · carbapenemase: blaOXA-48, blaNDM-1 · fluoroquinolone: qnrS1, aac(6')-Ib-cr", "resistance_note": "", "epidemiology_summary": "high prevalence: Europe, North America, Asia · medium prevalence: Africa, South America · animal reservoirs: Dogs, Cattle, Meat products", "clinical_summary": "primary infections: UTI, Bloodstream infections · resistance: ESBL and carbapenemase producer", "first_identified": "", "references": ["PMID: 38624228", "PMID: 38153179", "PMID: 21966500", "PMID: 28158613", "PMID: 32919009"], "live_count": 35}, {"st": "ST69", "st_num": 69, "name": "Uropathogenic/Diarrheagenic Hybrid", "category": "High-Risk Clone", "risk": "HIGH", "outbreak": "MODERATE", "sublineages": ["ST69-1", "ST69-2"], "serotype": "O17/O77:H18", "phylogroup": "D", "fumC": "fumC14", "fimH": "fimH27", "clermont_complex": "STc69", "pathotypes": ["UPEC", "EAEC", "ExPEC"], "virulence_genes": ["fimH", "aggR", "aap", "aatA", "iutA", "fyuA"], "resistance_summary": "common: Ampicillin, Tetracycline, Sulfonamides · genes: blaTEM, tet(A), sul1, sul2 · emerging: Fluoroquinolones", "resistance_note": "", "epidemiology_summary": "high prevalence: North America, Europe · medium prevalence: Asia, Australia", "clinical_summary": "primary infections: UTI, Diarrhea · virulence: Enhanced adherence capabilities · treatment: May require combination therapy", "first_identified": "", "references": ["PMID: 37764013", "PMID: 18199778", "PMID: 32634601", "PMID: 38318209", "PMID: 31477018"], "live_count": 30}, {"st": "ST73", "st_num": 73, "name": "Classic Uropathogenic Clone", "category": "High-Risk Clone", "risk": "HIGH", "outbreak": "MODERATE", "sublineages": ["ST73-1", "ST73-2"], "serotype": "O6:H1", "phylogroup": "B2", "fumC": "fumC32", "fimH": "fimH1", "clermont_complex": "STc73", "pathotypes": ["UPEC", "SEPEC"], "virulence_genes": ["fimH", "papA", "papGII", "hlyA", "cnf1", "iutA", "fyuA"], "resistance_summary": "common: Ampicillin, Tetracycline · emerging: Fluoroquinolones, Third-gen cephalosporins · genes: blaTEM, tet(A), tet(B)", "resistance_note": "", "epidemiology_summary": "high prevalence: Europe, North America, Australia · medium prevalence: Asia, South America · low prevalence: Africa", "clinical_summary": "primary infections: Cystitis, Pyelonephritis · virulence: High virulence in UTI models · persistence: Forms intracellular bacterial communities", "first_identified": "", "references": ["PMID: 25729395", "PMID: 37471138", "PMID: 39303870", "PMID: 30810518", "PMID: 37471138", "PMID: 25355761", "PMID: 32120035"], "live_count": 12}, {"st": "ST88", "st_num": 88, "name": "Meningitis/ExPEC Clone", "category": "High-Risk Clone", "risk": "HIGH", "outbreak": "MODERATE", "sublineages": ["ST88-1", "ST88-2"], "serotype": "O45:H7", "phylogroup": "B2", "fumC": "fumC35", "fimH": "fimH8", "clermont_complex": "STc88", "pathotypes": ["NMEC", "UPEC", "SEPEC"], "virulence_genes": ["fimH", "ibeA", "kpsMII", "cnf1", "hlyA"], "resistance_summary": "common: Ampicillin, Tetracycline · genes: blaTEM, tet(A)", "resistance_note": "Variable resistance patterns", "epidemiology_summary": "high prevalence: Europe, North America · medium prevalence: Asia, Africa", "clinical_summary": "", "first_identified": "", "references": ["PMID: 19307211", "PMID: 26865687", "PMID: 26803720", "PMID: 37370379", "PMID: 36672813", "PMID: 36246985", "PMID: 37578342"], "live_count": 1}, {"st": "ST95", "st_num": 95, "name": "Neonatal Meningitis/ExPEC Clone", "category": "High-Risk Clone", "risk": "VERY HIGH", "outbreak": "MODERATE", "sublineages": ["ST95-1", "ST95-2"], "serotype": "O18:H7", "phylogroup": "B2", "fumC": "fumC28", "fimH": "fimH5", "clermont_complex": "STc95", "pathotypes": ["NMEC", "UPEC", "SEPEC"], "virulence_genes": ["fimH", "ibeA", "kpsMII-K1", "cnf1", "hlyA", "iutA"], "resistance_summary": "common: Ampicillin, Tetracycline · genes: blaTEM, tet(A)", "resistance_note": "Generally less resistant than ST131", "epidemiology_summary": "high prevalence: Europe, North America, East Asia · medium prevalence: South America, Australia · emerging regions: Africa, South Asia", "clinical_summary": "primary infections: Neonatal meningitis, UTI, Bacteremia · mortality: High in neonatal meningitis · sequelae: Neurological deficits common", "first_identified": "", "references": ["PMID: 38622998", "PMID: 34560248", "PMID: 19583828", "PMID: 35076267", "PMID: 25037925", "PMID: 36558824", "PMID: 38383596"], "live_count": 2}, {"st": "ST101", "st_num": 101, "name": "Avian Pathogenic E. coli (APEC) Clone", "category": "Animal-Associated", "risk": "MODERATE", "outbreak": "HIGH in poultry", "sublineages": ["ST101-1", "ST101-2"], "serotype": "O2:H6", "phylogroup": "B1", "fumC": "fumC18", "fimH": "fimH20", "clermont_complex": "STc101", "pathotypes": ["APEC", "UPEC", "ExPEC"], "virulence_genes": ["iss", "iroN", "iutA", "hlyF", "ompT"], "resistance_summary": "common: Tetracycline, Sulfonamides, Ampicillin · genes: tet(A), sul1, blaTEM · emerging: Fluoroquinolones, ESBL", "resistance_note": "", "epidemiology_summary": "high prevalence: USA, Europe, Brazil", "clinical_summary": "animal disease: Colibacillosis, septicemia · human infections: Rare, mainly immunocompromised", "first_identified": "", "references": ["PMID: 23696618", "PMID: 35411158", "PMID: 25989320", "PMID: 24514099"], "live_count": 10}, {"st": "ST117", "st_num": 117, "name": "Avian Pathogenic E. coli (APEC)", "category": "Animal-Associated", "risk": "MODERATE", "outbreak": "HIGH in poultry", "sublineages": ["ST117-1", "ST117-2"], "serotype": "O78:H4", "phylogroup": "B1", "fumC": "fumC17", "fimH": "fimH5", "clermont_complex": "STc117", "pathotypes": ["APEC", "UPEC", "ExPEC"], "virulence_genes": ["iss", "iroN", "iutA", "hlyF", "ompT", "vat"], "resistance_summary": "common: Tetracycline, Sulfonamides, Ampicillin · genes: tet(A), sul1, sul2, blaTEM · emerging: Fluoroquinolones, Third-gen cephalosporins", "resistance_note": "", "epidemiology_summary": "high prevalence: Europe, North America, Asia, Brazil", "clinical_summary": "animal disease: Colibacillosis, septicemia · human infections: Rare, usually immunocompromised · one health: Antibiotic use in agriculture drives resistance", "first_identified": "", "references": ["PMID: 35945191", "PMID: 39235965", "PMID: 38175844", "PMID: 36755458", "PMID: 22615330", "PMID: 28049430", "PMID: 34047644", "PMID: 28049430"], "live_count": 5}, {"st": "ST131", "st_num": 131, "name": "Global MDR Pandemic Clone", "category": "High-Risk Clone", "risk": "VERY HIGH", "outbreak": "HIGH", "sublineages": ["ST131-H30", "ST131-H30-R", "ST131-H30-Rx"], "serotype": "O25b:H4", "phylogroup": "B2", "fumC": "fumC40", "fimH": "fimH30", "clermont_complex": "STc131", "pathotypes": ["UPEC", "SEPEC", "ExPEC"], "virulence_genes": ["fimH", "papA", "iutA", "fyuA", "kpsMII", "ompT", "malX"], "resistance_summary": "esbl: blaCTX-M-15, blaCTX-M-14, blaCTX-M-27 · fluoroquinolone: gyrA-S83L, gyrA-D87N, parC-S80I, parC-E84V · aminoglycoside: aac(6')-Ib-cr, aac(3)-II · other: sul1, sul2, tet(A), dfrA17", "resistance_note": "", "epidemiology_summary": "high prevalence: North America, Europe, Asia, South America, Australia · medium prevalence: Africa, Middle East", "clinical_summary": "primary infections: UTI, Bloodstream infections, Prostatitis · mortality: Increased mortality in bacteremia · treatment challenges: Multidrug resistance limits options", "first_identified": 2008, "references": ["PMID: 28344773", "PMID: 27025834", "PMID: 35054380", "PMID: 21081548", "PMID: 23926176", "PMID: 35927655", "PMID: 25241262", "PMID: 31299909"], "live_count": 151}, {"st": "ST141", "st_num": 141, "name": "Emerging ESBL Lineage (Canine & Human)", "category": "Resistance-Associated", "risk": "MODERATE", "outbreak": "LOW", "sublineages": ["ST141-1"], "serotype": "O9:H4", "phylogroup": "B1", "fumC": "fumC15", "fimH": "fimH33", "clermont_complex": "STc141", "pathotypes": ["UPEC", "Commensal"], "virulence_genes": ["fimH", "iutA"], "resistance_summary": "esbl: blaCTX-M-15, blaCTX-M-27 · fluoroquinolone: gyrA-S83L", "resistance_note": "", "epidemiology_summary": "high prevalence: Austria, Germany · emerging regions: Europe, North America", "clinical_summary": "primary infections: UTI in dogs and humans", "first_identified": 2020, "references": ["PMID: PMID: 36830293", "PMID: 40167147", "PMCID: PMC6935910", "PMID: 31619530", "PMID: 40140916", "https://doi.org/10.1038/s41598-018-22943-0"], "live_count": 0}, {"st": "ST224", "st_num": 224, "name": "Livestock-Associated ESBL/MDR Clone", "category": "Animal-Associated", "risk": "MODERATE", "outbreak": "MODERATE", "sublineages": ["ST224-1", "ST224-2"], "serotype": "O8:H9", "phylogroup": "B1", "fumC": "fumC19", "fimH": "fimH31", "clermont_complex": "STc224", "pathotypes": ["APEC", "ExPEC"], "virulence_genes": ["iss", "iroN", "iutA"], "resistance_summary": "esbl: blaCTX-M-1, blaCTX-M-14 · tetracycline: tet(A) · sulfonamide: sul1, sul2", "resistance_note": "", "epidemiology_summary": "high prevalence: China, Spain, Brazil · medium prevalence: Europe, North America", "clinical_summary": "animal disease: Colibacillosis in livestock · human infections: Sporadic, via food chain", "first_identified": "", "references": ["PMID: 36057242", "PMID: 24928853", "PMID: 41175318", "PMID: 30404045", "PMID: 40022824", "PMID: 26824955"], "live_count": 10}, {"st": "ST361", "st_num": 361, "name": "Global MDR Clone (blaNDM-5 Associated)", "category": "High-Risk Clone", "risk": "VERY HIGH", "outbreak": "HIGH", "sublineages": ["ST361-1", "ST361-2"], "serotype": "O9:H30", "phylogroup": "D", "fumC": "fumC45", "fimH": "fimH41", "clermont_complex": "STc361", "pathotypes": ["UPEC", "SEPEC", "ExPEC"], "virulence_genes": ["fimH", "iutA", "fyuA", "kpsMII"], "resistance_summary": "carbapenemase: blaNDM-5, blaNDM-1 · esbl: blaCTX-M-15, blaCTX-M-27 · fluoroquinolone: gyrA-S83L, parC-S80I · other: rmtB, tet(A), sul1", "resistance_note": "", "epidemiology_summary": "high prevalence: China, India, Italy, Greece · medium prevalence: USA, Germany, UK · emerging regions: Africa, Middle East", "clinical_summary": "primary infections: Bloodstream infections, UTI, Biliary stent infections · resistance: Carbapenem-resistant, limited options · mortality: High in bacteremia", "first_identified": 2018, "references": ["PMID: 41455885", "PMID: 36358134", "PMID: 31541503"], "live_count": 3}, {"st": "ST405", "st_num": 405, "name": "Global Multidrug-Resistant ExPEC Clone", "category": "Resistance-Associated", "risk": "VERY HIGH", "outbreak": "HIGH", "sublineages": ["ST405-1", "ST405-2", "ST405-3"], "serotype": "O102:H6", "phylogroup": "D", "fumC": "fumC24", "fimH": "fimH30", "clermont_complex": "STc405", "pathotypes": ["UPEC", "SEPEC", "ExPEC"], "virulence_genes": ["fimH", "iutA", "fyuA", "kpsMII", "ompT", "traT", "iss"], "resistance_summary": "esbl: blaCTX-M-15, blaCTX-M-14, blaCTX-M-27 · carbapenemase: blaOXA-48, blaNDM-1, blaNDM-5 · fluoroquinolone: gyrA mutations, parC mutations, qnr genes · aminoglycoside: aac(6')-Ib-cr, aac(3)-II, rmt…", "resistance_note": "", "epidemiology_summary": "high prevalence: Europe, Middle East, Asia · medium prevalence: North America, South America, Africa", "clinical_summary": "primary infections: Bloodstream infections, UTI, Intra-abdominal infections · treatment challenges: Limited therapeutic options, often requires carbapenems · mortality: High in bacteremia due to dela…", "first_identified": 2005, "references": ["PMID: 30671039", "PMID: 30671039", "DOI: 10.1016/j.cmi.2017.01.020", "PMID: 34965471", "PMID: 29321680"], "live_count": 30}, {"st": "ST410", "st_num": 410, "name": "Emerging MDR Clone", "category": "Resistance-Associated", "risk": "VERY HIGH", "outbreak": "HIGH", "sublineages": ["ST410-A", "ST410-B", "ST410-C"], "serotype": "O8:H9", "phylogroup": "C", "fumC": "fumC23", "fimH": "fimH24", "clermont_complex": "STc410", "pathotypes": ["UPEC", "SEPEC", "ExPEC"], "virulence_genes": ["fimH", "iutA", "fyuA", "kpsMII"], "resistance_summary": "esbl: blaCTX-M-15, blaCTX-M-27 · carbapenemase: blaOXA-181, blaNDM-5 · fluoroquinolone: gyrA mutations, parC mutations · other: aac(6')-Ib-cr, rmtB", "resistance_note": "", "epidemiology_summary": "high prevalence: Europe, Asia, Middle East · medium prevalence: North America, Africa, South America", "clinical_summary": "primary infections: UTI, Bloodstream infections · resistance: Extensive drug resistance · treatment: Limited therapeutic options", "first_identified": "", "references": ["PMID: 38193668", "PMID: 34925277", "PMID: 31176748", "PMID: 30021879", " PMID: 39324056", "PMID: 37107633"], "live_count": 25}, {"st": "ST648", "st_num": 648, "name": "Zoonotic MDR Clone", "category": "Resistance-Associated", "risk": "VERY HIGH", "outbreak": "HIGH", "sublineages": ["ST648-1", "ST648-2"], "serotype": "O8:H9", "phylogroup": "F", "fumC": "fumC26", "fimH": "fimH29", "clermont_complex": "STc648", "pathotypes": ["UPEC", "SEPEC", "ExPEC", "AVEC"], "virulence_genes": ["fimH", "iutA", "fyuA", "iss", "hlyF"], "resistance_summary": "esbl: blaCTX-M-14, blaCTX-M-15, blaCTX-M-55 · carbapenemase: blaNDM-1, blaNDM-5, blaOXA-48 · fluoroquinolone: qnrS1, aac(6')-Ib-cr · other: rmtB, tet(X4)", "resistance_note": "", "epidemiology_summary": "high prevalence: Asia, Europe, Middle East · medium prevalence: Africa, North America", "clinical_summary": "primary infections: UTI, Bloodstream infections · resistance: Pan-drug resistance emerging · one health: Significant zoonotic concern", "first_identified": "", "references": ["PMID: 30885899", "PMID: 24398338", "PMID: 40943570", "PMID: 36708770", "PMID: 37293536"], "live_count": 32}, {"st": "ST1193", "st_num": 1193, "name": "Emerging Fluoroquinolone-Resistant Uropathogenic Clone", "category": "High-Risk Clone", "risk": "HIGH", "outbreak": "MODERATE to HIGH", "sublineages": ["ST1193-1", "ST1193-2", "ST1193-3"], "serotype": "O75:H5", "phylogroup": "B2", "fumC": "fumC41", "fimH": "fimH64", "clermont_complex": "STc14", "pathotypes": ["UPEC", "SEPEC", "ExPEC"], "virulence_genes": ["fimH", "papA", "papGII", "iutA", "fyuA", "kpsMII", "ompT", "malX"], "resistance_summary": "fluoroquinolone: gyrA-S83L, gyrA-D87N, parC-S80I, parC-E84V · esbl: blaCTX-M-15, blaCTX-M-27 · aminoglycoside: aac(6')-Ib-cr, aac(3)-II · other: sul1, sul2, tet(A), dfrA17", "resistance_note": "Rapidly emerging fluoroquinolone resistance in community settings", "epidemiology_summary": "high prevalence: North America, Europe, Australia · medium prevalence: Asia, South America · emerging regions: Africa, Middle East", "clinical_summary": "primary infections: UTI, Recurrent UTI, Bloodstream infections · treatment challenges: Fluoroquinolone resistance limits oral options · persistence: High recurrence rates in urinary tract · mortality…", "first_identified": 2015, "references": ["PMID: 35658504", "PMID: 39674367", "PMID: 39507943", "PMID: 31262826", "PMID: 36136628", "PMID: 30787145"], "live_count": 17}];
+const PATHOTYPES = [{"name": "EPEC", "full_name": "Enteropathogenic E. coli", "category": "Diarrheagenic", "subtypes": ["Typical EPEC (tEPEC)", "Atypical EPEC (aEPEC)"], "key_genes": ["eae", "bfpA", "bfpB", "perA", "perB", "perC"], "clinical_summary": "primary: Infantile diarrhea, watery diarrhea in children <2 years · complications: Persistent diarrhea, growth faltering · epidemiology: Endemic in developing countries, sporadic in developed countries", "resistance_summary": "Ampicillin, Trimethoprim-sulfamethoxazole, Tetracycline · blaTEM, sul1, sul2, tet(A), tet(B)", "risk": "HIGH in pediatric populations", "outbreak": "MODERATE", "references": ["PMID: 37388762", "PMID: 9390560", "PMID: 1398907", "PMID: 15845459"]}, {"name": "ETEC", "full_name": "Enterotoxigenic E. coli", "category": "Diarrheagenic", "subtypes": ["LT-only", "ST-only", "LT/ST"], "key_genes": ["eltA", "eltB", "estA", "estB", "cfa", "cs1", "cs2", "cs3", "csw"], "clinical_summary": "primary: Traveler's diarrhea, watery diarrhea in all age groups · characteristics: Watery diarrhea without blood or leukocytes · duration: Self-limiting, 3-5 days typically", "resistance_summary": "Doxycycline, Trimethoprim-sulfamethoxazole, Fluoroquinolones · tet(B), sul1, sul2, qnr variants, aac(6')-Ib-cr", "risk": "MODERATE to HIGH in travelers and endemic areas", "outbreak": "HIGH", "references": ["PMID: 35358002", "PMID: 40895478", "PMID: 36371425"]}, {"name": "EHEC", "full_name": "Enterohemorrhagic E. coli", "category": "Diarrheagenic", "subtypes": ["STEC", "EHEC O157", "Non-O157 EHEC"], "key_genes": ["stx1", "stx2", "eae", "ehxA", "tccP", "espA", "espB", "espD"], "clinical_summary": "primary: Bloody diarrhea (hemorrhagic colitis), severe abdominal pain · complications: HUS (hemolytic anemia, thrombocytopenia, renal failure) · progression: Diarrhea → bloody diarrhea → HUS (in 5-15% of cases)", "resistance_summary": "Ampicillin, Streptomycin, Sulfonamides, Tetracycline · blaTEM, strA-strB, sul1, sul2, tet(A), tet(B)", "risk": "VERY HIGH due to HUS risk", "outbreak": "VERY HIGH", "references": ["PMID: 30137794", "PMID: 26104359", "PMID: 35436562", "PMID: 16766659"]}, {"name": "EIEC", "full_name": "Enteroinvasive E. coli", "category": "Diarrheagenic", "subtypes": ["Classical EIEC", "EIEC-like"], "key_genes": ["ipaH", "ipaB", "ipaC", "ipaD", "virA", "ial", "icsA"], "clinical_summary": "primary: Dysentery (bloody, mucoid diarrhea with fever) · symptoms: Fever, abdominal cramps, tenesmus, fecal leukocytes · differentiation: Clinically similar to shigellosis", "resistance_summary": "Ampicillin, Trimethoprim-sulfamethoxazole, Chloramphenicol · blaTEM, catA1, sul1, sul2, dfrA variants", "risk": "HIGH in institutional settings", "outbreak": "HIGH", "references": ["PMID: 29259590", "PMID: 40617833", "https://asm.org/articles/2019/march/whats-the-significance-of-enteroinvasive-e-coli"]}, {"name": "EAEC", "full_name": "Enteroaggregative E. coli", "category": "Diarrheagenic", "subtypes": ["Typical EAEC", "Atypical EAEC"], "key_genes": ["aggR", "aap", "aatA", "aaiC", "astA", "pet", "pic", "sigA", "sepA"], "clinical_summary": "primary: Acute and persistent diarrhea in all age groups · characteristics: Watery diarrhea with mucus, without blood · special groups: Important cause of persistent diarrhea in children and HIV patients", "resistance_summary": "Ampicillin, Trimethoprim-sulfamethoxazole, Tetracycline · blaTEM, sul1, sul2, tet(A), tet(B), dfrA variants", "risk": "MODERATE to HIGH in endemic areas", "outbreak": "MODERATE to HIGH", "references": ["PMID: 20300577", "PMID: 24982324", "PMID: 39355069"]}, {"name": "DAEC", "full_name": "Diffusely Adherent E. coli", "category": "Diarrheagenic", "subtypes": ["Afa/Dr DAEC", "Non-Afa/Dr DAEC"], "key_genes": ["afaA", "draA", "daaD", "daaE", "f1845"], "clinical_summary": "primary: Diarrhea in children >2 years, urinary tract infections · age distribution: More common in older children and adults · controversy: Pathogenic role in diarrhea still debated", "resistance_summary": "Ampicillin, Tetracycline · blaTEM, tet(A), tet(B)", "risk": "LOW to MODERATE", "outbreak": "LOW", "references": ["PMID: 23374248", "PMID: 11825986", "PMID: 9453606", "PMID: 33163200"]}, {"name": "UPEC", "full_name": "Uropathogenic E. coli", "category": "Extraintestinal", "subtypes": ["Cystitis", "Pyelonephritis", "Complicated UTI"], "key_genes": ["fimH", "papA", "papC", "papG", "sfaA", "focA", "hlyA", "cnf1", "iutA", "fyuA", "iroN"], "clinical_summary": "spectrum: Cystitis → pyelonephritis → bacteremia · complications: Renal scarring, urosepsis, recurrent infections", "resistance_summary": "Ampicillin, Trimethoprim-sulfamethoxazole, Fluoroquinolones · blaCTX-M-15, blaCTX-M-14, blaCTX-M-27 · ST131 (global MDR clone), ST410, ST648", "risk": "HIGH due to antimicrobial resistance", "outbreak": "MODERATE in healthcare settings", "references": ["PMID: 37764013", "PMID: 26443763", "PMID: 26443763", "PMID: 37445714"]}, {"name": "NMEC", "full_name": "Neonatal Meningitis E. coli", "category": "Extraintestinal", "subtypes": ["Neonatal", "Adult meningitis"], "key_genes": ["ibeA", "ibeB", "ibeC", "cnf1", "hlyA", "fimH", "sfaA", "kpsMTII", "neuC"], "clinical_summary": "primary: Neonatal meningitis (first month of life) · mortality: High mortality (15-40%) despite treatment · sequelae: Neurological deficits in 30-50% of survivors", "resistance_summary": "Ampicillin, Gentamicin · blaTEM, aac(3)-II, aac(6')-Ib", "risk": "VERY HIGH due to mortality and sequelae", "outbreak": "LOW", "references": ["PMID: 22706051", "PMID: 30335297", "PMID: 40430805", "PMID: 26467858"]}, {"name": "SEPEC", "full_name": "Sepsis-associated E. coli", "category": "Extraintestinal", "subtypes": ["Primary bacteremia", "Secondary bacteremia"], "key_genes": ["fimH", "papA", "hlyA", "cnf1", "iutA", "fyuA", "iroN", "kpsMTII"], "clinical_summary": "spectrum: Bacteremia → severe sepsis → septic shock · sources: Urinary (most common), abdominal", "resistance_summary": "Ampicillin, Fluoroquinolones, Third-generation cephalosporins · blaKPC, blaNDM, blaOXA-48", "risk": "VERY HIGH due to mortality", "outbreak": "MODERATE in healthcare settings", "references": ["PMID: 22488222", "PMID: 35227247", "PMID: 26963151", "PMID: 38066783"]}, {"name": "EAHEC", "full_name": "Enteroaggregative-Hemorrhagic E. coli", "category": "Hybrid", "subtypes": ["O104:H4 German outbreak"], "key_genes": ["stx2", "aggR", "aap", "aatA", "terC", "aaiC", "pic"], "clinical_summary": "primary: Watery diarrhea progressing to bloody diarrhea · complications: Very high HUS rate (~20%), neurological complications · demographics: Primarily adults, unusual for STEC", "resistance_summary": "Ampicillin, Tetracycline, Trimethoprim-sulfamethoxazole, Streptomycin · blaTEM, tet(A), tet(B), sul1, sul2, strA-strB", "risk": "VERY HIGH due to high HUS risk", "outbreak": "VERY HIGH", "references": ["PMID: 22895033", "PMID: 32874471", "PMID: 31262610", "PMID: 33939753"]}, {"name": "ATEC", "full_name": "Avian Pathogenic E. coli", "category": "Animal", "subtypes": ["Poultry", "Wild birds"], "key_genes": ["iss", "iroN", "iutA", "hlyF", "ompT", "vat", "ibeA", "tsh"], "clinical_summary": "", "resistance_summary": "Tetracycline, Sulfonamides, Ampicillin, Fluoroquinolones · tet(A), tet(B), sul1, sul2, blaTEM, qnr variants", "risk": "LOW for humans, HIGH for poultry", "outbreak": "HIGH in poultry operations", "references": ["PMID: 33921518", "PMID: 39388979", "PMID: 39334984"]}, {"name": "MAEC", "full_name": "Meningitis-Associated E. coli", "category": "Extraintestinal", "subtypes": ["Neonatal MAEC", "Adult MAEC", "Healthcare-associated MAEC"], "key_genes": ["ibeA", "ibeB", "ibeC", "cnf1", "hlyA", "kpsMTII", "neuC", "fimH", "sfaA", "ompA", "aslA", "traJ"], "clinical_summary": "primary: Neonatal meningitis (first 28 days of life), adult meningitis in immunocompromised · neonatal presentation: Fever, lethargy, poor feeding, seizures, bulging fontanelle · adult presentation: Fever, headache, neck stiffness, altered mental status · com…", "resistance_summary": "Ampicillin, Gentamicin · blaTEM, aac(3)-II, aac(6')-Ib · Third-generation cephalosporins, Carbapenems", "risk": "VERY HIGH due to mortality and neurological sequelae", "outbreak": "LOW to MODERATE in neonatal ICUs", "references": ["PMID: 22706051", "PMID: 40430805", "PMID: 26467858", "PMID: 19307211"]}, {"name": "AIEC", "full_name": "Adherent-Invasive E. coli", "category": "Mucosal", "subtypes": ["Crohn's disease-associated", "Ulcerative colitis-associated", "Sporadic"], "key_genes": ["fimH", "lpfA", "ompC", "ibeA", "gspE", "yfgL", "pduC", "chuA", "ybtS"], "clinical_summary": "", "resistance_summary": "", "risk": "MODERATE (chronic disease association)", "outbreak": "LOW (not typically outbreak-associated)", "references": ["PMID: 20300577", "PMID: 23382754", "PMID: 29141957", "PMID: 36883813"]}, {"name": "UPEC_EAEC_Hybrid", "full_name": "Uropathogenic / Enteroaggregative Hybrid", "category": "Hybrid", "subtypes": ["ExPEC/EAEC", "UPEC/EAEC"], "key_genes": ["fimH", "papA", "aggR", "aap", "aatA", "iutA", "fyuA"], "clinical_summary": "primary: Urinary tract infections, sometimes with gastrointestinal symptoms", "resistance_summary": "Fluoroquinolones, ESBL, Carbapenemase (rare)", "risk": "HIGH", "outbreak": "MODERATE", "references": ["PMID: 35336220", "PMID: 40243867", "PMID: 35336220"]}, {"name": "aEPEC_ExPEC_Hybrid", "full_name": "Atypical EPEC / Extraintestinal Pathogenic Hybrid", "category": "Hybrid", "subtypes": [], "key_genes": ["eae", "bfpA (absent)", "fimH", "papA", "iutA", "hlyA"], "clinical_summary": "primary: Gastroenteritis followed by systemic infection in vulnerable hosts", "resistance_summary": "Ampicillin, Tetracycline, ESBL emerging", "risk": "MODERATE to HIGH", "outbreak": "LOW", "references": ["PMID: 40547800", "PMID: 33919948"]}, {"name": "STEC_ETEC_Hybrid", "full_name": "Shiga Toxigenic / Enterotoxigenic Hybrid", "category": "Hybrid", "subtypes": [], "key_genes": ["stx1", "stx2", "eltA", "estA", "eae (optional)"], "clinical_summary": "primary: Traveler's diarrhea-like illness with HUS risk", "resistance_summary": "Ampicillin, Trimethoprim-sulfamethoxazole", "risk": "HIGH", "outbreak": "MODERATE", "references": ["PMID: 41091853", "PMID: 30948755", "PMID: 28119905"]}, {"name": "STEC_EAEC_Hybrid", "full_name": "Shiga Toxigenic / Enteroaggregative Hybrid", "category": "Hybrid", "subtypes": [], "key_genes": ["stx2", "aggR", "aap", "aatA", "pic"], "clinical_summary": "primary: Bloody diarrhea, HUS, neurological complications", "resistance_summary": "Ampicillin, Tetracycline, Trimethoprim-sulfamethoxazole", "risk": "VERY HIGH", "outbreak": "VERY HIGH", "references": ["PMID: 41091853"]}];
+const STATS = {"total_lineages": 17, "with_data": 16, "high_risk": 12, "categories": 5, "total_genomes": 1660, "total_pathotypes": 17};
+const RISK_COLORS = {"VERY HIGH": ["#fee2e2", "#991b1b"], "HIGH": ["#fef3c7", "#92400e"], "MODERATE": ["#dbeafe", "#1e40af"], "LOW": ["#f0fdf4", "#065f46"], "LOW to MODERATE": ["#dbeafe", "#1e40af"], "MODERATE to HIGH": ["#fef3c7", "#92400e"], "VARIABLE": ["#f1f5f9", "#475569"]};
+const CATEGORY_COLORS = {"High-Risk Clone": ["#fee2e2", "#991b1b"], "Resistance-Associated": ["#fef3c7", "#92400e"], "Diarrheagenic": ["#fce7f3", "#9f1239"], "Animal-Associated": ["#d1fae5", "#065f46"], "Commensal/Pathogenic": ["#dbeafe", "#1e40af"], "Commensal": ["#dbeafe", "#1e40af"], "Extraintestinal": ["#ede9fe", "#5b21b6"], "Mucosal": ["#cffafe", "#0e7490"], "Hybrid": ["#f3e8ff", "#6b21a8"]};
+
+let currentView = 'cards';
+let sortKey = 'st';
+let sortAsc = true;
+
+const searchEl = document.getElementById('search');
+const fltCategory = document.getElementById('flt-category');
+const fltRisk = document.getElementById('flt-risk');
+const fltPhylo = document.getElementById('flt-phylogroup');
+const gridEl = document.getElementById('lineage-grid');
+const tbodyEl = document.getElementById('lineage-tbody');
+const counterEl = document.getElementById('sel-counter');
+
+(function() {
+    const cards = [
+        { v: STATS.total_lineages, l: 'Lineages' },
+        { v: STATS.with_data, l: 'Present in ECLIPSE' },
+        { v: STATS.high_risk, l: 'High-Risk' },
+        { v: STATS.categories, l: 'Categories' },
+        { v: STATS.total_genomes, l: 'Typed Genomes' },
+        { v: STATS.total_pathotypes, l: 'Pathotypes' },
+    ];
+    document.getElementById('stat-row').innerHTML = cards.map(function(c) {
+        return '<div class="stat-card"><div class="value">' + c.v.toLocaleString() +
+               '</div><div class="label">' + c.l + '</div></div>';
+    }).join('');
+})();
+
+function getFiltered() {
+    const term = searchEl.value.trim().toLowerCase();
+    const cat = fltCategory.value;
+    const risk = fltRisk.value;
+    const phy = fltPhylo.value;
+
+    return LINEAGES.filter(function(l) {
+        if (cat && l.category !== cat) return false;
+        if (risk && l.risk !== risk) return false;
+        if (phy && l.phylogroup !== phy) return false;
+        if (term) {
+            const haystack = [
+                l.st, l.name, l.category, l.risk, l.serotype, l.phylogroup,
+                l.fumC, l.fimH, l.clermont_complex,
+                (l.pathotypes || []).join(' '),
+                (l.virulence_genes || []).join(' '),
+                l.resistance_summary,
+            ].join(' ').toLowerCase();
+            if (haystack.indexOf(term) === -1) return false;
+        }
+        return true;
+    });
+}
+
+function applySort(rows) {
+    return rows.slice().sort(function(a, b) {
+        let av, bv;
+        if (sortKey === 'count') { av = a.live_count; bv = b.live_count; }
+        else if (sortKey === 'st') { av = a.st_num; bv = b.st_num; }
+        else if (sortKey === 'risk') {
+            const order = { 'VERY HIGH': 0, 'HIGH': 1, 'MODERATE': 2, 'LOW': 3 };
+            av = order[a.risk] != null ? order[a.risk] : 99;
+            bv = order[b.risk] != null ? order[b.risk] : 99;
+        } else {
+            av = a[sortKey] || '';
+            bv = b[sortKey] || '';
+        }
+        if (typeof av === 'number' && typeof bv === 'number')
+            return sortAsc ? av - bv : bv - av;
+        return sortAsc
+            ? String(av).localeCompare(String(bv))
+            : String(bv).localeCompare(String(av));
+    });
+}
+
+function esc(s) {
+    return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function cardClass(l) {
+    if (l.risk === 'VERY HIGH' || l.risk === 'HIGH') return '';
+    if (l.risk === 'MODERATE' || (l.risk && l.risk.indexOf('MODERATE') !== -1)) return 'moderate-risk';
+    return 'low-risk';
+}
+
+function renderCard(l) {
+    const cc = CATEGORY_COLORS[l.category] || ['#f1f5f9', '#475569'];
+    const rc = RISK_COLORS[l.risk] || ['#f1f5f9', '#475569'];
+    const catBg = cc[0], catFg = cc[1];
+    const riskBg = rc[0], riskFg = rc[1];
+    const cls = cardClass(l);
+
+    const live = l.live_count > 0
+        ? '<span class="meta-chip live-count">' + l.live_count.toLocaleString() + ' in ECLIPSE</span>'
+        : '<span class="meta-chip live-count zero">no genomes yet</span>';
+
+    const pathos = (l.pathotypes || []).map(function(p) {
+        return '<span class="pathotype-pill">' + esc(p) + '</span>';
+    }).join('');
+
+    const genes = (l.virulence_genes || []).map(function(g) {
+        return '<span class="gene-pill">' + esc(g) + '</span>';
+    }).join('');
+
+    const refs = (l.references || []).map(function(r) {
+        if (r.indexOf('PMID:') === 0) {
+            const pmid = r.replace('PMID:', '').trim();
+            return '<a class="ref-link" href="https://pubmed.ncbi.nlm.nih.gov/' + pmid + '/" target="_blank">PMID ' + pmid + '</a>';
+        }
+        if (r.indexOf('https://doi.org/') === 0) {
+            return '<a class="ref-link doi" href="' + r + '" target="_blank">DOI</a>';
+        }
+        if (r.indexOf('DOI: ') === 0) {
+            const doi = r.replace('DOI: ', '');
+            return '<a class="ref-link doi" href="https://doi.org/' + doi + '" target="_blank">DOI</a>';
+        }
+        return '<span class="ref-link">' + esc(r.slice(0, 30)) + '</span>';
+    }).join('');
+
+    const subs = (l.sublineages || []).length
+        ? '<div class="sublineages">Sublineages: ' + esc((l.sublineages || []).join(', ')) + '</div>'
+        : '';
+
+    const chips = [];
+    if (l.serotype) chips.push('<span class="meta-chip">' + esc(l.serotype) + '</span>');
+    if (l.phylogroup) chips.push('<span class="meta-chip">Phylogroup ' + esc(l.phylogroup) + '</span>');
+    if (l.fumC) chips.push('<span class="meta-chip gene">' + esc(l.fumC) + '</span>');
+    if (l.fimH) chips.push('<span class="meta-chip gene">' + esc(l.fimH) + '</span>');
+    chips.push(live);
+
+    const clinBlock = l.clinical_summary
+        ? '<div class="detail-section"><strong>Clinical</strong>' + esc(l.clinical_summary) + '</div>'
+        : '';
+
+    const epiBlock = l.epidemiology_summary
+        ? '<h4>Epidemiology</h4><div>' + esc(l.epidemiology_summary) + '</div>'
+        : '';
+
+    const resBlock = l.resistance_summary
+        ? '<h4>Resistance</h4><div>' + esc(l.resistance_summary) + '</div>'
+        : '';
+
+    const noteBlock = l.resistance_note
+        ? '<div style="margin-top:6px;color:#991b1b;font-weight:600;">⚠️ ' + esc(l.resistance_note) + '</div>'
+        : '';
+
+    const refBlock = refs
+        ? '<h4>References</h4><div class="ref-list">' + refs + '</div>'
+        : '';
+
+    return '<div class="lineage-card ' + cls + '">' +
+        '<div class="lineage-card-header">' +
+            '<div class="lineage-card-top">' +
+                '<span class="st-badge">' + esc(l.st) + '</span>' +
+                '<span class="cat-badge" style="background:' + catBg + ';color:' + catFg + ';">' + esc(l.category) + '</span>' +
+                '<span class="risk-badge" style="background:' + riskBg + ';color:' + riskFg + ';">' + esc(l.risk) + '</span>' +
+            '</div>' +
+            '<div class="name">' + esc(l.name) + '</div>' +
+            subs +
+            '<div class="meta-row">' + chips.join('') + '</div>' +
+        '</div>' +
+        '<div class="lineage-card-body">' +
+            (pathos ? '<div class="pathotype-row">' + pathos + '</div>' : '') +
+            (genes ? '<div class="virulence-row">' + genes + '</div>' : '') +
+            clinBlock +
+        '</div>' +
+        '<details class="expand">' +
+            '<summary>Epidemiology · Resistance · References</summary>' +
+            '<div class="expand-content">' +
+                epiBlock + resBlock + noteBlock + refBlock +
+            '</div>' +
+        '</details>' +
+    '</div>';
+}
+
+function renderTableRow(l) {
+    const cc = CATEGORY_COLORS[l.category] || ['#f1f5f9', '#475569'];
+    const rc = RISK_COLORS[l.risk] || ['#f1f5f9', '#475569'];
+    return '<tr>' +
+        '<td class="st-cell">' + esc(l.st) + '</td>' +
+        '<td>' + esc(l.name) + '</td>' +
+        '<td><span class="cat-badge" style="background:' + cc[0] + ';color:' + cc[1] + ';">' + esc(l.category) + '</span></td>' +
+        '<td><span class="risk-badge" style="background:' + rc[0] + ';color:' + rc[1] + ';">' + esc(l.risk) + '</span></td>' +
+        '<td style="font-family:monospace;font-size:0.85em;">' + esc(l.serotype) + '</td>' +
+        '<td style="font-family:monospace;">' + esc(l.phylogroup) + '</td>' +
+        '<td class="count-cell">' + l.live_count.toLocaleString() + '</td>' +
+    '</tr>';
+}
+
+function renderPathotype(p) {
+    const rc = RISK_COLORS[p.risk] || ['#f1f5f9', '#475569'];
+    const genes = (p.key_genes || []).slice(0, 14).map(function(g) {
+        return '<span class="pt-gene">' + esc(g) + '</span>';
+    }).join('');
+    return '<div class="pathotype-card">' +
+        '<div class="pt-name">' +
+            '<span class="pt-short">' + esc(p.name) + '</span>' +
+            '<span class="pt-full">' + esc(p.full_name) + '</span>' +
+        '</div>' +
+        '<span class="pt-cat">' + esc(p.category) + '</span>' +
+        (p.clinical_summary ? '<div class="pt-desc">' + esc(p.clinical_summary) + '</div>' : '') +
+        '<div class="pt-genes">' + genes + '</div>' +
+        '<span class="pt-risk" style="background:' + rc[0] + ';color:' + rc[1] + ';">Risk: ' + esc(p.risk) + '</span>' +
+    '</div>';
+}
+
+function render() {
+    const filtered = applySort(getFiltered());
+    counterEl.textContent = filtered.length + ' / ' + LINEAGES.length + ' lineages';
+
+    if (currentView === 'cards') {
+        gridEl.innerHTML = filtered.length
+            ? filtered.map(renderCard).join('')
+            : '<div style="grid-column:1/-1;text-align:center;padding:60px;color:#94a3b8;">No lineages match the current filters.</div>';
+    } else {
+        tbodyEl.innerHTML = filtered.length
+            ? filtered.map(renderTableRow).join('')
+            : '<tr><td colspan="7" style="text-align:center;padding:40px;color:#94a3b8;">No lineages match the current filters.</td></tr>';
+    }
+}
+
+searchEl.addEventListener('input', function() {
+    clearTimeout(window._t);
+    window._t = setTimeout(render, 150);
+});
+fltCategory.addEventListener('change', render);
+fltRisk.addEventListener('change', render);
+fltPhylo.addEventListener('change', render);
+
+document.querySelectorAll('#view-toggle button').forEach(function(b) {
+    b.addEventListener('click', function() {
+        document.querySelectorAll('#view-toggle button').forEach(function(x) {
+            x.classList.remove('active');
+        });
+        b.classList.add('active');
+        currentView = b.dataset.view;
+        document.getElementById('cards-view').style.display = (currentView === 'cards') ? '' : 'none';
+        document.getElementById('table-view').style.display = (currentView === 'table') ? '' : 'none';
+        render();
+    });
+});
+
+document.querySelectorAll('.lineage-table th[data-sort]').forEach(function(th) {
+    th.addEventListener('click', function() {
+        const k = th.dataset.sort;
+        if (sortKey === k) sortAsc = !sortAsc;
+        else { sortKey = k; sortAsc = true; }
+        render();
+    });
+});
+
+document.getElementById('pathotype-grid').innerHTML = PATHOTYPES.map(renderPathotype).join('');
+
+render();
+
+</script>
+</body>
+</html>

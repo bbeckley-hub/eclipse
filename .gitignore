@@ -1,0 +1,58 @@
+# ─────────────────────────────────────────────────────────────────
+# ECLIPSE — ignore everything except docs/, images/, LICENSE
+# ─────────────────────────────────────────────────────────────────
+
+# ── Data directories (regenerable; on HPC or fetched via pipeline) ──
+batches/
+merged/
+scripts/
+
+# ── Pipeline scripts (kept locally, not shipped) ──
+*.py
+!docs/**/*.py
+
+# ── Intermediate and backup files ──
+*.bak
+*.bak.*
+*.broken
+*.broken.*
+*.tmp
+*.log
+logs/
+
+# ── One-shot patch scripts ──
+patch_*.py
+expand_geo.py
+
+# ── Python cache ──
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+env/
+venv/
+.venv/
+*.egg-info/
+
+# ── OS and editor junk ──
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.orig
+
+# ── Notebooks ──
+.ipynb_checkpoints/
+
+# ── Environment ──
+.env
+.env.*
+ARGUS_PLAN.md

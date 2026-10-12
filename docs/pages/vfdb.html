@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Virulence Factors — ECLIPSE</title>
+<meta name="description" content="Interactive virulence factors retrieval for E. coli genomes in the ECLIPSE resource.">
+<style>
+
+:root {
+    --gold: #d4af37;
+    --navy: #0a1628;
+    --accent: #e11d48;
+    --accent-dark: #9f1239;
+    --accent-light: #e11d4822;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --text: #1e293b;
+    --muted: #64748b;
+    --border: #e2e8f0;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+}
+
+.argus-nav {
+    background: var(--navy); color: white; padding: 20px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    position: sticky; top: 0; z-index: 100;
+    border-bottom: 2px solid #e11d4844;
+}
+.argus-nav .brand { display: flex; align-items: center; gap: 20px;
+    text-decoration: none; flex-shrink: 0; }
+.argus-nav .brand-emoji {
+    font-size: 5.6em; line-height: 1;
+    filter: drop-shadow(0 0 14px #e11d48aa); flex-shrink: 0;
+}
+.argus-nav .brand-text { display: flex; flex-direction: column; gap: 3px; }
+.argus-nav .brand-name {
+    font-weight: 900; font-size: 3.45em; letter-spacing: 2px;
+    color: var(--gold); line-height: 1;
+}
+.argus-nav .brand-tagline {
+    font-size: 1.0em; font-weight: 400;
+    color: #94a3b8; line-height: 1.15; max-width: 520px;
+}
+.argus-nav .links { display: flex; gap: 3px; align-items: center; flex-wrap: wrap; }
+.argus-nav .links a {
+    color: #cbd5e1; text-decoration: none;
+    padding: 7px 12px; border-radius: 6px;
+    font-size: 0.84em; font-weight: 500;
+    transition: all 0.15s; white-space: nowrap;
+}
+.argus-nav .links a:hover { background: rgba(255,255,255,0.08); color: white; }
+.argus-nav .links a.active {
+    background: #e11d48; color: white; font-weight: 700;
+    box-shadow: 0 3px 10px #e11d4866;
+}
+
+.page-header {
+    background:
+        radial-gradient(circle at 20% 30%, #e11d4822 0%, transparent 55%),
+        radial-gradient(circle at 80% 70%, #e11d4814 0%, transparent 45%),
+        linear-gradient(135deg, #0a1628 0%, #1e293b 55%, #9f123955 100%);
+    color: white; padding: 44px 32px 36px;
+    position: relative; overflow: hidden;
+}
+.page-header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px);
+    background-size: 36px 36px;
+    opacity: 0.6; pointer-events: none;
+}
+.page-header .inner { position: relative; z-index: 1; max-width: 1400px; }
+.page-header .module-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 0.78em; font-weight: 800; letter-spacing: 1.5px;
+    text-transform: uppercase; color: #e11d48;
+    padding: 5px 14px; border-radius: 20px;
+    background: #e11d4822; border: 1px solid #e11d4844;
+    margin-bottom: 12px;
+}
+.page-header h1 {
+    font-size: 2.6em; margin-bottom: 6px; font-weight: 900;
+    letter-spacing: -0.5px; line-height: 1.1;
+}
+.page-header .subtitle { color: #cbd5e1; font-size: 1.05em; margin-bottom: 24px; }
+
+main { max-width: 1500px; margin: 0 auto; padding: 24px 32px 60px; }
+
+.tab-strip {
+    display: flex; gap: 6px; margin-bottom: 20px;
+    background: var(--card); padding: 8px;
+    border-radius: 12px; border: 1px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    width: fit-content;
+}
+.tab-btn {
+    padding: 10px 22px; border: none; border-radius: 8px;
+    background: transparent; color: var(--muted);
+    font-size: 0.92em; font-weight: 700;
+    cursor: pointer; transition: all 0.15s; font-family: inherit;
+}
+.tab-btn:hover { background: #f1f5f9; color: var(--text); }
+.tab-btn.active { background: #e11d48; color: white; box-shadow: 0 3px 10px #e11d4855; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+.gene-picker {
+    background: var(--card); border-radius: 12px;
+    border: 1px solid var(--border);
+    padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    margin-bottom: 18px;
+}
+.picker-label {
+    font-size: 0.82em; color: var(--muted);
+    font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.5px; margin-bottom: 10px;
+    display: block;
+}
+.chip-row {
+    display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px;
+}
+.gene-chip {
+    padding: 6px 14px; border-radius: 16px;
+    border: 2px solid var(--border); background: white;
+    color: var(--text); font-size: 0.85em;
+    font-weight: 700; cursor: pointer;
+    transition: all 0.15s; font-family: 'SF Mono', Monaco, monospace;
+}
+.gene-chip:hover { border-color: #e11d48; color: #e11d48; }
+.gene-chip.selected {
+    background: #e11d48; border-color: #e11d48;
+    color: white; box-shadow: 0 3px 8px #e11d4855;
+}
+.gene-chip.disabled { opacity: 0.4; cursor: not-allowed; background: #f1f5f9; }
+.gene-chip .prevalence {
+    font-size: 0.85em; opacity: 0.7;
+    margin-left: 4px; font-weight: 600;
+}
+
+.search-wrap {
+    position: relative; margin-bottom: 14px;
+}
+.search-wrap input {
+    width: 100%; padding: 12px 14px 12px 42px;
+    border: 2px solid var(--border); border-radius: 10px;
+    font-size: 0.95em; font-family: inherit; outline: none;
+    transition: border 0.15s;
+}
+.search-wrap input:focus { border-color: #e11d48; box-shadow: 0 0 0 3px #e11d4822; }
+.search-wrap::before {
+    content: '\1F50D'; position: absolute; left: 14px; top: 50%;
+    transform: translateY(-50%); font-size: 15px; opacity: 0.6;
+}
+.autocomplete {
+    position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+    background: white; border: 1px solid var(--border);
+    border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    max-height: 380px; overflow-y: auto;
+    z-index: 50; display: none;
+}
+.autocomplete.open { display: block; }
+.autocomplete .ac-item {
+    padding: 10px 16px; cursor: pointer; border-bottom: 1px solid #f1f5f9;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.autocomplete .ac-item:last-child { border-bottom: none; }
+.autocomplete .ac-item:hover, .autocomplete .ac-item.active { background: #e11d4811; }
+.autocomplete .ac-gene { font-family: 'SF Mono', Monaco, monospace; font-weight: 700; color: var(--text); font-size: 0.9em; }
+.autocomplete .ac-meta { font-size: 0.78em; color: var(--muted); }
+.autocomplete .ac-pct { font-family: 'SF Mono', Monaco, monospace; font-weight: 700; color: #e11d48; font-size: 0.82em; }
+.autocomplete .ac-empty { padding: 20px; text-align: center; color: var(--muted); font-size: 0.9em; }
+
+.selected-bar {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 16px; border-radius: 10px;
+    background: #f8fafc; border: 1px solid var(--border);
+    margin-bottom: 14px;
+    min-height: 54px; flex-wrap: wrap;
+}
+.selected-bar .label {
+    font-size: 0.82em; color: var(--muted);
+    font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.selected-gene {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 12px; border-radius: 16px;
+    background: #e11d48; color: white;
+    font-size: 0.85em; font-weight: 700;
+    font-family: 'SF Mono', Monaco, monospace;
+}
+.selected-gene .remove { cursor: pointer; font-weight: 900; padding: 0 4px; opacity: 0.85; }
+.selected-gene .remove:hover { opacity: 1; }
+.selected-empty { color: var(--muted); font-style: italic; font-size: 0.9em; }
+.mode-toggle {
+    display: flex; gap: 4px; background: #f1f5f9;
+    padding: 4px; border-radius: 8px; margin-left: auto;
+}
+.mode-btn {
+    padding: 6px 16px; border: none; border-radius: 6px;
+    background: transparent; cursor: pointer;
+    font-size: 0.85em; font-weight: 700;
+    color: var(--muted); font-family: inherit;
+    transition: all 0.15s;
+}
+.mode-btn.active { background: white; color: #e11d48; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+
+.result-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; margin-bottom: 14px; flex-wrap: wrap;
+}
+.result-count { font-size: 1.05em; font-weight: 700; color: var(--text); }
+.result-count strong { color: #e11d48; font-size: 1.15em; }
+.result-hint { color: var(--muted); font-size: 0.92em; }
+.export-bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.export-btn {
+    padding: 9px 16px; border: none; border-radius: 8px;
+    font-size: 0.88em; font-weight: 700; cursor: pointer;
+    transition: all 0.15s; color: white; background: #e11d48; font-family: inherit;
+}
+.export-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 12px #e11d4855; }
+.export-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.export-btn.secondary { background: #64748b; }
+
+.table-wrap {
+    background: var(--card); border-radius: 12px;
+    border: 1px solid var(--border);
+    overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.table-scroll { max-height: 68vh; overflow: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.88em; }
+thead th {
+    background: #f1f5f9; padding: 11px 13px; text-align: left;
+    font-weight: 800; color: #334155; font-size: 0.78em;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    position: sticky; top: 0; z-index: 5;
+    cursor: pointer; user-select: none;
+    border-bottom: 2px solid var(--border); white-space: nowrap;
+}
+thead th:hover { background: #e2e8f0; }
+thead th.sortable::after { content: ' \21C5'; opacity: 0.35; font-size: 0.85em; }
+thead th.sorted-asc::after { content: ' \25B2'; opacity: 1; color: #e11d48; }
+thead th.sorted-desc::after { content: ' \25BC'; opacity: 1; color: #e11d48; }
+tbody td { padding: 10px 13px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+tbody tr:hover td { background: #fafbfc; }
+.accession-cell {
+    font-family: 'SF Mono', Monaco, monospace;
+    font-weight: 700; color: var(--text); font-size: 0.85em;
+}
+.meta-cell { font-size: 0.85em; color: #475569; }
+.match-yes { color: #059669; font-weight: 900; font-size: 1.1em; text-align: center; }
+.match-no  { color: #e2e8f0; text-align: center; }
+.copy-btn {
+    padding: 4px 10px; font-size: 0.78em; font-weight: 700;
+    border-radius: 6px; border: 1px solid var(--border);
+    background: white; cursor: pointer; font-family: inherit;
+    color: var(--muted); transition: all 0.15s;
+}
+.copy-btn:hover { border-color: #e11d48; color: #e11d48; }
+
+.freq-controls {
+    display: flex; gap: 12px; margin-bottom: 14px; flex-wrap: wrap;
+    background: var(--card); padding: 14px 18px;
+    border-radius: 12px; border: 1px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    align-items: center;
+}
+.freq-controls input, .freq-controls select {
+    padding: 9px 12px; border: 2px solid var(--border);
+    border-radius: 8px; font-size: 0.9em; font-family: inherit;
+    color: var(--text); outline: none;
+}
+.freq-controls input { flex: 1; min-width: 200px; }
+.freq-controls input:focus, .freq-controls select:focus { border-color: #e11d48; }
+.prev-bar-track { flex: 1; height: 10px; background: #f1f5f9; border-radius: 5px; overflow: hidden; }
+.prev-bar-fill { height: 100%; background: linear-gradient(90deg, #e11d48 0%, #9f1239 100%); border-radius: 5px; }
+.prev-cell { display: flex; align-items: center; gap: 10px; min-width: 200px; }
+.prev-value { font-weight: 700; font-size: 0.88em; min-width: 52px; text-align: right; }
+.num-cell { font-family: 'SF Mono', Monaco, monospace; font-weight: 700; color: #334155; text-align: right; }
+.gene-name { font-family: 'SF Mono', Monaco, monospace; font-weight: 700; color: var(--text); }
+.family-pill {
+    display: inline-block; padding: 2px 9px; border-radius: 12px;
+    background: #f1f5f9; color: #475569;
+    font-family: 'SF Mono', Monaco, monospace;
+    font-weight: 700; font-size: 0.78em;
+}
+.add-gene-btn {
+    padding: 3px 10px; font-size: 0.78em; font-weight: 700;
+    border: 1px solid #e11d4833; border-radius: 6px;
+    background: white; color: #e11d48; cursor: pointer;
+    font-family: inherit; transition: all 0.15s;
+}
+.add-gene-btn:hover { background: #e11d48; color: white; border-color: #e11d48; }
+
+.pagination {
+    display: flex; gap: 12px; align-items: center; justify-content: center;
+    padding: 14px 18px; background: #f8fafc;
+    border-top: 1px solid var(--border); font-size: 0.88em; flex-wrap: wrap;
+}
+.pagination button {
+    padding: 7px 14px; border: 1px solid var(--border); background: white;
+    border-radius: 6px; cursor: pointer; font-weight: 600;
+    color: var(--text); font-family: inherit;
+}
+.pagination button:hover:not(:disabled) { background: #e11d48; color: white; border-color: #e11d48; }
+.pagination button:disabled { opacity: 0.4; cursor: not-allowed; }
+.pagination .page-info { color: var(--muted); font-weight: 600; }
+.page-size-label { display: flex; align-items: center; gap: 6px; font-size: 0.85em; color: var(--muted); font-weight: 700; margin-left: auto; white-space: nowrap; }
+.page-size-label select { padding: 5px 8px; border: 1px solid var(--border); border-radius: 6px; background: white; font-family: inherit; font-size: 1em; cursor: pointer; font-weight: 700; color: var(--text); }
+
+.empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+.empty-state .icon { font-size: 3em; opacity: 0.4; margin-bottom: 12px; }
+
+.about-content {
+    background: var(--card); border-radius: 12px;
+    padding: 30px 36px; border: 1px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    max-width: 900px;
+}
+.about-content h2 { color: var(--navy); margin-bottom: 14px; font-size: 1.5em; border-bottom: 3px solid #e11d48; padding-bottom: 10px; display: inline-block; }
+.about-content h3 { color: #334155; margin: 24px 0 10px; font-size: 1.1em; }
+.about-content p { margin-bottom: 12px; color: #475569; }
+.about-content ul, .about-content ol { padding-left: 24px; margin-bottom: 14px; }
+.about-content li { margin-bottom: 6px; color: #475569; }
+.about-content code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 0.9em; font-family: 'SF Mono', Monaco, monospace; }
+.about-content a { color: #e11d48; text-decoration: none; font-weight: 700; }
+.about-content a:hover { text-decoration: underline; }
+
+.argus-footer {
+    background: var(--navy); color: #94a3b8; padding: 32px;
+    text-align: center; font-size: 0.86em; margin-top: 60px;
+    border-top: 2px solid #e11d4833;
+}
+.argus-footer a { color: var(--gold); text-decoration: none; }
+.argus-footer a:hover { text-decoration: underline; }
+.argus-footer .footer-line { margin: 6px 0; }
+.argus-footer .full-name { color: #cbd5e1; font-size: 0.95em; letter-spacing: 0.2px; font-weight: 600; }
+.argus-footer .full-name strong { color: var(--gold); }
+
+@media (max-width: 900px) {
+    .argus-nav { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .argus-nav .brand-tagline { max-width: 100%; }
+    .argus-nav .brand-emoji { font-size: 3.6em; }
+    .argus-nav .brand-name { font-size: 2.2em; }
+}
+@media (max-width: 700px) {
+    .page-header { padding: 28px 20px 24px; }
+    .page-header h1 { font-size: 1.8em; }
+    main { padding: 20px 16px 40px; }
+    .argus-nav { padding: 14px 16px; }
+    .tab-strip { width: 100%; }
+    .mode-toggle { margin-left: 0; }
+    .freq-controls { flex-direction: column; align-items: stretch; }
+}
+
+</style>
+</head>
+<body>
+
+<nav class="argus-nav">
+    <a class="brand" href="../index.html">
+        <span class="brand-emoji">🌑</span>
+        <span class="brand-text">
+            <span class="brand-name"><span style="color:#7c3aed">E</span><span style="color:#6366f1">C</span><span style="color:#3b82f6">L</span><span style="color:#06b6d4">I</span><span style="color:#10b981">P</span><span style="color:#f59e0b">S</span><span style="color:#ec4899">E</span></span>
+            <span class="brand-tagline">E. coli Library for Integrated Pathogen Surveillance and Epidemiology</span>
+        </span>
+    </a>
+    <div class="links"><a href="../index.html">Home</a><a href="mlst.html">MLST</a><a href="phylogroups.html">Phylogroups</a><a href="serotypes.html">Serotypes</a><a href="chtyper.html">CHTyper</a><a href="../master.html">Master</a><a href="amr.html">AMR</a><a href="vfdb.html" class="active">Virulence</a><a href="plasmid.html">Plasmid</a><a href="../statistics.html">Statistics</a><a href="../geography.html">Geography</a><a href="../lineages.html">Lineages</a><a href="../downloads.html">Downloads</a><a href="../about.html">About</a></div>
+</nav>
+
+<header class="page-header">
+    <div class="inner">
+        <div class="module-eyebrow">🦠 GENE MODULE</div>
+        <h1>Virulence Factors</h1>
+        <div class="subtitle">Virulence gene catalogue · ABRicate + VFDB</div>
+    </div>
+</header>
+
+<main>
+    <div class="tab-strip">
+        <button class="tab-btn active" data-tab="search">🔎 Gene Search</button>
+        <button class="tab-btn" data-tab="freq">📊 All Genes</button>
+        <button class="tab-btn" data-tab="about">ℹ️ About</button>
+    </div>
+
+    <!-- ============ TAB 1: SEARCH ============ -->
+    <div class="tab-panel active" id="tab-search">
+        <div class="gene-picker">
+            <span class="picker-label">🔍 Search genes (autocomplete over all 541 genes)</span>
+            <div class="search-wrap">
+                <input type="text" id="gene-search" placeholder="Type a gene name — e.g. blaCTX-M-15, mcr-1, stx2, IncFIB">
+                <div class="autocomplete" id="autocomplete"></div>
+            </div>
+            <span class="picker-label">Quick pick — most discriminative genes</span>
+            <div class="chip-row" id="chip-row"></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.82em;color:#94a3b8;">
+                <span>Pick up to 5 genes. Match ALL = samples must carry every selected gene.</span>
+                <span id="load-status" style="display:none;font-weight:600;color:#059669;"></span>
+            </div>
+        </div>
+
+        <div class="selected-bar" id="selected-bar"></div>
+
+        <div class="result-bar">
+            <div class="result-count" id="result-count"><span class="result-hint">No genes selected</span></div>
+            <div class="export-bar">
+                <button class="export-btn" data-fmt="tsv" disabled>⬇ TSV</button>
+                <button class="export-btn" data-fmt="csv" disabled>⬇ CSV</button>
+                <button class="export-btn" data-fmt="json" disabled>⬇ JSON</button>
+                <button class="export-btn secondary" data-fmt="accessions" disabled>🧬 Accessions</button>
+            </div>
+        </div>
+
+        <div class="table-wrap">
+            <div class="table-scroll">
+                <table>
+                    <thead id="table-head"></thead>
+                    <tbody id="table-body"></tbody>
+                </table>
+            </div>
+            <div class="pagination" id="pagination"></div>
+        </div>
+    </div>
+
+    <!-- ============ TAB 2: ALL GENES ============ -->
+    <div class="tab-panel" id="tab-freq">
+        <div class="freq-controls">
+            <input type="text" id="freq-search" placeholder="🔍 Search gene name or class...">
+            <select id="freq-class"><option value="">All classes</option><option value="Adherence">Adherence</option><option value="Antimicrobial activity/Competitive advantage">Antimicrobial activity/Competitive advantage</option><option value="Biofilm">Biofilm</option><option value="Effector delivery system">Effector delivery system</option><option value="Exoenzyme">Exoenzyme</option><option value="Exotoxin">Exotoxin</option><option value="Immune modulation">Immune modulation</option><option value="Invasion">Invasion</option><option value="Motility">Motility</option><option value="Nutritional/Metabolic factor">Nutritional/Metabolic factor</option><option value="Others">Others</option><option value="Regulation">Regulation</option></select>
+            <input type="number" id="freq-min-pct" value="0" min="0" max="100" step="1"
+                   style="width:140px;" placeholder="Min prevalence %">
+        </div>
+        <div class="table-wrap">
+            <div class="table-scroll">
+                <table>
+                    <thead id="freq-head"></thead>
+                    <tbody id="freq-body"></tbody>
+                </table>
+            </div>
+        </div>
+        <p style="margin-top:14px;font-size:0.86em;color:#94a3b8;">
+            Showing up to 2,000 rows. For the complete list including all variant alleles,
+            download <a href="../downloads.html" style="color:#e11d48;font-weight:700;">vfdb_gene_freq.tsv.gz</a> from the Downloads page.
+        </p>
+    </div>
+
+    <!-- ============ TAB 3: ABOUT ============ -->
+    <div class="tab-panel" id="tab-about">
+        <div class="about-content">
+            <h2>About this module</h2>
+            <p>
+                This page lets you retrieve E. coli genomes by <strong>virulence factors</strong>.
+                Pick up to five genes, choose whether samples must match
+                <strong>any</strong> or <strong>all</strong> of them, and download the
+                accession list — ready for
+                <code>datasets download genome accession --inputfile list.txt</code>.
+            </p>
+
+            <h3>Source</h3>
+            <p>ABRicate against the Virulence Factor Database (VFDB).</p>
+
+            <h3>How to use it</h3>
+            <ol>
+                <li>Click a quick-pick chip, or use the autocomplete search to find any of the 541 genes</li>
+                <li>Add up to 5 genes — the results table updates instantly</li>
+                <li>Switch between <strong>Match ANY</strong> (union) and <strong>Match ALL</strong> (intersection)</li>
+                <li>Click <strong>🧬 Accessions</strong> to download the accession list as plain text</li>
+                <li>Or use TSV/CSV/JSON for per-gene presence flags plus metadata</li>
+            </ol>
+
+            <h3>Coverage in this build</h3>
+            <ul>
+                <li><strong>1,812</strong> genomes carry at least one virulence factors determinant</li>
+                <li><strong>541</strong> unique genes</li>
+                <li><strong>141,260</strong> presence records</li>
+            </ul>
+
+            <h3>Full data download</h3>
+            <p>
+                For the complete presence matrix (long format:
+                <code>accession | gene | num_hits | identities</code>)
+                and the full frequency table, go to the
+                <a href="../downloads.html">Downloads page</a>. All files are gzipped TSVs.
+            </p>
+
+            <h3>Cite</h3>
+            <ul>
+                <li>EcoliTyper: Beckley B, Amarh V. <em>BMC Bioinformatics</em> 2026.
+                    <a href="https://doi.org/10.1186/s12859-026-06529-6" target="_blank">DOI</a></li>
+            </ul>
+        </div>
+    </div>
+</main>
+
+<footer class="argus-footer">
+    <div class="footer-line full-name">
+        <strong>ECLIPSE</strong> — E. coli Library for Integrated Pathogen Surveillance and Epidemiology
+    </div>
+    <div class="footer-line">
+        Part of the <strong style="color:#d4af37;">ARGUS</strong> family ·
+        University of Ghana Medical School · MIT License
+    </div>
+    <div class="footer-line">
+        Data updated 2026-10-12 16:40:38 ·
+        <a href="https://github.com/bbeckley-hub/eclipse">GitHub</a> ·
+        <a href="../about.html">About</a> ·
+        <a href="mailto:brownbeckley94@gmail.com">Contact</a>
+    </div>
+</footer>
+
+<script>
+
+const MODULE_KEY = "vfdb";
+const MAX_GENES = 5;
+const INDEX_URL = "../data/vfdb_index.json";
+
+let indexLoaded = false;
+let indexLoading = false;
+let geneMeta = [];             // [{id, label, n, pct}, ...]
+let sampleData = {};            // {acc: {g: [idx], c: "…", s: "…", y: "…"}}
+let selected = [];              // array of gene indices
+let matchMode = 'ANY';
+let results = [];
+let currentPage = 1;
+let pageSize = 100;
+let sortKey = null;
+let sortAsc = true;
+
+// ---- DOM ----
+const searchEl = document.getElementById('gene-search');
+const autocompleteEl = document.getElementById('autocomplete');
+const chipRow = document.getElementById('chip-row');
+const selectedBar = document.getElementById('selected-bar');
+const resultCountEl = document.getElementById('result-count');
+const theadEl = document.getElementById('table-head');
+const tbodyEl = document.getElementById('table-body');
+const paginationEl = document.getElementById('pagination');
+const loadStatus = document.getElementById('load-status');
+
+// =========================================================================
+// Load index (lazy)
+// =========================================================================
+async function ensureIndex() {
+    if (indexLoaded || indexLoading) return;
+    indexLoading = true;
+    loadStatus.textContent = 'Loading sample index…';
+    loadStatus.style.display = 'inline-block';
+    try {
+        const resp = await fetch(INDEX_URL);
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const data = await resp.json();
+        geneMeta = data.genes || [];
+        sampleData = data.samples || {};
+        indexLoaded = true;
+        loadStatus.textContent = '✓ Loaded (' + Object.keys(sampleData).length.toLocaleString() + ' samples)';
+        setTimeout(function() { loadStatus.style.display = 'none'; }, 2500);
+        renderChips();
+        renderSelectedBar();
+        runSearch();
+    } catch (e) {
+        loadStatus.textContent = '⚠️ Could not load index: ' + e.message;
+        loadStatus.style.color = '#dc2626';
+        const parent = loadStatus.closest('.gene-picker');
+        if (parent && !parent.querySelector('.file-help')) {
+            const help = document.createElement('div');
+            help.className = 'file-help';
+            help.style.cssText = 'margin-top:12px;padding:12px 14px;background:#fef3c7;border-left:4px solid #f59e0b;border-radius:6px;color:#78350f;font-size:0.88em;line-height:1.5;';
+            help.innerHTML =
+                '<strong>⚠️ Browser blocked the data fetch</strong><br>' +
+                'Serve the folder over HTTP, not <code>file://</code>:<br>' +
+                '<code style="display:inline-block;margin-top:6px;padding:3px 8px;background:#fff;border-radius:3px;font-family:monospace;">cd ~/eclipse/docs &amp;&amp; python3 -m http.server 8000</code><br>' +
+                'Then open <code>http://localhost:8000/pages/vfdb.html</code>';
+            parent.appendChild(help);
+        }
+    } finally {
+        indexLoading = false;
+    }
+}
+
+// =========================================================================
+// Helpers
+// =========================================================================
+function esc(s) {
+    return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+function download(filename, content, mime) {
+    const blob = new Blob([content], { type: mime + ';charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename; a.click();
+    URL.revokeObjectURL(url);
+}
+
+// =========================================================================
+// Chips
+// =========================================================================
+function renderChips() {
+    if (!indexLoaded) {
+        chipRow.innerHTML = '<div style="color:#94a3b8;font-size:0.9em;padding:8px;">Loading gene list…</div>';
+        return;
+    }
+    // Show genes sorted by prevalence descending (universals first? No —
+    // show more discriminative genes first, i.e., 5%–95% range)
+    const displayed = geneMeta.slice()
+        .sort(function(a, b) {
+            const aDist = Math.abs(a.pct - 50);
+            const bDist = Math.abs(b.pct - 50);
+            return aDist - bDist;
+        })
+        .slice(0, 60);
+
+    chipRow.innerHTML = displayed.map(function(g) {
+        const isSel = selected.includes(geneMeta.indexOf(g));
+        const isDisabled = !isSel && selected.length >= MAX_GENES;
+        const cls = 'gene-chip' + (isSel ? ' selected' : '') + (isDisabled ? ' disabled' : '');
+        return '<button class="' + cls + '" data-gene-idx="' + geneMeta.indexOf(g) + '" ' +
+            'title="' + g.n.toLocaleString() + ' genomes (' + g.pct + '%)">' +
+            esc(g.label) +
+            '<span class="prevalence">' + g.pct.toFixed(1) + '%</span>' +
+            '</button>';
+    }).join('');
+    chipRow.querySelectorAll('.gene-chip').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const idx = parseInt(btn.dataset.geneIdx);
+            toggleGene(idx);
+        });
+    });
+}
+
+function toggleGene(idx) {
+    const pos = selected.indexOf(idx);
+    if (pos >= 0) {
+        selected.splice(pos, 1);
+    } else if (selected.length < MAX_GENES) {
+        selected.push(idx);
+    }
+    renderChips();
+    renderSelectedBar();
+    runSearch();
+}
+
+// =========================================================================
+// Selected bar
+// =========================================================================
+function renderSelectedBar() {
+    if (selected.length === 0) {
+        selectedBar.innerHTML =
+            '<span class="label">Selected genes</span>' +
+            '<span class="selected-empty">Pick up to ' + MAX_GENES +
+            ' genes from the chips or search box above</span>';
+        return;
+    }
+    const chips = selected.map(function(idx) {
+        const g = geneMeta[idx];
+        return '<span class="selected-gene">' + esc(g.label) +
+            '<span class="remove" data-idx="' + idx + '">×</span></span>';
+    }).join('');
+    selectedBar.innerHTML =
+        '<span class="label">Selected (' + selected.length + '/' + MAX_GENES + ')</span>' +
+        chips +
+        '<div class="mode-toggle">' +
+            '<button class="mode-btn ' + (matchMode === 'ANY' ? 'active' : '') + '" data-mode="ANY">Match ANY</button>' +
+            '<button class="mode-btn ' + (matchMode === 'ALL' ? 'active' : '') + '" data-mode="ALL">Match ALL</button>' +
+        '</div>';
+    selectedBar.querySelectorAll('.remove').forEach(function(el) {
+        el.addEventListener('click', function() {
+            const idx = parseInt(el.dataset.idx);
+            selected = selected.filter(function(x) { return x !== idx; });
+            renderChips();
+            renderSelectedBar();
+            runSearch();
+        });
+    });
+    selectedBar.querySelectorAll('.mode-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            matchMode = btn.dataset.mode;
+            renderSelectedBar();
+            runSearch();
+        });
+    });
+}
+
+// =========================================================================
+// Autocomplete
+// =========================================================================
+searchEl.addEventListener('input', function() {
+    const term = searchEl.value.trim().toLowerCase();
+    if (!term || !indexLoaded) {
+        autocompleteEl.classList.remove('open');
+        return;
+    }
+    const matches = geneMeta
+        .map(function(g, idx) { return { g: g, idx: idx }; })
+        .filter(function(x) {
+            return x.g.label.toLowerCase().indexOf(term) !== -1 ||
+                   x.g.id.toLowerCase().indexOf(term) !== -1;
+        })
+        .slice(0, 30);
+
+    if (matches.length === 0) {
+        autocompleteEl.innerHTML = '<div class="ac-empty">No genes match "' + esc(term) + '"</div>';
+        autocompleteEl.classList.add('open');
+        return;
+    }
+    autocompleteEl.innerHTML = matches.map(function(x) {
+        return '<div class="ac-item" data-idx="' + x.idx + '">' +
+            '<div><div class="ac-gene">' + esc(x.g.label) + '</div>' +
+            '<div class="ac-meta">' + x.g.n.toLocaleString() + ' genomes</div></div>' +
+            '<div class="ac-pct">' + x.g.pct.toFixed(1) + '%</div>' +
+            '</div>';
+    }).join('');
+    autocompleteEl.classList.add('open');
+    autocompleteEl.querySelectorAll('.ac-item').forEach(function(item) {
+        item.addEventListener('click', function() {
+            const idx = parseInt(item.dataset.idx);
+            if (!selected.includes(idx) && selected.length < MAX_GENES) {
+                selected.push(idx);
+                renderChips();
+                renderSelectedBar();
+                runSearch();
+            }
+            searchEl.value = '';
+            autocompleteEl.classList.remove('open');
+        });
+    });
+});
+document.addEventListener('click', function(e) {
+    if (!searchEl.contains(e.target) && !autocompleteEl.contains(e.target)) {
+        autocompleteEl.classList.remove('open');
+    }
+});
+
+// =========================================================================
+// Search
+// =========================================================================
+function runSearch() {
+    if (!indexLoaded || selected.length === 0) {
+        results = [];
+        currentPage = 1;
+        renderResults();
+        return;
+    }
+    const selSet = new Set(selected);
+    const matches = [];
+    for (const acc in sampleData) {
+        const rec = sampleData[acc];
+        const genes = rec.g || [];
+        const presentSet = new Set(genes);
+        let ok = false;
+        let okFlags;
+        if (matchMode === 'ANY') {
+            okFlags = selected.map(function(i) { return presentSet.has(i); });
+            ok = okFlags.some(function(x) { return x; });
+        } else {
+            okFlags = selected.map(function(i) { return presentSet.has(i); });
+            ok = okFlags.every(function(x) { return x; });
+        }
+        if (ok) matches.push({ acc: acc, rec: rec, okFlags: okFlags });
+    }
+    results = matches;
+    currentPage = 1;
+    renderResults();
+}
+
+// =========================================================================
+// Results table
+// =========================================================================
+function renderResults() {
+    // Header
+    let html = '<tr><th>Accession</th>';
+    for (const idx of selected) {
+        html += '<th style="text-align:center;">' + esc(geneMeta[idx].label) + '</th>';
+    }
+    html += '<th>Country</th><th>Source</th><th>Year</th><th>Copy</th></tr>';
+    theadEl.innerHTML = html;
+
+    if (selected.length === 0) {
+        resultCountEl.innerHTML = '<span class="result-hint">No genes selected</span>';
+        tbodyEl.innerHTML = '<tr><td colspan="99"><div class="empty-state">' +
+            '<div class="icon">🧬</div>' +
+            '<div>Pick one or more genes above to retrieve matching genomes</div>' +
+            '</div></td></tr>';
+        paginationEl.innerHTML = '';
+        updateExportButtons();
+        return;
+    }
+    if (!indexLoaded) {
+        resultCountEl.innerHTML = '<span class="result-hint">Waiting for index…</span>';
+        tbodyEl.innerHTML = '<tr><td colspan="99"><div class="empty-state">' +
+            '<div class="icon">⏳</div><div>Loading…</div></div></td></tr>';
+        paginationEl.innerHTML = '';
+        updateExportButtons();
+        return;
+    }
+
+    const n = results.length;
+    resultCountEl.innerHTML = '<strong>' + n.toLocaleString() + '</strong> genome' +
+        (n === 1 ? '' : 's') + ' match';
+
+    if (n === 0) {
+        tbodyEl.innerHTML = '<tr><td colspan="99"><div class="empty-state">' +
+            '<div class="icon">🔍</div><div>No genomes match your selection</div>' +
+            '</div></td></tr>';
+        paginationEl.innerHTML = '';
+        updateExportButtons();
+        return;
+    }
+
+    const totalPages = Math.max(1, Math.ceil(n / pageSize));
+    if (currentPage > totalPages) currentPage = totalPages;
+    const start = (currentPage - 1) * pageSize;
+    const slice = results.slice(start, start + pageSize);
+
+    tbodyEl.innerHTML = slice.map(function(r) {
+        let cells = '<td class="accession-cell">' + esc(r.acc) + '</td>';
+        for (const ok of r.okFlags) {
+            cells += '<td class="' + (ok ? 'match-yes' : 'match-no') + '">' +
+                (ok ? '✓' : '·') + '</td>';
+        }
+        cells += '<td class="meta-cell">' + esc(r.rec.c) + '</td>';
+        cells += '<td class="meta-cell">' + esc(r.rec.s) + '</td>';
+        cells += '<td class="meta-cell">' + esc(r.rec.y) + '</td>';
+        cells += '<td><button class="copy-btn" data-acc="' + esc(r.acc) + '">📋</button></td>';
+        return '<tr>' + cells + '</tr>';
+    }).join('');
+
+    tbodyEl.querySelectorAll('.copy-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            navigator.clipboard.writeText(btn.dataset.acc);
+            const old = btn.textContent;
+            btn.textContent = '✓';
+            setTimeout(function() { btn.textContent = old; }, 1200);
+        });
+    });
+
+    paginationEl.innerHTML =
+        '<button id="prev-page"' + (currentPage === 1 ? ' disabled' : '') + '>← Prev</button>' +
+        '<span class="page-info">Page ' + currentPage + ' / ' + totalPages + ' · ' +
+        n.toLocaleString() + ' matches</span>' +
+        '<button id="next-page"' + (currentPage === totalPages ? ' disabled' : '') + '>Next →</button>' +
+        '<label class="page-size-label">Show <select id="page-size">' +
+        '<option value="50"' + (pageSize === 50 ? ' selected' : '') + '>50</option>' +
+        '<option value="100"' + (pageSize === 100 ? ' selected' : '') + '>100</option>' +
+        '<option value="500"' + (pageSize === 500 ? ' selected' : '') + '>500</option>' +
+        '</select> per page</label>';
+
+    const prevBtn = document.getElementById('prev-page');
+    const nextBtn = document.getElementById('next-page');
+    const pageSizeSel = document.getElementById('page-size');
+    if (prevBtn) prevBtn.addEventListener('click', function() {
+        if (currentPage > 1) { currentPage--; renderResults(); }
+    });
+    if (nextBtn) nextBtn.addEventListener('click', function() {
+        if (currentPage < totalPages) { currentPage++; renderResults(); }
+    });
+    if (pageSizeSel) pageSizeSel.addEventListener('change', function(e) {
+        pageSize = parseInt(e.target.value);
+        currentPage = 1;
+        renderResults();
+    });
+
+    updateExportButtons();
+}
+
+function updateExportButtons() {
+    document.querySelectorAll('.export-btn').forEach(function(b) {
+        b.disabled = selected.length === 0 || results.length === 0;
+    });
+}
+
+// =========================================================================
+// Exports
+// =========================================================================
+document.querySelectorAll('.export-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        if (selected.length === 0 || results.length === 0) return;
+        const fmt = btn.dataset.fmt;
+        const stamp = new Date().toISOString().slice(0, 10);
+        const geneIds = selected.map(function(i) { return geneMeta[i].id; }).join('_');
+        const base = 'eclipse_' + MODULE_KEY + '_' + geneIds + '_' + stamp;
+
+        if (fmt === 'accessions') {
+            download(base + '_accessions.txt', results.map(function(r) { return r.acc; }).join('\n'), 'text/plain');
+            return;
+        }
+
+        const geneLabels = selected.map(function(i) { return geneMeta[i].label; });
+        const headers = ['Accession'].concat(geneLabels).concat(['Country', 'Source', 'Year']);
+
+        if (fmt === 'tsv' || fmt === 'csv') {
+            const sep = fmt === 'tsv' ? '\t' : ',';
+            const q = fmt === 'csv';
+            const lines = [headers.map(function(h) { return q ? '"' + h + '"' : h; }).join(sep)];
+            for (const r of results) {
+                const vals = [r.acc]
+                    .concat(r.okFlags.map(function(ok) { return ok ? '1' : '0'; }))
+                    .concat([r.rec.c, r.rec.s, r.rec.y]);
+                lines.push(vals.map(function(v) {
+                    const s = String(v);
+                    if (q) return '"' + s.replace(/"/g, '""') + '"';
+                    return s.replace(/\t/g, ' ');
+                }).join(sep));
+            }
+            download(base + '.' + fmt, lines.join('\n'),
+                fmt === 'tsv' ? 'text/tab-separated-values' : 'text/csv');
+        } else if (fmt === 'json') {
+            const out = results.map(function(r) {
+                const o = { accession: r.acc };
+                selected.forEach(function(i, k) {
+                    o[geneMeta[i].label] = r.okFlags[k];
+                });
+                o.country = r.rec.c;
+                o.source = r.rec.s;
+                o.year = r.rec.y;
+                return o;
+            });
+            download(base + '.json', JSON.stringify(out, null, 2), 'application/json');
+        }
+    });
+});
+
+// =========================================================================
+// Frequency table (Tab 2)
+// =========================================================================
+const FREQ_DATA = [{"gene": "rpoS", "n": 1791, "pct": 98.62, "occ": 1795, "cls": "Regulation", "sub": "RpoS"}, {"gene": "entA", "n": 1781, "pct": 98.07, "occ": 1788, "cls": "Nutritional/Metabolic factor", "sub": "Enterobactin"}, {"gene": "csgC", "n": 1778, "pct": 97.91, "occ": 1785, "cls": "Adherence", "sub": "Curli fibers"}, {"gene": "fepC", "n": 1778, "pct": 97.91, "occ": 1788, "cls": "Nutritional/Metabolic factor", "sub": "Enterobactin"}, {"gene": "csgA", "n": 1777, "pct": 97.85, "occ": 1786, "cls": "Adherence", "sub": "Curli fibers"}, {"gene": "entS", "n": 1776, "pct": 97.8, "occ": 1783, "cls": "Nutritional/Metabolic factor", "sub": "Enterobactin"}, {"gene": "ompA", "n": 1776, "pct": 97.8, "occ": 1780, "cls": "Invasion", "sub": "OmpA"}, {"gene": "entB", "n": 1775, "pct": 97.74, "occ": 1781, "cls": "Nutritional/Metabolic factor", "sub": "Enterobactin"}, {"gene": "fepB", "n": 1774, "pct": 97.69, "occ": 1780, "cls": "Nutritional/Metabolic factor", "sub": "Enterobactin"}, {"gene": "cgsG", "n": 1773, "pct": 97.63, "occ": 1779, "cls": "Adherence", "sub": "Curli fibers"}, {"gene": "entC", "n": 1772, "pct": 97.58, "occ": 1774, "cls": "Nutritional/Metabolic factor", "sub": "Enterobactin"}, {"gene": "fepG", "n": 1772, "pct": 97.58, "occ": 1785, "cls": "Nutritional/Metabolic factor", "sub": "Enterobactin"}, {"gene": "fepA", "n": 1770, "pct": 97.47, "occ": 1774, "cls": "Nutritional/Metabolic factor", "sub": "Enterobactin"}, {"gene": "fepD", "n": 1769, "pct": 97.41, "occ": 1781, "cls": "Nutritional/Metabolic factor", "sub": "Enterobactin"}, {"gene": "fes", "n": 1767, "pct": 97.3, "occ": 1782, "cls": "Nutritional/Metabolic factor", "sub": "Enterobactin"}, {"gene": "csgB", "n": 1766, "pct": 97.25, "occ": 1768, "cls": "Adherence", "sub": "Curli fibers"}, {"gene": "cgsE", "n": 1763, "pct": 97.08, "occ": 1766, "cls": "Adherence", "sub": "Curli fibers"}, {"gene": "cgsF", "n": 1761, "pct": 96.97, "occ": 1763, "cls": "Adherence", "sub": "Curli fibers"}, {"gene": "entE", "n": 1758, "pct": 96.81, "occ": 1765, "cls": "Nutritional/Metabolic factor", "sub": "Enterobactin"}, {"gene": "ibeC", "n": 1756, "pct": 96.7, "occ": 1757, "cls": "Invasion", "sub": "Ibes"}, {"gene": "ibeB", "n": 1746, "pct": 96.15, "occ": 1750, "cls": "Invasion", "sub": "Ibes"}, {"gene": "cgsD", "n": 1744, "pct": 96.04, "occ": 1746, "cls": "Adherence", "sub": "Curli fibers"}, {"gene": "entF", "n": 1744, "pct": 96.04, "occ": 1748, "cls": "Nutritional/Metabolic factor", "sub": "Enterobactin"}, {"gene": "fepE", "n": 1731, "pct": 95.32, "occ": 1742, "cls": "Nutritional/Metabolic factor", "sub": "Enterobactin"}, {"gene": "yagZ/ecpA", "n": 1653, "pct": 91.02, "occ": 1658, "cls": "Adherence", "sub": "ECP"}, {"gene": "yagY/ecpB", "n": 1645, "pct": 90.58, "occ": 1647, "cls": "Adherence", "sub": "ECP"}, {"gene": "yagV/ecpE", "n": 1642, "pct": 90.42, "occ": 1644, "cls": "Adherence", "sub": "ECP"}, {"gene": "ykgK/ecpR", "n": 1641, "pct": 90.36, "occ": 1642, "cls": "Adherence", "sub": "ECP"}, {"gene": "yagW/ecpD", "n": 1629, "pct": 89.7, "occ": 1630, "cls": "Adherence", "sub": "ECP"}, {"gene": "yagX/ecpC", "n": 1616, "pct": 88.99, "occ": 1616, "cls": "Adherence", "sub": "ECP"}, {"gene": "entD", "n": 1575, "pct": 86.73, "occ": 1592, "cls": "Nutritional/Metabolic factor", "sub": "Enterobactin"}, {"gene": "fdeC", "n": 1566, "pct": 86.23, "occ": 1569, "cls": "Adherence", "sub": "FdeC"}, {"gene": "gspM", "n": 1515, "pct": 83.43, "occ": 1536, "cls": "Effector delivery system", "sub": "T2SS"}, {"gene": "espL1", "n": 1470, "pct": 80.95, "occ": 1476, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "gspL", "n": 1432, "pct": 78.85, "occ": 1440, "cls": "Effector delivery system", "sub": "T2SS"}, {"gene": "fimH", "n": 1431, "pct": 78.8, "occ": 1444, "cls": "Adherence", "sub": "Type 1 fimbriae"}, {"gene": "fimG", "n": 1386, "pct": 76.32, "occ": 1395, "cls": "Adherence", "sub": "Type 1 fimbriae"}, {"gene": "fimF", "n": 1383, "pct": 76.16, "occ": 1397, "cls": "Adherence", "sub": "Type 1 fimbriae"}, {"gene": "espX4", "n": 1379, "pct": 75.94, "occ": 1389, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "gspK", "n": 1372, "pct": 75.55, "occ": 1377, "cls": "Effector delivery system", "sub": "T2SS"}, {"gene": "espX5", "n": 1369, "pct": 75.39, "occ": 1384, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "gspI", "n": 1362, "pct": 75.0, "occ": 1373, "cls": "Effector delivery system", "sub": "T2SS"}, {"gene": "gspG", "n": 1361, "pct": 74.94, "occ": 1372, "cls": "Effector delivery system", "sub": "T2SS"}, {"gene": "gspJ", "n": 1357, "pct": 74.72, "occ": 1369, "cls": "Effector delivery system", "sub": "T2SS"}, {"gene": "gspC", "n": 1353, "pct": 74.5, "occ": 1360, "cls": "Effector delivery system", "sub": "T2SS"}, {"gene": "gspH", "n": 1352, "pct": 74.45, "occ": 1363, "cls": "Effector delivery system", "sub": "T2SS"}, {"gene": "gspE", "n": 1345, "pct": 74.06, "occ": 1351, "cls": "Effector delivery system", "sub": "T2SS"}, {"gene": "fimI", "n": 1337, "pct": 73.62, "occ": 1345, "cls": "Adherence", "sub": "Type 1 fimbriae"}, {"gene": "fimC", "n": 1333, "pct": 73.4, "occ": 1341, "cls": "Adherence", "sub": "Type 1 fimbriae"}, {"gene": "gspF", "n": 1333, "pct": 73.4, "occ": 1338, "cls": "Effector delivery system", "sub": "T2SS"}, {"gene": "gspD", "n": 1331, "pct": 73.29, "occ": 1334, "cls": "Effector delivery system", "sub": "T2SS"}, {"gene": "fimE", "n": 1330, "pct": 73.24, "occ": 1335, "cls": "Adherence", "sub": "Type 1 fimbriae"}, {"gene": "fimD", "n": 1328, "pct": 73.13, "occ": 1330, "cls": "Adherence", "sub": "Type 1 fimbriae"}, {"gene": "espX1", "n": 1312, "pct": 72.25, "occ": 1320, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "fimB", "n": 1215, "pct": 66.91, "occ": 1218, "cls": "Adherence", "sub": "Type 1 fimbriae"}, {"gene": "aslA", "n": 1167, "pct": 64.26, "occ": 1171, "cls": "Invasion", "sub": "AslA"}, {"gene": "hcp1/tssD1", "n": 1092, "pct": 60.13, "occ": 1094, "cls": "Effector delivery system", "sub": "T6SS"}, {"gene": "tssA", "n": 1076, "pct": 59.25, "occ": 1886, "cls": "Effector delivery system", "sub": "T6SS"}, {"gene": "tssM", "n": 999, "pct": 55.01, "occ": 1912, "cls": "Effector delivery system", "sub": "T6SS"}, {"gene": "tssB", "n": 938, "pct": 51.65, "occ": 939, "cls": "Effector delivery system", "sub": "T6SS"}, {"gene": "tssC", "n": 930, "pct": 51.21, "occ": 930, "cls": "Effector delivery system", "sub": "T6SS"}, {"gene": "hcp2/tssD2", "n": 917, "pct": 50.5, "occ": 919, "cls": "Effector delivery system", "sub": "T6SS"}, {"gene": "tssF", "n": 904, "pct": 49.78, "occ": 904, "cls": "Effector delivery system", "sub": "T6SS"}, {"gene": "tssJ", "n": 904, "pct": 49.78, "occ": 904, "cls": "Effector delivery system", "sub": "T6SS"}, {"gene": "tssG", "n": 899, "pct": 49.5, "occ": 900, "cls": "Effector delivery system", "sub": "T6SS"}, {"gene": "tssL", "n": 894, "pct": 49.23, "occ": 894, "cls": "Effector delivery system", "sub": "T6SS"}, {"gene": "tssK", "n": 893, "pct": 49.17, "occ": 894, "cls": "Effector delivery system", "sub": "T6SS"}, {"gene": "fha", "n": 883, "pct": 48.62, "occ": 883, "cls": "Effector delivery system", "sub": "T6SS"}, {"gene": "vgrG/tssI", "n": 867, "pct": 47.74, "occ": 896, "cls": "Effector delivery system", "sub": "T6SS"}, {"gene": "clpV/tssH", "n": 811, "pct": 44.66, "occ": 811, "cls": "Effector delivery system", "sub": "T6SS"}, {"gene": "ybtX", "n": 791, "pct": 43.56, "occ": 792, "cls": "Nutritional/Metabolic factor", "sub": "Yersiniabactin"}, {"gene": "ybtA", "n": 789, "pct": 43.45, "occ": 790, "cls": "Nutritional/Metabolic factor", "sub": "Yersiniabactin"}, {"gene": "ybtT", "n": 788, "pct": 43.39, "occ": 789, "cls": "Nutritional/Metabolic factor", "sub": "Yersiniabactin"}, {"gene": "ybtU", "n": 788, "pct": 43.39, "occ": 788, "cls": "Nutritional/Metabolic factor", "sub": "Yersiniabactin"}, {"gene": "ybtQ", "n": 787, "pct": 43.34, "occ": 788, "cls": "Nutritional/Metabolic factor", "sub": "Yersiniabactin"}, {"gene": "ybtE", "n": 785, "pct": 43.23, "occ": 785, "cls": "Nutritional/Metabolic factor", "sub": "Yersiniabactin"}, {"gene": "ybtS", "n": 785, "pct": 43.23, "occ": 785, "cls": "Nutritional/Metabolic factor", "sub": "Yersiniabactin"}, {"gene": "ybtP", "n": 784, "pct": 43.17, "occ": 785, "cls": "Nutritional/Metabolic factor", "sub": "Ybt"}, {"gene": "fyuA/psn", "n": 782, "pct": 43.06, "occ": 782, "cls": "Nutritional/Metabolic factor", "sub": "Yersiniabactin"}, {"gene": "irp2", "n": 769, "pct": 42.35, "occ": 769, "cls": "Nutritional/Metabolic factor", "sub": "Yersiniabactin"}, {"gene": "irp1", "n": 766, "pct": 42.18, "occ": 766, "cls": "Nutritional/Metabolic factor", "sub": "Yersiniabactin"}, {"gene": "espL4", "n": 709, "pct": 39.04, "occ": 710, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "cfaC", "n": 688, "pct": 37.89, "occ": 689, "cls": "Adherence", "sub": "Adhesive fimbriae"}, {"gene": "rhs/PAAR", "n": 642, "pct": 35.35, "occ": 706, "cls": "Effector delivery system", "sub": "T6SS"}, {"gene": "cfaB", "n": 625, "pct": 34.42, "occ": 626, "cls": "Adherence", "sub": "Adhesive fimbriae"}, {"gene": "iucB", "n": 625, "pct": 34.42, "occ": 642, "cls": "Nutritional/Metabolic factor", "sub": "Aerobactin"}, {"gene": "iucA", "n": 624, "pct": 34.36, "occ": 638, "cls": "Nutritional/Metabolic factor", "sub": "Aerobactin"}, {"gene": "iutA", "n": 623, "pct": 34.31, "occ": 630, "cls": "Nutritional/Metabolic factor", "sub": "Aerobactin"}, {"gene": "iucD", "n": 619, "pct": 34.09, "occ": 627, "cls": "Nutritional/Metabolic factor", "sub": "Aerobactin"}, {"gene": "cfaA", "n": 614, "pct": 33.81, "occ": 614, "cls": "Adherence", "sub": "Adhesive fimbriae"}, {"gene": "chuS", "n": 614, "pct": 33.81, "occ": 614, "cls": "Nutritional/Metabolic factor", "sub": "Chu"}, {"gene": "chuX", "n": 614, "pct": 33.81, "occ": 616, "cls": "Nutritional/Metabolic factor", "sub": "Chu"}, {"gene": "chuA", "n": 612, "pct": 33.7, "occ": 612, "cls": "Nutritional/Metabolic factor", "sub": "Chu"}, {"gene": "chuU", "n": 610, "pct": 33.59, "occ": 612, "cls": "Nutritional/Metabolic factor", "sub": "Chu"}, {"gene": "iucC", "n": 609, "pct": 33.54, "occ": 612, "cls": "Nutritional/Metabolic factor", "sub": "Aerobactin"}, {"gene": "chuT", "n": 584, "pct": 32.16, "occ": 586, "cls": "Nutritional/Metabolic factor", "sub": "Chu"}, {"gene": "chuY", "n": 552, "pct": 30.4, "occ": 553, "cls": "Nutritional/Metabolic factor", "sub": "Chu"}, {"gene": "kpsU", "n": 515, "pct": 28.36, "occ": 517, "cls": "Invasion", "sub": "K1 capsule"}, {"gene": "kpsS", "n": 513, "pct": 28.25, "occ": 516, "cls": "Invasion", "sub": "K1 capsule"}, {"gene": "fimA", "n": 511, "pct": 28.14, "occ": 513, "cls": "Adherence", "sub": "Type 1 fimbriae"}, {"gene": "kpsD", "n": 510, "pct": 28.08, "occ": 510, "cls": "Invasion", "sub": "K1 capsule"}, {"gene": "kpsE", "n": 510, "pct": 28.08, "occ": 512, "cls": "Invasion", "sub": "K1 capsule"}, {"gene": "kpsC", "n": 509, "pct": 28.03, "occ": 511, "cls": "Invasion", "sub": "K1 capsule"}, {"gene": "kpsF", "n": 509, "pct": 28.03, "occ": 511, "cls": "Invasion", "sub": "K1 capsule"}, {"gene": "chuW", "n": 505, "pct": 27.81, "occ": 508, "cls": "Nutritional/Metabolic factor", "sub": "Chu"}, {"gene": "cfaD/cfaE", "n": 494, "pct": 27.2, "occ": 494, "cls": "Adherence", "sub": "Adhesive fimbriae"}, {"gene": "kpsM", "n": 477, "pct": 26.27, "occ": 482, "cls": "Invasion", "sub": "K1 capsule"}, {"gene": "galF", "n": 403, "pct": 22.19, "occ": 406, "cls": "Immune modulation", "sub": "Capsule"}, {"gene": "gndA", "n": 401, "pct": 22.08, "occ": 403, "cls": "Immune modulation", "sub": "Capsule"}, {"gene": "ugd", "n": 394, "pct": 21.7, "occ": 396, "cls": "Immune modulation", "sub": "Capsule"}, {"gene": "papX", "n": 352, "pct": 19.38, "occ": 396, "cls": "Adherence", "sub": "P fimbriae"}, {"gene": "chuV", "n": 320, "pct": 17.62, "occ": 321, "cls": "Nutritional/Metabolic factor", "sub": "Chu"}, {"gene": "papB", "n": 317, "pct": 17.46, "occ": 355, "cls": "Adherence", "sub": "P fimbriae"}, {"gene": "papI", "n": 316, "pct": 17.4, "occ": 399, "cls": "Adherence", "sub": "P fimbriae"}, {"gene": "espR1", "n": 306, "pct": 16.85, "occ": 306, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "shuV", "n": 289, "pct": 15.91, "occ": 289, "cls": "Nutritional/Metabolic factor", "sub": "Shu"}, {"gene": "east1", "n": 273, "pct": 15.03, "occ": 332, "cls": "Exotoxin", "sub": "EAST1"}, {"gene": "espY1", "n": 273, "pct": 15.03, "occ": 273, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "sat", "n": 261, "pct": 14.37, "occ": 261, "cls": "Effector delivery system", "sub": "Sat"}, {"gene": "rfbK1", "n": 239, "pct": 13.16, "occ": 247, "cls": "Immune modulation", "sub": "Capsule"}, {"gene": "espY3", "n": 237, "pct": 13.05, "occ": 237, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "KP1_RS17280", "n": 232, "pct": 12.78, "occ": 235, "cls": "Immune modulation", "sub": "Capsule"}, {"gene": "senB", "n": 228, "pct": 12.56, "occ": 228, "cls": "Exotoxin", "sub": "ShET2"}, {"gene": "espY2", "n": 225, "pct": 12.39, "occ": 225, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "AAA92657", "n": 218, "pct": 12.0, "occ": 220, "cls": "Invasion", "sub": "TraJ"}, {"gene": "tsh", "n": 216, "pct": 11.89, "occ": 216, "cls": "Effector delivery system", "sub": "Tsh"}, {"gene": "espY4", "n": 205, "pct": 11.29, "occ": 205, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "KP1_RS17355", "n": 203, "pct": 11.18, "occ": 203, "cls": "Immune modulation", "sub": "Capsule"}, {"gene": "papF", "n": 188, "pct": 10.35, "occ": 196, "cls": "Adherence", "sub": "P fimbriae"}, {"gene": "papD", "n": 186, "pct": 10.24, "occ": 186, "cls": "Adherence", "sub": "P fimbriae"}, {"gene": "papJ", "n": 186, "pct": 10.24, "occ": 186, "cls": "Adherence", "sub": "P fimbriae"}, {"gene": "papK", "n": 186, "pct": 10.24, "occ": 186, "cls": "Adherence", "sub": "P fimbriae"}, {"gene": "iroE", "n": 180, "pct": 9.91, "occ": 180, "cls": "Nutritional/Metabolic factor", "sub": "Salmochelin siderophore"}, {"gene": "papC", "n": 179, "pct": 9.86, "occ": 179, "cls": "Adherence", "sub": "P fimbriae"}, {"gene": "iroD", "n": 175, "pct": 9.64, "occ": 175, "cls": "Nutritional/Metabolic factor", "sub": "Salmochelin siderophore"}, {"gene": "papH", "n": 173, "pct": 9.53, "occ": 174, "cls": "Adherence", "sub": "P fimbriae"}, {"gene": "hlyC", "n": 161, "pct": 8.87, "occ": 162, "cls": "Exotoxin", "sub": "Alpha-Hemolysin/HlyA"}, {"gene": "papG", "n": 158, "pct": 8.7, "occ": 158, "cls": "Adherence", "sub": "P fimbriae"}, {"gene": "hlyA", "n": 156, "pct": 8.59, "occ": 156, "cls": "Exotoxin", "sub": "Alpha-Hemolysin/HlyA"}, {"gene": "hlyB", "n": 155, "pct": 8.54, "occ": 155, "cls": "Exotoxin", "sub": "Alpha-Hemolysin/HlyA"}, {"gene": "iroB", "n": 155, "pct": 8.54, "occ": 157, "cls": "Nutritional/Metabolic factor", "sub": "Salmochelin siderophore"}, {"gene": "hlyD", "n": 152, "pct": 8.37, "occ": 152, "cls": "Exotoxin", "sub": "Alpha-Hemolysin/HlyA"}, {"gene": "iroC", "n": 150, "pct": 8.26, "occ": 150, "cls": "Nutritional/Metabolic factor", "sub": "Salmochelin siderophore"}, {"gene": "iroN", "n": 148, "pct": 8.15, "occ": 148, "cls": "Nutritional/Metabolic factor", "sub": "Salmochelin siderophore"}, {"gene": "espX2", "n": 126, "pct": 6.94, "occ": 126, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "shuW", "n": 105, "pct": 5.78, "occ": 105, "cls": "Nutritional/Metabolic factor", "sub": "Shu"}, {"gene": "vat", "n": 95, "pct": 5.23, "occ": 95, "cls": "Effector delivery system", "sub": "Vat"}, {"gene": "aap", "n": 93, "pct": 5.12, "occ": 98, "cls": "Others", "sub": "Dispersin"}, {"gene": "espR3", "n": 92, "pct": 5.07, "occ": 95, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "draP", "n": 88, "pct": 4.85, "occ": 90, "cls": "Adherence", "sub": "Dr adhesins"}, {"gene": "draA", "n": 86, "pct": 4.74, "occ": 87, "cls": "Adherence", "sub": "Dr adhesins"}, {"gene": "draD", "n": 85, "pct": 4.68, "occ": 86, "cls": "Adherence", "sub": "Dr adhesins"}, {"gene": "draB", "n": 84, "pct": 4.63, "occ": 85, "cls": "Adherence", "sub": "Dr adhesins"}, {"gene": "papE", "n": 81, "pct": 4.46, "occ": 81, "cls": "Adherence", "sub": "P fimbriae"}, {"gene": "draC", "n": 80, "pct": 4.41, "occ": 81, "cls": "Adherence", "sub": "Dr adhesins"}, {"gene": "cnf1", "n": 79, "pct": 4.35, "occ": 79, "cls": "Exotoxin", "sub": "CNF-1"}, {"gene": "gtrA", "n": 73, "pct": 4.02, "occ": 74, "cls": "Immune modulation", "sub": "LPS"}, {"gene": "pic", "n": 73, "pct": 4.02, "occ": 73, "cls": "Effector delivery system", "sub": "Pic"}, {"gene": "aatB", "n": 70, "pct": 3.85, "occ": 71, "cls": "Others", "sub": "Dispersin"}, {"gene": "aatP", "n": 70, "pct": 3.85, "occ": 71, "cls": "Others", "sub": "Dispersin"}, {"gene": "aatA", "n": 69, "pct": 3.8, "occ": 70, "cls": "Others", "sub": "Dispersin"}, {"gene": "aatC", "n": 69, "pct": 3.8, "occ": 70, "cls": "Others", "sub": "Dispersin"}, {"gene": "aatD", "n": 68, "pct": 3.74, "occ": 69, "cls": "Others", "sub": "Dispersin"}, {"gene": "clbS", "n": 68, "pct": 3.74, "occ": 68, "cls": "Exotoxin", "sub": "Colibactin"}, {"gene": "clbO", "n": 60, "pct": 3.3, "occ": 60, "cls": "Exotoxin", "sub": "Colibactin"}, {"gene": "clbP", "n": 60, "pct": 3.3, "occ": 60, "cls": "Exotoxin", "sub": "Colibactin"}, {"gene": "clbQ", "n": 60, "pct": 3.3, "occ": 60, "cls": "Exotoxin", "sub": "Colibactin"}, {"gene": "neuC", "n": 60, "pct": 3.3, "occ": 60, "cls": "Invasion", "sub": "K1 capsule"}, {"gene": "kpsT", "n": 59, "pct": 3.25, "occ": 59, "cls": "Invasion", "sub": "K1 capsule"}, {"gene": "neuA", "n": 59, "pct": 3.25, "occ": 59, "cls": "Invasion", "sub": "K1 capsule"}, {"gene": "neuB", "n": 59, "pct": 3.25, "occ": 59, "cls": "Invasion", "sub": "K1 capsule"}, {"gene": "neuE", "n": 59, "pct": 3.25, "occ": 59, "cls": "Invasion", "sub": "K1 capsule"}, {"gene": "neuD", "n": 58, "pct": 3.19, "occ": 58, "cls": "Invasion", "sub": "K1 capsule"}, {"gene": "shuY", "n": 58, "pct": 3.19, "occ": 58, "cls": "Nutritional/Metabolic factor", "sub": "Shu"}, {"gene": "clbA", "n": 55, "pct": 3.03, "occ": 55, "cls": "Exotoxin", "sub": "Colibactin"}, {"gene": "clbD", "n": 55, "pct": 3.03, "occ": 55, "cls": "Exotoxin", "sub": "Colibactin"}, {"gene": "clbE", "n": 55, "pct": 3.03, "occ": 55, "cls": "Exotoxin", "sub": "Colibactin"}, {"gene": "clbF", "n": 55, "pct": 3.03, "occ": 55, "cls": "Exotoxin", "sub": "Colibactin"}, {"gene": "clbI", "n": 55, "pct": 3.03, "occ": 55, "cls": "Exotoxin", "sub": "Colibactin"}, {"gene": "clbL", "n": 55, "pct": 3.03, "occ": 55, "cls": "Exotoxin", "sub": "Colibactin"}, {"gene": "clbM", "n": 55, "pct": 3.03, "occ": 55, "cls": "Exotoxin", "sub": "Colibactin"}, {"gene": "clbN", "n": 55, "pct": 3.03, "occ": 55, "cls": "Exotoxin", "sub": "Colibactin"}, {"gene": "clbB", "n": 54, "pct": 2.97, "occ": 54, "cls": "Exotoxin", "sub": "Colibactin"}, {"gene": "clbC", "n": 54, "pct": 2.97, "occ": 54, "cls": "Exotoxin", "sub": "Colibactin"}, {"gene": "clbG", "n": 54, "pct": 2.97, "occ": 54, "cls": "Exotoxin", "sub": "Colibactin"}, {"gene": "clbH", "n": 54, "pct": 2.97, "occ": 54, "cls": "Exotoxin", "sub": "Colibactin"}, {"gene": "tcpC", "n": 41, "pct": 2.26, "occ": 41, "cls": "Immune modulation", "sub": "TcpC"}, {"gene": "C_RS05810", "n": 36, "pct": 1.98, "occ": 36, "cls": "Adherence", "sub": "F1C fimbriae"}, {"gene": "espY5", "n": 34, "pct": 1.87, "occ": 34, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "espR4", "n": 30, "pct": 1.65, "occ": 36, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "sfaX", "n": 30, "pct": 1.65, "occ": 33, "cls": "Adherence", "sub": "F1C fimbriae"}, {"gene": "shuT", "n": 29, "pct": 1.6, "occ": 29, "cls": "Nutritional/Metabolic factor", "sub": "Shu"}, {"gene": "sfaC", "n": 28, "pct": 1.54, "occ": 34, "cls": "Adherence", "sub": "F1C fimbriae"}, {"gene": "sfaE", "n": 27, "pct": 1.49, "occ": 27, "cls": "Adherence", "sub": "S fimbriae"}, {"gene": "escF", "n": 26, "pct": 1.43, "occ": 26, "cls": "Effector delivery system", "sub": "TTSS"}, {"gene": "cesL", "n": 25, "pct": 1.38, "occ": 25, "cls": "Effector delivery system", "sub": "TTSS"}, {"gene": "cdtA", "n": 24, "pct": 1.32, "occ": 24, "cls": "Exotoxin", "sub": "CDT"}, {"gene": "cdtB", "n": 24, "pct": 1.32, "occ": 24, "cls": "Exotoxin", "sub": "CDT"}, {"gene": "cesD", "n": 24, "pct": 1.32, "occ": 24, "cls": "Effector delivery system", "sub": "TTSS"}, {"gene": "cesD2", "n": 24, "pct": 1.32, "occ": 24, "cls": "Effector delivery system", "sub": "TTSS"}, {"gene": "escD", "n": 24, "pct": 1.32, "occ": 24, "cls": "Effector delivery system", "sub": "TTSS"}, {"gene": "escI", "n": 24, "pct": 1.32, "occ": 24, "cls": "Effector delivery system", "sub": "TTSS"}, {"gene": "escJ", "n": 24, "pct": 1.32, "occ": 24, "cls": "Effector delivery system", "sub": "TTSS"}, {"gene": "escN", "n": 24, "pct": 1.32, "occ": 24, "cls": "Effector delivery system", "sub": "TTSS"}, {"gene": "escR", "n": 24, "pct": 1.32, "occ": 24, "cls": "Effector delivery system", "sub": "TTSS"}, {"gene": "escS", "n": 24, "pct": 1.32, "occ": 24, "cls": "Effector delivery system", "sub": "TTSS"}, {"gene": "escV", "n": 24, "pct": 1.32, "occ": 24, "cls": "Effector delivery system", "sub": "TTSS"}, {"gene": "glrA", "n": 24, "pct": 1.32, "occ": 24, "cls": "Effector delivery system", "sub": "TTSS"}, {"gene": "sepD", "n": 24, "pct": 1.32, "occ": 24, "cls": "Effector delivery system", "sub": "TTSS"}, {"gene": "sfaY", "n": 24, "pct": 1.32, "occ": 25, "cls": "Adherence", "sub": "F1C fimbriae"}, {"gene": "cdtC", "n": 23, "pct": 1.27, "occ": 23, "cls": "Exotoxin", "sub": "CDT"}, {"gene": "cesT", "n": 23, "pct": 1.27, "occ": 23, "cls": "Effector delivery system", "sub": "TTSS"}, {"gene": "escC", "n": 23, "pct": 1.27, "occ": 23, "cls": "Effector delivery system", "sub": "TTSS"}, {"gene": "sepL", "n": 23, "pct": 1.27, "occ": 23, "cls": "Effector delivery system", "sub": "TTSS"}, {"gene": "draE2", "n": 22, "pct": 1.21, "occ": 22, "cls": "Adherence", "sub": "Afa/Dr family"}, {"gene": "escE", "n": 22, "pct": 1.21, "occ": 22, "cls": "Effector delivery system", "sub": "TTSS"}, {"gene": "escG", "n": 22, "pct": 1.21, "occ": 22, "cls": "Effector delivery system", "sub": "TTSS"}, {"gene": "focG", "n": 22, "pct": 1.21, "occ": 22, "cls": "Adherence", "sub": "F1C fimbriae"}, {"gene": "AAC38364", "n": 21, "pct": 1.16, "occ": 21, "cls": "Regulation", "sub": "Ler"}, {"gene": "cesAB", "n": 21, "pct": 1.16, "occ": 21, "cls": "Effector delivery system", "sub": "TTSS"}, {"gene": "hcp2", "n": 21, "pct": 1.16, "occ": 21, "cls": "Effector delivery system", "sub": "T6SS-2"}, {"gene": "sigA", "n": 21, "pct": 1.16, "occ": 21, "cls": "Exoenzyme", "sub": "SigA"}, {"gene": "escK", "n": 20, "pct": 1.1, "occ": 20, "cls": "Effector delivery system", "sub": "TTSS"}, {"gene": "escO", "n": 20, "pct": 1.1, "occ": 20, "cls": "Effector delivery system", "sub": "TTSS"}, {"gene": "escT", "n": 20, "pct": 1.1, "occ": 20, "cls": "Effector delivery system", "sub": "TTSS"}, {"gene": "escU", "n": 20, "pct": 1.1, "occ": 20, "cls": "Effector delivery system", "sub": "TTSS"}, {"gene": "espG", "n": 20, "pct": 1.1, "occ": 20, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "etgA", "n": 20, "pct": 1.1, "occ": 20, "cls": "Effector delivery system", "sub": "TTSS"}, {"gene": "glrR", "n": 20, "pct": 1.1, "occ": 20, "cls": "Effector delivery system", "sub": "TTSS"}, {"gene": "rorf1", "n": 20, "pct": 1.1, "occ": 20, "cls": "Effector delivery system", "sub": "TTSS"}, {"gene": "sfaD", "n": 20, "pct": 1.1, "occ": 20, "cls": "Adherence", "sub": "S fimbriae"}, {"gene": "stx2A", "n": 20, "pct": 1.1, "occ": 21, "cls": "Exotoxin", "sub": "Stx"}, {"gene": "escL", "n": 19, "pct": 1.05, "occ": 19, "cls": "Effector delivery system", "sub": "TTSS"}, {"gene": "focH", "n": 19, "pct": 1.05, "occ": 19, "cls": "Adherence", "sub": "F1C fimbriae"}, {"gene": "mrkA", "n": 19, "pct": 1.05, "occ": 19, "cls": "Biofilm", "sub": "Type 3 fimbriae"}, {"gene": "stxA", "n": 19, "pct": 1.05, "occ": 19, "cls": "Exotoxin", "sub": "Shiga toxin"}, {"gene": "mrkB", "n": 18, "pct": 0.99, "occ": 18, "cls": "Biofilm", "sub": "Type 3 fimbriae"}, {"gene": "sfaF", "n": 18, "pct": 0.99, "occ": 18, "cls": "Adherence", "sub": "S fimbriae"}, {"gene": "stx1B", "n": 18, "pct": 0.99, "occ": 18, "cls": "Exotoxin", "sub": "Stx"}, {"gene": "mrkC", "n": 17, "pct": 0.94, "occ": 17, "cls": "Biofilm", "sub": "Type 3 fimbriae"}, {"gene": "mrkF", "n": 17, "pct": 0.94, "occ": 17, "cls": "Biofilm", "sub": "Type 3 fimbriae"}, {"gene": "escP", "n": 16, "pct": 0.88, "occ": 16, "cls": "Effector delivery system", "sub": "TTSS"}, {"gene": "espX6", "n": 16, "pct": 0.88, "occ": 16, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "mrkD", "n": 16, "pct": 0.88, "occ": 16, "cls": "Biofilm", "sub": "Type 3 fimbriae"}, {"gene": "sfaG", "n": 16, "pct": 0.88, "occ": 16, "cls": "Adherence", "sub": "S fimbriae"}, {"gene": "etpB", "n": 15, "pct": 0.83, "occ": 16, "cls": "Adherence", "sub": "EtpA"}, {"gene": "focF", "n": 15, "pct": 0.83, "occ": 15, "cls": "Adherence", "sub": "F1C fimbriae"}, {"gene": "focA", "n": 14, "pct": 0.77, "occ": 14, "cls": "Adherence", "sub": "F1C fimbriae"}, {"gene": "nleB2", "n": 14, "pct": 0.77, "occ": 14, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "nleF", "n": 14, "pct": 0.77, "occ": 14, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "nleH2", "n": 14, "pct": 0.77, "occ": 14, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "stx2B", "n": 14, "pct": 0.77, "occ": 15, "cls": "Exotoxin", "sub": "Stx"}, {"gene": "eae", "n": 13, "pct": 0.72, "occ": 13, "cls": "Effector delivery system", "sub": "Intimin"}, {"gene": "espB", "n": 13, "pct": 0.72, "occ": 13, "cls": "Effector delivery system", "sub": "TTSS"}, {"gene": "espD", "n": 13, "pct": 0.72, "occ": 13, "cls": "Effector delivery system", "sub": "TTSS"}, {"gene": "focI", "n": 13, "pct": 0.72, "occ": 13, "cls": "Adherence", "sub": "F1C fimbriae"}, {"gene": "cesF", "n": 12, "pct": 0.66, "occ": 12, "cls": "Effector delivery system", "sub": "TTSS"}, {"gene": "clbJ", "n": 12, "pct": 0.66, "occ": 12, "cls": "Exotoxin", "sub": "Colibactin"}, {"gene": "espA", "n": 12, "pct": 0.66, "occ": 12, "cls": "Effector delivery system", "sub": "TTSS"}, {"gene": "espK", "n": 12, "pct": 0.66, "occ": 12, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "espM1", "n": 12, "pct": 0.66, "occ": 14, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "focD", "n": 12, "pct": 0.66, "occ": 12, "cls": "Adherence", "sub": "F1C fimbriae"}, {"gene": "nleG8-2", "n": 12, "pct": 0.66, "occ": 12, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "nleH1", "n": 12, "pct": 0.66, "occ": 13, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "paa", "n": 12, "pct": 0.66, "occ": 12, "cls": "Adherence", "sub": "Paa"}, {"gene": "sepQ/escQ", "n": 12, "pct": 0.66, "occ": 12, "cls": "Effector delivery system", "sub": "TTSS"}, {"gene": "sfaS", "n": 12, "pct": 0.66, "occ": 12, "cls": "Adherence", "sub": "S fimbriae"}, {"gene": "espW", "n": 11, "pct": 0.61, "occ": 11, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "pet", "n": 11, "pct": 0.61, "occ": 11, "cls": "Effector delivery system", "sub": "Pet"}, {"gene": "aafA", "n": 10, "pct": 0.55, "occ": 10, "cls": "Adherence", "sub": "AAFs"}, {"gene": "aafD", "n": 10, "pct": 0.55, "occ": 10, "cls": "Adherence", "sub": "AAFs"}, {"gene": "clbK", "n": 10, "pct": 0.55, "occ": 10, "cls": "Exotoxin", "sub": "Colibactin"}, {"gene": "espL2", "n": 10, "pct": 0.55, "occ": 12, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "espP", "n": 10, "pct": 0.55, "occ": 10, "cls": "Effector delivery system", "sub": "EspP"}, {"gene": "estIa", "n": 10, "pct": 0.55, "occ": 14, "cls": "Exotoxin", "sub": "Heat-stable toxin (ST)"}, {"gene": "nleB1", "n": 10, "pct": 0.55, "occ": 12, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "nleE", "n": 10, "pct": 0.55, "occ": 12, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "aafB", "n": 9, "pct": 0.5, "occ": 9, "cls": "Adherence", "sub": "AAFs"}, {"gene": "aafC", "n": 9, "pct": 0.5, "occ": 9, "cls": "Adherence", "sub": "AAFs"}, {"gene": "espN", "n": 9, "pct": 0.5, "occ": 9, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "espX7/nleL", "n": 9, "pct": 0.5, "occ": 9, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "focC", "n": 9, "pct": 0.5, "occ": 9, "cls": "Adherence", "sub": "F1C fimbriae"}, {"gene": "nleA/espI", "n": 9, "pct": 0.5, "occ": 9, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "nleG2-4", "n": 9, "pct": 0.5, "occ": 9, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "papA", "n": 9, "pct": 0.5, "occ": 9, "cls": "Adherence", "sub": "P fimbriae"}, {"gene": "sepZ/espZ", "n": 9, "pct": 0.5, "occ": 9, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "cif", "n": 8, "pct": 0.44, "occ": 8, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "nleC", "n": 8, "pct": 0.44, "occ": 12, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "sfaH", "n": 8, "pct": 0.44, "occ": 8, "cls": "Adherence", "sub": "S fimbriae"}, {"gene": "lifA/efa1", "n": 7, "pct": 0.39, "occ": 9, "cls": "Effector delivery system", "sub": "Lymphostatin/LifA"}, {"gene": "mrkJ", "n": 7, "pct": 0.39, "occ": 7, "cls": "Biofilm", "sub": "Type 3 fimbriae"}, {"gene": "nleG-3", "n": 7, "pct": 0.39, "occ": 9, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "nleG6-1", "n": 7, "pct": 0.39, "occ": 7, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "mrkI", "n": 6, "pct": 0.33, "occ": 6, "cls": "Biofilm", "sub": "Type 3 fimbriae"}, {"gene": "bfpC", "n": 5, "pct": 0.28, "occ": 5, "cls": "Adherence", "sub": "BFP"}, {"gene": "bfpF", "n": 5, "pct": 0.28, "occ": 5, "cls": "Adherence", "sub": "BFP"}, {"gene": "bfpI", "n": 5, "pct": 0.28, "occ": 5, "cls": "Adherence", "sub": "BFP"}, {"gene": "bfpJ", "n": 5, "pct": 0.28, "occ": 5, "cls": "Adherence", "sub": "BFP"}, {"gene": "bfpK", "n": 5, "pct": 0.28, "occ": 5, "cls": "Adherence", "sub": "BFP"}, {"gene": "bfpL", "n": 5, "pct": 0.28, "occ": 5, "cls": "Adherence", "sub": "BFP"}, {"gene": "bfpT", "n": 5, "pct": 0.28, "occ": 5, "cls": "Regulation", "sub": "Per"}, {"gene": "bfpV", "n": 5, "pct": 0.28, "occ": 5, "cls": "Regulation", "sub": "Per"}, {"gene": "bfpW", "n": 5, "pct": 0.28, "occ": 5, "cls": "Regulation", "sub": "Per"}, {"gene": "dotU/tssL", "n": 5, "pct": 0.28, "occ": 5, "cls": "Effector delivery system", "sub": "T6SS"}, {"gene": "eltA", "n": 5, "pct": 0.28, "occ": 5, "cls": "Exotoxin", "sub": "Heat-labile toxin (LT)"}, {"gene": "eltB", "n": 5, "pct": 0.28, "occ": 5, "cls": "Exotoxin", "sub": "Heat-labile toxin (LT)"}, {"gene": "espO1-2", "n": 5, "pct": 0.28, "occ": 5, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "flgH", "n": 5, "pct": 0.28, "occ": 5, "cls": "Motility", "sub": "Flagella"}, {"gene": "motA", "n": 5, "pct": 0.28, "occ": 5, "cls": "Motility", "sub": "Flagella"}, {"gene": "nleD", "n": 5, "pct": 0.28, "occ": 5, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "nleG-1", "n": 5, "pct": 0.28, "occ": 5, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "nleG7", "n": 5, "pct": 0.28, "occ": 5, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "orgC", "n": 5, "pct": 0.28, "occ": 5, "cls": "Effector delivery system", "sub": "TTSS (SPI-1 encode)"}, {"gene": "sciN/tssJ", "n": 5, "pct": 0.28, "occ": 5, "cls": "Effector delivery system", "sub": "T6SS"}, {"gene": "vasE/tssK", "n": 5, "pct": 0.28, "occ": 5, "cls": "Effector delivery system", "sub": "T6SS"}, {"gene": "KP1_RS17225", "n": 4, "pct": 0.22, "occ": 4, "cls": "Immune modulation", "sub": "LPS"}, {"gene": "KP1_RS17230", "n": 4, "pct": 0.22, "occ": 4, "cls": "Immune modulation", "sub": "LPS"}, {"gene": "KP1_RS17240", "n": 4, "pct": 0.22, "occ": 4, "cls": "Immune modulation", "sub": "LPS"}, {"gene": "STM0266", "n": 4, "pct": 0.22, "occ": 4, "cls": "Effector delivery system", "sub": "SCI (Salmonella centrisome island)/SPI-6 T6SS"}, {"gene": "STM0284", "n": 4, "pct": 0.22, "occ": 4, "cls": "Effector delivery system", "sub": "SCI (Salmonella centrisome island)/SPI-6 T6SS"}, {"gene": "bfpB", "n": 4, "pct": 0.22, "occ": 4, "cls": "Adherence", "sub": "BFP"}, {"gene": "bfpE", "n": 4, "pct": 0.22, "occ": 4, "cls": "Adherence", "sub": "BFP"}, {"gene": "bfpG", "n": 4, "pct": 0.22, "occ": 4, "cls": "Adherence", "sub": "BFP"}, {"gene": "bfpH", "n": 4, "pct": 0.22, "occ": 4, "cls": "Adherence", "sub": "BFP"}, {"gene": "bfpU", "n": 4, "pct": 0.22, "occ": 4, "cls": "Adherence", "sub": "BFP"}, {"gene": "cheB", "n": 4, "pct": 0.22, "occ": 4, "cls": "Motility", "sub": "Flagella"}, {"gene": "cheR", "n": 4, "pct": 0.22, "occ": 4, "cls": "Motility", "sub": "Flagella"}, {"gene": "cheY", "n": 4, "pct": 0.22, "occ": 4, "cls": "Motility", "sub": "Flagella"}, {"gene": "cheZ", "n": 4, "pct": 0.22, "occ": 4, "cls": "Motility", "sub": "Flagella"}, {"gene": "csgD", "n": 4, "pct": 0.22, "occ": 4, "cls": "Adherence", "sub": "Agf"}, {"gene": "espJ", "n": 4, "pct": 0.22, "occ": 4, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "fimK", "n": 4, "pct": 0.22, "occ": 4, "cls": "Adherence", "sub": "Type I fimbriae"}, {"gene": "flhD", "n": 4, "pct": 0.22, "occ": 4, "cls": "Motility", "sub": "Flagella"}, {"gene": "fliJ", "n": 4, "pct": 0.22, "occ": 4, "cls": "Motility", "sub": "Flagella"}, {"gene": "fliN", "n": 4, "pct": 0.22, "occ": 4, "cls": "Motility", "sub": "Flagella"}, {"gene": "fliQ", "n": 4, "pct": 0.22, "occ": 4, "cls": "Motility", "sub": "Flagella"}, {"gene": "fur", "n": 4, "pct": 0.22, "occ": 4, "cls": "Regulation", "sub": "Fur"}, {"gene": "hcp/tssD", "n": 4, "pct": 0.22, "occ": 4, "cls": "Effector delivery system", "sub": "T6SS"}, {"gene": "iacP", "n": 4, "pct": 0.22, "occ": 4, "cls": "Effector delivery system", "sub": "TTSS (SPI-1 encode)"}, {"gene": "iagB", "n": 4, "pct": 0.22, "occ": 4, "cls": "Effector delivery system", "sub": "TTSS (SPI-1 encode)"}, {"gene": "icmF/tssM", "n": 4, "pct": 0.22, "occ": 4, "cls": "Effector delivery system", "sub": "T6SS"}, {"gene": "invB", "n": 4, "pct": 0.22, "occ": 4, "cls": "Effector delivery system", "sub": "TTSS (SPI-1 encode)"}, {"gene": "invH", "n": 4, "pct": 0.22, "occ": 4, "cls": "Effector delivery system", "sub": "TTSS (SPI-1 encode)"}, {"gene": "map", "n": 4, "pct": 0.22, "occ": 4, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "motB", "n": 4, "pct": 0.22, "occ": 4, "cls": "Motility", "sub": "Flagella"}, {"gene": "mrkH", "n": 4, "pct": 0.22, "occ": 4, "cls": "Biofilm", "sub": "Type 3 fimbriae"}, {"gene": "rcsA", "n": 4, "pct": 0.22, "occ": 4, "cls": "Regulation", "sub": "RcsAB"}, {"gene": "rfbA", "n": 4, "pct": 0.22, "occ": 4, "cls": "Immune modulation", "sub": "LPS"}, {"gene": "rfbB", "n": 4, "pct": 0.22, "occ": 4, "cls": "Immune modulation", "sub": "LPS"}, {"gene": "rfbD", "n": 4, "pct": 0.22, "occ": 4, "cls": "Immune modulation", "sub": "LPS"}, {"gene": "sfaA", "n": 4, "pct": 0.22, "occ": 4, "cls": "Adherence", "sub": "S fimbriae"}, {"gene": "sicP", "n": 4, "pct": 0.22, "occ": 4, "cls": "Effector delivery system", "sub": "TTSS (SPI-1 encode)"}, {"gene": "spaP", "n": 4, "pct": 0.22, "occ": 4, "cls": "Effector delivery system", "sub": "TTSS (SPI-1 encode)"}, {"gene": "spaQ", "n": 4, "pct": 0.22, "occ": 4, "cls": "Effector delivery system", "sub": "TTSS (SPI-1 encode)"}, {"gene": "ssaI", "n": 4, "pct": 0.22, "occ": 4, "cls": "Effector delivery system", "sub": "TTSS (SPI-2 encode)"}, {"gene": "ssaR", "n": 4, "pct": 0.22, "occ": 4, "cls": "Effector delivery system", "sub": "TTSS (SPI-2 encode)"}, {"gene": "sseE", "n": 4, "pct": 0.22, "occ": 4, "cls": "Effector delivery system", "sub": "TTSS (SPI-2 encode)"}, {"gene": "steB", "n": 4, "pct": 0.22, "occ": 4, "cls": "Effector delivery system", "sub": "TTSS effectors secreted via both systems"}, {"gene": "steD", "n": 4, "pct": 0.22, "occ": 4, "cls": "Effector delivery system", "sub": "TTSS-2 secreted effectors"}, {"gene": "toxB", "n": 4, "pct": 0.22, "occ": 4, "cls": "Effector delivery system", "sub": "ToxB"}, {"gene": "tssB1", "n": 4, "pct": 0.22, "occ": 4, "cls": "Effector delivery system", "sub": "T6SS-1"}, {"gene": "tssC1", "n": 4, "pct": 0.22, "occ": 4, "cls": "Effector delivery system", "sub": "T6SS-1"}, {"gene": "tssD1/hcp1", "n": 4, "pct": 0.22, "occ": 4, "cls": "Effector delivery system", "sub": "T6SS-1"}, {"gene": "vipA/tssB", "n": 4, "pct": 0.22, "occ": 4, "cls": "Effector delivery system", "sub": "T6SS"}, {"gene": "vipB/tssC", "n": 4, "pct": 0.22, "occ": 4, "cls": "Effector delivery system", "sub": "T6SS"}, {"gene": "STM0267", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "SCI (Salmonella centrisome island)/SPI-6 T6SS"}, {"gene": "STM0270", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "SCI (Salmonella centrisome island)/SPI-6 T6SS"}, {"gene": "STM0273", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "SCI (Salmonella centrisome island)/SPI-6 T6SS"}, {"gene": "STM0276", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "SCI (Salmonella centrisome island)/SPI-6 T6SS"}, {"gene": "STM0278", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "SCI (Salmonella centrisome island)/SPI-6 T6SS"}, {"gene": "STM0279", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "SCI (Salmonella centrisome island)/SPI-6 T6SS"}, {"gene": "STM0282", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "SCI (Salmonella centrisome island)/SPI-6 T6SS"}, {"gene": "STM0283", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "SCI (Salmonella centrisome island)/SPI-6 T6SS"}, {"gene": "STM0285", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "SCI (Salmonella centrisome island)/SPI-6 T6SS"}, {"gene": "STM0286", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "SCI (Salmonella centrisome island)/SPI-6 T6SS"}, {"gene": "STM0290", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "SCI (Salmonella centrisome island)/SPI-6 T6SS"}, {"gene": "acrA", "n": 3, "pct": 0.17, "occ": 3, "cls": "Antimicrobial activity/Competitive advantage", "sub": "AcrAB"}, {"gene": "bapA", "n": 3, "pct": 0.17, "occ": 3, "cls": "Adherence", "sub": "BapA"}, {"gene": "bfpA", "n": 3, "pct": 0.17, "occ": 3, "cls": "Adherence", "sub": "BFP"}, {"gene": "bfpD", "n": 3, "pct": 0.17, "occ": 3, "cls": "Adherence", "sub": "BFP"}, {"gene": "bfpP", "n": 3, "pct": 0.17, "occ": 3, "cls": "Adherence", "sub": "BFP"}, {"gene": "cheW", "n": 3, "pct": 0.17, "occ": 3, "cls": "Motility", "sub": "Flagella"}, {"gene": "csgE", "n": 3, "pct": 0.17, "occ": 3, "cls": "Adherence", "sub": "Agf"}, {"gene": "csgF", "n": 3, "pct": 0.17, "occ": 3, "cls": "Adherence", "sub": "Agf"}, {"gene": "csgG", "n": 3, "pct": 0.17, "occ": 3, "cls": "Adherence", "sub": "Agf"}, {"gene": "espM2", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "espO1-1", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "fimW", "n": 3, "pct": 0.17, "occ": 3, "cls": "Adherence", "sub": "Type 1 fimbriae"}, {"gene": "fimY", "n": 3, "pct": 0.17, "occ": 3, "cls": "Adherence", "sub": "Type 1 fimbriae"}, {"gene": "fimZ", "n": 3, "pct": 0.17, "occ": 3, "cls": "Adherence", "sub": "Type 1 fimbriae"}, {"gene": "flgF", "n": 3, "pct": 0.17, "occ": 3, "cls": "Motility", "sub": "Flagella"}, {"gene": "flgG", "n": 3, "pct": 0.17, "occ": 3, "cls": "Motility", "sub": "Flagella"}, {"gene": "flhC", "n": 3, "pct": 0.17, "occ": 3, "cls": "Motility", "sub": "Flagella"}, {"gene": "fliG", "n": 3, "pct": 0.17, "occ": 3, "cls": "Motility", "sub": "Flagella"}, {"gene": "fliL", "n": 3, "pct": 0.17, "occ": 3, "cls": "Motility", "sub": "Flagella"}, {"gene": "fliM", "n": 3, "pct": 0.17, "occ": 3, "cls": "Motility", "sub": "Flagella"}, {"gene": "gtrB", "n": 3, "pct": 0.17, "occ": 3, "cls": "Immune modulation", "sub": "LPS"}, {"gene": "hilA", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-1 encode)"}, {"gene": "hilC", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-1 encode)"}, {"gene": "hilD", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-1 encode)"}, {"gene": "invA", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-1 encode)"}, {"gene": "invC/sctN", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-1 encode)"}, {"gene": "invE", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-1 encode)"}, {"gene": "invF", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-1 encode)"}, {"gene": "invG", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-1 encode)"}, {"gene": "invI", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-1 encode)"}, {"gene": "invJ", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-1 encode)"}, {"gene": "mgtB", "n": 3, "pct": 0.17, "occ": 3, "cls": "Nutritional/Metabolic factor", "sub": "MgtB"}, {"gene": "mgtC", "n": 3, "pct": 0.17, "occ": 3, "cls": "Nutritional/Metabolic factor", "sub": "MgtC"}, {"gene": "mig-14", "n": 3, "pct": 0.17, "occ": 3, "cls": "Antimicrobial activity/Competitive advantage", "sub": "Mig-14"}, {"gene": "misL", "n": 3, "pct": 0.17, "occ": 3, "cls": "Adherence", "sub": "MisL"}, {"gene": "nleB2-2", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "orgA/sctK", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-1 encode)"}, {"gene": "orgB/SctL", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-1 encode)"}, {"gene": "pagN", "n": 3, "pct": 0.17, "occ": 3, "cls": "Invasion", "sub": "PagN"}, {"gene": "phoP", "n": 3, "pct": 0.17, "occ": 3, "cls": "Regulation", "sub": "PhoPQ"}, {"gene": "phoQ", "n": 3, "pct": 0.17, "occ": 3, "cls": "Regulation", "sub": "PhoPQ"}, {"gene": "pipB", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS-2 secreted effectors"}, {"gene": "pipB2", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS-2 secreted effectors"}, {"gene": "pmrA", "n": 3, "pct": 0.17, "occ": 3, "cls": "Regulation", "sub": "PmrAB"}, {"gene": "pmrB", "n": 3, "pct": 0.17, "occ": 3, "cls": "Regulation", "sub": "PmrAB"}, {"gene": "prgH", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-1 encode)"}, {"gene": "prgI", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-1 encode)"}, {"gene": "prgJ", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-1 encode)"}, {"gene": "prgK", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-1 encode)"}, {"gene": "sicA", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-1 encode)"}, {"gene": "sifA", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS-2 secreted effectors"}, {"gene": "sifB", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS-2 secreted effectors"}, {"gene": "sinH", "n": 3, "pct": 0.17, "occ": 3, "cls": "Adherence", "sub": "SinH"}, {"gene": "sipA/sspA", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS-1 secreted effectors"}, {"gene": "sipB/sspB", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-1 encode)"}, {"gene": "sipC/sspC", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-1 encode)"}, {"gene": "sipD", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-1 encode)"}, {"gene": "slrP", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS effectors secreted via both systems"}, {"gene": "sopA", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS-1 secreted effectors"}, {"gene": "sopB/sigD", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS-1 secreted effectors"}, {"gene": "sopD", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS-1 secreted effectors"}, {"gene": "sopD2", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS-2 secreted effectors"}, {"gene": "sopE2", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS-1 secreted effectors"}, {"gene": "spaO/sctQ", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-1 encode)"}, {"gene": "spaR", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-1 encode)"}, {"gene": "spaS", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-1 encode)"}, {"gene": "spiC/ssaB", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-2 encode)"}, {"gene": "sprB", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-1 encode)"}, {"gene": "sptP", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS-1 secreted effectors"}, {"gene": "srfJ", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS-2 secreted effectors"}, {"gene": "ssaC", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-2 encode)"}, {"gene": "ssaD", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-2 encode)"}, {"gene": "ssaE", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-2 encode)"}, {"gene": "ssaG", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-2 encode)"}, {"gene": "ssaH", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-2 encode)"}, {"gene": "ssaJ", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-2 encode)"}, {"gene": "ssaK", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-2 encode)"}, {"gene": "ssaL", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-2 encode)"}, {"gene": "ssaM", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-2 encode)"}, {"gene": "ssaN", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-2 encode)"}, {"gene": "ssaO", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-2 encode)"}, {"gene": "ssaP", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-2 encode)"}, {"gene": "ssaQ", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-2 encode)"}, {"gene": "ssaS", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-2 encode)"}, {"gene": "ssaT", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-2 encode)"}, {"gene": "ssaU", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-2 encode)"}, {"gene": "ssaV", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-2 encode)"}, {"gene": "ssaX", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-2 encode)"}, {"gene": "sscA", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-2 encode)"}, {"gene": "sscB", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-2 encode)"}, {"gene": "sseA", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-2 encode)"}, {"gene": "sseB", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-2 encode)"}, {"gene": "sseC", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-2 encode)"}, {"gene": "sseD", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-2 encode)"}, {"gene": "sseG", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-2 encode)"}, {"gene": "sseJ", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS-2 secreted effectors"}, {"gene": "sseK1", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS-2 secreted effectors"}, {"gene": "sseL", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS-2 secreted effectors"}, {"gene": "ssrA", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-2 encode)"}, {"gene": "ssrB", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS (SPI-2 encode)"}, {"gene": "steA", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS effectors secreted via both systems"}, {"gene": "steC", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "TTSS-2 secreted effectors"}, {"gene": "tlde1", "n": 3, "pct": 0.17, "occ": 3, "cls": "Effector delivery system", "sub": "SCI T6SS secreted effectors"}, {"gene": "KP1_RS17305", "n": 2, "pct": 0.11, "occ": 2, "cls": "Immune modulation", "sub": "Capsule"}, {"gene": "STM0268", "n": 2, "pct": 0.11, "occ": 2, "cls": "Effector delivery system", "sub": "SCI (Salmonella centrisome island)/SPI-6 T6SS"}, {"gene": "STM0269", "n": 2, "pct": 0.11, "occ": 2, "cls": "Effector delivery system", "sub": "SCI (Salmonella centrisome island)/SPI-6 T6SS"}, {"gene": "STM0271", "n": 2, "pct": 0.11, "occ": 2, "cls": "Effector delivery system", "sub": "SCI (Salmonella centrisome island)/SPI-6 T6SS"}, {"gene": "STM0272", "n": 2, "pct": 0.11, "occ": 2, "cls": "Effector delivery system", "sub": "SCI (Salmonella centrisome island)/SPI-6 T6SS"}, {"gene": "STM0274", "n": 2, "pct": 0.11, "occ": 2, "cls": "Effector delivery system", "sub": "SCI (Salmonella centrisome island)/SPI-6 T6SS"}, {"gene": "STM0275", "n": 2, "pct": 0.11, "occ": 2, "cls": "Effector delivery system", "sub": "SCI (Salmonella centrisome island)/SPI-6 T6SS"}, {"gene": "STM0287", "n": 2, "pct": 0.11, "occ": 2, "cls": "Effector delivery system", "sub": "SCI (Salmonella centrisome island)/SPI-6 T6SS"}, {"gene": "espC", "n": 2, "pct": 0.11, "occ": 2, "cls": "Effector delivery system", "sub": "EspC"}, {"gene": "espH", "n": 2, "pct": 0.11, "occ": 2, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "espV", "n": 2, "pct": 0.11, "occ": 2, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "esxD", "n": 2, "pct": 0.11, "occ": 2, "cls": "Effector delivery system", "sub": "Type VII secretion system"}, {"gene": "flhA", "n": 2, "pct": 0.11, "occ": 2, "cls": "Motility", "sub": "Flagella"}, {"gene": "fliP", "n": 2, "pct": 0.11, "occ": 2, "cls": "Motility", "sub": "Flagella"}, {"gene": "nleG5-1", "n": 2, "pct": 0.11, "occ": 2, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "nleG6-2", "n": 2, "pct": 0.11, "occ": 2, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "pla", "n": 2, "pct": 0.11, "occ": 2, "cls": "Exoenzyme", "sub": "Pla"}, {"gene": "rcsB", "n": 2, "pct": 0.11, "occ": 2, "cls": "Regulation", "sub": "RcsAB"}, {"gene": "sfaB", "n": 2, "pct": 0.11, "occ": 2, "cls": "Adherence", "sub": "S fimbriae"}, {"gene": "shuA", "n": 2, "pct": 0.11, "occ": 2, "cls": "Nutritional/Metabolic factor", "sub": "Shu"}, {"gene": "sseF", "n": 2, "pct": 0.11, "occ": 2, "cls": "Effector delivery system", "sub": "TTSS (SPI-2 encode)"}, {"gene": "sspH1", "n": 2, "pct": 0.11, "occ": 2, "cls": "Effector delivery system", "sub": "TTSS effectors secreted via both systems"}, {"gene": "stcE", "n": 2, "pct": 0.11, "occ": 2, "cls": "Exoenzyme", "sub": "StcE"}, {"gene": "tae4", "n": 2, "pct": 0.11, "occ": 2, "cls": "Effector delivery system", "sub": "SCI T6SS secreted effectors"}, {"gene": "tir", "n": 2, "pct": 0.11, "occ": 2, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "tre<up>Tu<\/up>", "n": 2, "pct": 0.11, "occ": 2, "cls": "Effector delivery system", "sub": "SCI T6SS secreted effectors"}, {"gene": "tssE1", "n": 2, "pct": 0.11, "occ": 2, "cls": "Effector delivery system", "sub": "T6SS-1"}, {"gene": "tssL1", "n": 2, "pct": 0.11, "occ": 2, "cls": "Effector delivery system", "sub": "T6SS-1"}, {"gene": "vgrG", "n": 2, "pct": 0.11, "occ": 2, "cls": "Effector delivery system", "sub": "SCI (Salmonella centrisome island)/SPI-6 T6SS"}, {"gene": "AAD32423", "n": 1, "pct": 0.06, "occ": 1, "cls": "Regulation", "sub": "AtxA"}, {"gene": "ACICU_RS16840", "n": 1, "pct": 0.06, "occ": 1, "cls": "Adherence", "sub": "TFP"}, {"gene": "KP1_RS17220", "n": 1, "pct": 0.06, "occ": 1, "cls": "Immune modulation", "sub": "LPS"}, {"gene": "acrB", "n": 1, "pct": 0.06, "occ": 1, "cls": "Antimicrobial activity/Competitive advantage", "sub": "AcrAB"}, {"gene": "asbD", "n": 1, "pct": 0.06, "occ": 1, "cls": "Nutritional/Metabolic factor", "sub": "Petrobactin"}, {"gene": "avrA", "n": 1, "pct": 0.06, "occ": 1, "cls": "Effector delivery system", "sub": "TTSS-1 secreted effectors"}, {"gene": "cylI", "n": 1, "pct": 0.06, "occ": 1, "cls": "Exotoxin", "sub": "Cytolysin"}, {"gene": "draE", "n": 1, "pct": 0.06, "occ": 1, "cls": "Adherence", "sub": "Dr adhesins"}, {"gene": "ebpC", "n": 1, "pct": 0.06, "occ": 1, "cls": "Adherence", "sub": "Ebp pili"}, {"gene": "efaA", "n": 1, "pct": 0.06, "occ": 1, "cls": "Adherence", "sub": "EfaA"}, {"gene": "espT", "n": 1, "pct": 0.06, "occ": 1, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "esxM", "n": 1, "pct": 0.06, "occ": 1, "cls": "Effector delivery system", "sub": "ESX-5"}, {"gene": "etpA", "n": 1, "pct": 0.06, "occ": 1, "cls": "Adherence", "sub": "EtpA"}, {"gene": "flgB", "n": 1, "pct": 0.06, "occ": 1, "cls": "Motility", "sub": "Flagella"}, {"gene": "fsrA", "n": 1, "pct": 0.06, "occ": 1, "cls": "Biofilm", "sub": "Fsr"}, {"gene": "fsrB", "n": 1, "pct": 0.06, "occ": 1, "cls": "Biofilm", "sub": "Fsr"}, {"gene": "hld", "n": 1, "pct": 0.06, "occ": 1, "cls": "Exotoxin", "sub": "Delta-hemolysin"}, {"gene": "ipaH", "n": 1, "pct": 0.06, "occ": 1, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "lef", "n": 1, "pct": 0.06, "occ": 1, "cls": "Exotoxin", "sub": "Anthrax toxin"}, {"gene": "lpfA", "n": 1, "pct": 0.06, "occ": 1, "cls": "Adherence", "sub": "Lpf"}, {"gene": "nleG6-3", "n": 1, "pct": 0.06, "occ": 1, "cls": "Effector delivery system", "sub": "TTSS secreted effectors"}, {"gene": "pagA", "n": 1, "pct": 0.06, "occ": 1, "cls": "Exotoxin", "sub": "Anthrax toxin"}, {"gene": "pltA", "n": 1, "pct": 0.06, "occ": 1, "cls": "Exotoxin", "sub": "Typhoid toxin"}, {"gene": "pltB", "n": 1, "pct": 0.06, "occ": 1, "cls": "Exotoxin", "sub": "Typhoid toxin"}, {"gene": "pltC", "n": 1, "pct": 0.06, "occ": 1, "cls": "Exotoxin", "sub": "Typhoid toxin"}, {"gene": "shuS", "n": 1, "pct": 0.06, "occ": 1, "cls": "Nutritional/Metabolic factor", "sub": "Shu"}, {"gene": "siiE", "n": 1, "pct": 0.06, "occ": 1, "cls": "Adherence", "sub": "SiiE"}, {"gene": "srtC", "n": 1, "pct": 0.06, "occ": 1, "cls": "Adherence", "sub": "Ebp pili"}, {"gene": "sseK2", "n": 1, "pct": 0.06, "occ": 1, "cls": "Effector delivery system", "sub": "TTSS-2 secreted effectors"}, {"gene": "sspC", "n": 1, "pct": 0.06, "occ": 1, "cls": "Exoenzyme", "sub": "Staphopain"}, {"gene": "sspH2", "n": 1, "pct": 0.06, "occ": 1, "cls": "Effector delivery system", "sub": "TTSS-2 secreted effectors"}, {"gene": "stx1A", "n": 1, "pct": 0.06, "occ": 1, "cls": "Exotoxin", "sub": "Stx"}, {"gene": "tssI/vgrG1", "n": 1, "pct": 0.06, "occ": 1, "cls": "Effector delivery system", "sub": "T6SS-1"}];
+
+let freqSortKey = 'pct';
+let freqSortAsc = false;
+
+function freqRender() {
+    const termEl = document.getElementById('freq-search');
+    const clsEl = document.getElementById('freq-class');
+    const minEl = document.getElementById('freq-min-pct');
+    const term = (termEl ? termEl.value : '').toLowerCase();
+    const cls = clsEl ? clsEl.value : '';
+    const minPct = parseFloat(minEl ? minEl.value : '0') || 0;
+
+    let rows = FREQ_DATA.filter(function(r) {
+        if (term) {
+            const hay = (r.gene + ' ' + (r.cls || '') + ' ' + (r.sub || '')).toLowerCase();
+            if (hay.indexOf(term) === -1) return false;
+        }
+        if (cls && r.cls !== cls) return false;
+        if (r.pct < minPct) return false;
+        return true;
+    });
+
+    rows.sort(function(a, b) {
+        const av = a[freqSortKey], bv = b[freqSortKey];
+        if (typeof av === 'number' && typeof bv === 'number')
+            return freqSortAsc ? av - bv : bv - av;
+        return freqSortAsc
+            ? String(av).localeCompare(String(bv))
+            : String(bv).localeCompare(String(av));
+    });
+
+    const thead2 = document.getElementById('freq-head');
+    const tbody2 = document.getElementById('freq-body');
+
+    const hasClass = FREQ_DATA.length > 0 && FREQ_DATA[0].cls !== undefined;
+    const hasSub   = FREQ_DATA.length > 0 && FREQ_DATA[0].sub !== undefined;
+    const cols = [
+        { key: 'gene', label: 'Gene' },
+    ];
+    if (hasClass) cols.push({ key: 'cls', label: 'Class' });
+    if (hasSub)   cols.push({ key: 'sub', label: 'Subclass' });
+    cols.push({ key: 'n',   label: 'Genomes',     right: true });
+    cols.push({ key: 'pct', label: 'Prevalence',  right: false });
+    cols.push({ key: 'occ', label: 'Occurrences', right: true });
+    cols.push({ key: '_add', label: '' });
+
+    thead2.innerHTML = '<tr>' + cols.map(function(c) {
+        if (c.key === '_add') return '<th></th>';
+        const s = freqSortKey === c.key ? (freqSortAsc ? 'sorted-asc' : 'sorted-desc') : '';
+        return '<th class="sortable ' + s + '" data-fkey="' + c.key + '">' + c.label + '</th>';
+    }).join('') + '</tr>';
+
+    thead2.querySelectorAll('th.sortable').forEach(function(th) {
+        th.addEventListener('click', function() {
+            const k = th.dataset.fkey;
+            if (freqSortKey === k) freqSortAsc = !freqSortAsc;
+            else { freqSortKey = k; freqSortAsc = false; }
+            freqRender();
+        });
+    });
+
+    if (rows.length === 0) {
+        tbody2.innerHTML = '<tr><td colspan="' + cols.length + '"><div class="empty-state">' +
+            '<div class="icon">🔍</div><div>No genes match</div></div></td></tr>';
+        return;
+    }
+
+    tbody2.innerHTML = rows.slice(0, 2000).map(function(r) {
+        let cells = '<td><span class="gene-name">' + esc(r.gene) + '</span></td>';
+        if (hasClass) cells += '<td>' + (r.cls ? '<span class="family-pill">' + esc(r.cls) + '</span>' : '—') + '</td>';
+        if (hasSub)   cells += '<td>' + (r.sub ? '<span class="family-pill">' + esc(r.sub) + '</span>' : '—') + '</td>';
+        cells += '<td class="num-cell">' + r.n.toLocaleString() + '</td>';
+        const barW = Math.max(0.5, Math.min(100, r.pct));
+        const color = r.pct >= 50 ? '#991b1b' : (r.pct >= 10 ? '#b45309' : '#64748b');
+        cells += '<td><div class="prev-cell">' +
+            '<div class="prev-bar-track"><div class="prev-bar-fill" style="width:' + barW + '%;"></div></div>' +
+            '<span class="prev-value" style="color:' + color + '">' + r.pct.toFixed(2) + '%</span>' +
+            '</div></td>';
+        cells += '<td class="num-cell">' + r.occ.toLocaleString() + '</td>';
+        // Add button only if gene is in the headline set (index by label match)
+        const inHeadline = geneMeta.findIndex(function(g) { return g.label === r.gene; });
+        if (inHeadline >= 0) {
+            cells += '<td><button class="add-gene-btn" data-idx="' + inHeadline + '">+ Add</button></td>';
+        } else {
+            cells += '<td></td>';
+        }
+        return '<tr>' + cells + '</tr>';
+    }).join('');
+
+    tbody2.querySelectorAll('.add-gene-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const idx = parseInt(btn.dataset.idx);
+            if (!selected.includes(idx) && selected.length < MAX_GENES) {
+                selected.push(idx);
+                renderChips();
+                renderSelectedBar();
+                runSearch();
+                // Switch to search tab
+                document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+                document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+                document.querySelector('.tab-btn[data-tab="search"]').classList.add('active');
+                document.getElementById('tab-search').classList.add('active');
+            }
+        });
+    });
+}
+
+// =========================================================================
+// Tabs
+// =========================================================================
+document.querySelectorAll('.tab-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+        document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+        btn.classList.add('active');
+        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+        if (btn.dataset.tab === 'freq') freqRender();
+    });
+});
+
+// =========================================================================
+// Frequency table wiring
+// =========================================================================
+['freq-search', 'freq-class', 'freq-min-pct'].forEach(function(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('input', function() {
+        clearTimeout(window._ft);
+        window._ft = setTimeout(freqRender, 200);
+    });
+    el.addEventListener('change', freqRender);
+});
+
+// =========================================================================
+// Init
+// =========================================================================
+renderChips();
+renderSelectedBar();
+renderResults();
+freqRender();
+
+// Trigger index load on first user interaction with the picker
+document.addEventListener('click', function() {
+    ensureIndex();
+}, { once: true });
+
+</script>
+</body>
+</html>

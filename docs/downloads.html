@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Downloads — ECLIPSE</title>
+<meta name="description" content="Download the complete ECLIPSE data — typing annotations, gene presence tables, and epidemiological metadata.">
+<style>
+
+:root {
+    --gold: #d4af37;
+    --navy: #0a1628;
+    --accent: #10b981;
+    --accent-dark: #047857;
+    --accent-light: #d1fae5;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --text: #1e293b;
+    --muted: #64748b;
+    --border: #e2e8f0;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+}
+
+.argus-nav {
+    background: var(--navy); color: white; padding: 20px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    position: sticky; top: 0; z-index: 100;
+    border-bottom: 2px solid #10b98144;
+}
+.argus-nav .brand { display: flex; align-items: center; gap: 20px;
+    text-decoration: none; flex-shrink: 0; }
+.argus-nav .brand-emoji {
+    font-size: 5.6em; line-height: 1;
+    filter: drop-shadow(0 0 14px #10b981aa); flex-shrink: 0;
+}
+.argus-nav .brand-text { display: flex; flex-direction: column; gap: 3px; }
+.argus-nav .brand-name {
+    font-weight: 900; font-size: 3.45em; letter-spacing: 2px;
+    color: var(--gold); line-height: 1;
+}
+.argus-nav .brand-tagline {
+    font-size: 1.0em; font-weight: 400;
+    color: #94a3b8; line-height: 1.15; max-width: 520px;
+}
+.argus-nav .links { display: flex; gap: 3px; align-items: center; flex-wrap: wrap; }
+.argus-nav .links a {
+    color: #cbd5e1; text-decoration: none;
+    padding: 7px 12px; border-radius: 6px;
+    font-size: 0.84em; font-weight: 500;
+    transition: all 0.15s; white-space: nowrap;
+}
+.argus-nav .links a:hover { background: rgba(255,255,255,0.08); color: white; }
+.argus-nav .links a.active {
+    background: #10b981; color: white; font-weight: 700;
+    box-shadow: 0 3px 10px #10b98166;
+}
+
+.page-header {
+    background:
+        radial-gradient(circle at 20% 30%, #10b98126 0%, transparent 55%),
+        radial-gradient(circle at 80% 70%, #06b6d422 0%, transparent 45%),
+        linear-gradient(135deg, #0a1628 0%, #064e3b 55%, #065f46 100%);
+    color: white; padding: 44px 32px 36px;
+    position: relative; overflow: hidden;
+}
+.page-header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px);
+    background-size: 36px 36px;
+    opacity: 0.6; pointer-events: none;
+}
+.page-header .inner { position: relative; z-index: 1; max-width: 1400px; }
+.page-header .module-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 0.78em; font-weight: 800; letter-spacing: 1.5px;
+    text-transform: uppercase; color: #6ee7b7;
+    padding: 5px 14px; border-radius: 20px;
+    background: #10b98122; border: 1px solid #10b98144;
+    margin-bottom: 12px;
+}
+.page-header h1 {
+    font-size: 2.6em; margin-bottom: 6px; font-weight: 900;
+    letter-spacing: -0.5px; line-height: 1.1;
+}
+.page-header .subtitle { color: #cbd5e1; font-size: 1.05em; margin-bottom: 24px; }
+
+main { max-width: 1400px; margin: 0 auto; padding: 28px 32px 60px; }
+
+/* Bulk bar */
+.bulk-bar {
+    background: linear-gradient(135deg, #0a1628 0%, #064e3b 100%);
+    color: white;
+    border-radius: 16px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+    border: 1px solid rgba(16,185,129,0.3);
+    box-shadow: 0 16px 40px rgba(6,78,59,0.25);
+    position: relative; overflow: hidden;
+}
+.bulk-bar::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: radial-gradient(circle, rgba(110,231,183,0.1) 1px, transparent 1px);
+    background-size: 28px 28px;
+    opacity: 0.5; pointer-events: none;
+}
+.bulk-bar .bulk-info { position: relative; z-index: 1; }
+.bulk-bar .bulk-info h3 {
+    color: #6ee7b7; font-size: 1.3em;
+    margin-bottom: 4px; font-weight: 900;
+}
+.bulk-bar .bulk-info p { color: #cbd5e1; font-size: 0.95em; }
+.bulk-bar .bulk-info strong { color: #f0fdf4; }
+.bulk-bar .bulk-actions { display: flex; gap: 10px; flex-wrap: wrap; position: relative; z-index: 1; }
+.bulk-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 14px 26px; border-radius: 10px;
+    font-size: 1em; font-weight: 800;
+    text-decoration: none; border: none; cursor: pointer;
+    font-family: inherit; transition: all 0.15s;
+    letter-spacing: 0.2px;
+}
+.bulk-btn.primary {
+    background: #10b981; color: white;
+    box-shadow: 0 8px 24px rgba(16,185,129,0.5);
+}
+.bulk-btn.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(16,185,129,0.7);
+    background: #059669;
+}
+.bulk-btn.secondary {
+    background: rgba(255,255,255,0.08); color: white;
+    border: 2px solid rgba(255,255,255,0.2);
+}
+.bulk-btn.secondary:hover {
+    background: rgba(255,255,255,0.15);
+    border-color: rgba(110,231,183,0.5);
+}
+.bulk-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.section-title {
+    font-size: 1.3em; color: var(--navy); margin: 28px 0 8px;
+    font-weight: 800; padding-bottom: 8px;
+    border-bottom: 3px solid var(--accent);
+    display: inline-block;
+}
+.section-desc {
+    color: var(--muted); font-size: 0.94em;
+    margin-bottom: 20px; max-width: 860px;
+}
+
+.dl-table {
+    width: 100%; background: var(--card);
+    border-radius: 14px; border: 1px solid var(--border);
+    overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    border-collapse: collapse; font-size: 0.88em;
+    margin-bottom: 32px;
+}
+.dl-table thead th {
+    background: #f1f5f9; padding: 12px 16px; text-align: left;
+    font-weight: 800; color: #334155; font-size: 0.8em;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    border-bottom: 2px solid var(--border);
+    white-space: nowrap;
+}
+.dl-table tbody td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+}
+.dl-table tbody tr:hover td { background: #fafbfc; }
+.dl-table tbody tr:last-child td { border-bottom: none; }
+.dl-fname {
+    font-family: 'SF Mono', Monaco, monospace;
+    font-weight: 700; color: var(--navy); font-size: 0.86em;
+}
+.dl-module {
+    display: inline-block; padding: 3px 10px;
+    border-radius: 10px; background: var(--accent-light);
+    color: var(--accent-dark); font-weight: 800;
+    font-size: 0.75em; text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+.dl-desc { color: #475569; font-size: 0.88em; line-height: 1.5; }
+.dl-size, .dl-rows {
+    font-family: 'SF Mono', Monaco, monospace;
+    font-size: 0.85em; text-align: right;
+    white-space: nowrap; font-weight: 700;
+    color: #334155;
+}
+.dl-rows { color: #64748b; }
+.dl-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px; border-radius: 8px;
+    background: var(--accent); color: white;
+    text-decoration: none; font-size: 0.82em;
+    font-weight: 800; transition: all 0.15s;
+    white-space: nowrap; border: none;
+    font-family: inherit; cursor: pointer;
+}
+.dl-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16,185,129,0.5);
+    background: var(--accent-dark);
+}
+.dl-btn.disabled {
+    background: #cbd5e1; color: #64748b;
+    pointer-events: none; cursor: not-allowed;
+}
+
+.note-block {
+    background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+    border-left: 6px solid var(--accent);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 28px 0;
+    color: #064e3b;
+    font-size: 0.94em;
+    line-height: 1.7;
+}
+.note-block h3 {
+    color: var(--accent-dark);
+    margin-bottom: 10px;
+    font-size: 1.1em;
+    display: flex; align-items: center; gap: 8px;
+}
+.note-block code {
+    background: rgba(255,255,255,0.8);
+    padding: 2px 7px; border-radius: 4px;
+    font-family: 'SF Mono', Monaco, monospace;
+    font-size: 0.88em;
+    border: 1px solid rgba(16,185,129,0.15);
+}
+.note-block ul { margin: 8px 0 4px 22px; }
+.note-block li { margin-bottom: 6px; }
+.note-block pre {
+    background: #0a1628; color: #6ee7b7;
+    padding: 14px 18px; border-radius: 8px;
+    overflow-x: auto; margin: 12px 0;
+    font-size: 0.86em;
+    font-family: 'SF Mono', Monaco, monospace;
+    line-height: 1.55;
+    border: 1px solid rgba(110,231,183,0.2);
+}
+.note-block a {
+    color: var(--accent-dark);
+    font-weight: 700;
+    text-decoration: none;
+    border-bottom: 1px dotted var(--accent-dark);
+}
+.note-block a:hover { color: #065f46; }
+
+.argus-footer {
+    background: var(--navy); color: #94a3b8; padding: 32px;
+    text-align: center; font-size: 0.86em; margin-top: 60px;
+    border-top: 2px solid #10b98133;
+}
+.argus-footer a { color: var(--gold); text-decoration: none; }
+.argus-footer a:hover { text-decoration: underline; }
+.argus-footer .footer-line { margin: 6px 0; }
+.argus-footer .full-name { color: #cbd5e1; font-size: 0.95em; letter-spacing: 0.2px; font-weight: 600; }
+.argus-footer .full-name strong { color: var(--gold); }
+
+@media (max-width: 900px) {
+    .argus-nav { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .argus-nav .brand-tagline { max-width: 100%; }
+    .argus-nav .brand-emoji { font-size: 3.6em; }
+    .argus-nav .brand-name { font-size: 2.2em; }
+    .bulk-bar { flex-direction: column; align-items: stretch; text-align: center; }
+    .bulk-bar .bulk-actions { justify-content: center; }
+    .bulk-btn { flex: 1; justify-content: center; }
+    .dl-table { display: block; overflow-x: auto; }
+}
+@media (max-width: 700px) {
+    .page-header { padding: 28px 20px 24px; }
+    .page-header h1 { font-size: 1.8em; }
+    main { padding: 20px 16px 40px; }
+    .argus-nav { padding: 14px 16px; }
+}
+
+</style>
+</head>
+<body>
+
+<nav class="argus-nav">
+    <a class="brand" href="index.html">
+        <span class="brand-emoji">🌑</span>
+        <span class="brand-text">
+            <span class="brand-name"><span style="color:#7c3aed">E</span><span style="color:#6366f1">C</span><span style="color:#3b82f6">L</span><span style="color:#06b6d4">I</span><span style="color:#10b981">P</span><span style="color:#f59e0b">S</span><span style="color:#ec4899">E</span></span>
+            <span class="brand-tagline">E. coli Library for Integrated Pathogen Surveillance and Epidemiology</span>
+        </span>
+    </a>
+    <div class="links">        <a href="index.html">Home</a>
+        <a href="pages/mlst.html">MLST</a>
+        <a href="pages/phylogroups.html">Phylogroups</a>
+        <a href="pages/serotypes.html">Serotypes</a>
+        <a href="pages/chtyper.html">CHTyper</a>
+        <a href="master.html">Master</a>
+        <a href="pages/amr.html">AMR</a>
+        <a href="pages/vfdb.html">Virulence</a>
+        <a href="pages/plasmid.html">Plasmid</a>
+        <a href="statistics.html">Statistics</a>
+        <a href="geography.html">Geography</a>
+        <a href="lineages.html">Lineages</a>
+        <a href="downloads.html" class="active">Downloads</a>
+        <a href="about.html">About</a></div>
+</nav>
+
+<header class="page-header">
+    <div class="inner">
+        <div class="module-eyebrow">📥 DATA MODULE</div>
+        <h1>Downloads</h1>
+        <div class="subtitle">
+            The complete ECLIPSE data — every typing module, every gene table,
+            every metadata field. Gzipped TSVs, ready for pandas, R, or any pipeline.
+        </div>
+    </div>
+</header>
+
+<main>
+
+    <!-- ============ BULK DOWNLOAD ============ -->
+    <div class="bulk-bar">
+        <div class="bulk-info">
+            <h3>📦 Download everything in one click</h3>
+            <p>
+                11 files · 643,566 total rows ·
+                <strong>7.7 MB</strong> as a single archive
+            </p>
+        </div>
+        <div class="bulk-actions">
+            <a class="bulk-btn primary" href="data/eclipse_data_all.zip" download>&#128230; Download all (7.7 MB)</a>
+            <a class="bulk-btn secondary" href="#files">⬇ Pick individual files</a>
+        </div>
+    </div>
+
+    <!-- ============ FILE TABLES ============ -->
+    <div id="files">
+    <h2 class="section-title">Typing</h2>
+<table class="dl-table"><thead><tr><th>File</th><th>Description</th><th style="text-align:right;">Rows</th><th style="text-align:right;">Size (.gz)</th><th>Download</th></tr></thead><tbody><tr><td class="dl-fname">mlst_all.tsv</td><td class="dl-desc">One row per genome: Achtman ST, allele profile, status</td><td class="dl-rows">1,816</td><td class="dl-size">18.0 KB</td><td><a class="dl-btn" href="data/mlst_all.tsv.gz" download>&#11015; Download</a></td></tr><tr><td class="dl-fname">phylogroup_all.tsv</td><td class="dl-desc">Clermont phylogroup (A/B1/B2/C/D/E/F/G) per genome</td><td class="dl-rows">1,816</td><td class="dl-size">12.7 KB</td><td><a class="dl-btn" href="data/phylogroup_all.tsv.gz" download>&#11015; Download</a></td></tr><tr><td class="dl-fname">serotype_all.tsv</td><td class="dl-desc">SerotypeFinder O:H serotype, O-type, H-type, confidence</td><td class="dl-rows">1,816</td><td class="dl-size">28.7 KB</td><td><a class="dl-btn" href="data/serotype_all.tsv.gz" download>&#11015; Download</a></td></tr><tr><td class="dl-fname">chtyper_all.tsv</td><td class="dl-desc">fumC and fimH allele types per genome</td><td class="dl-rows">1,816</td><td class="dl-size">17.9 KB</td><td><a class="dl-btn" href="data/chtyper_all.tsv.gz" download>&#11015; Download</a></td></tr></tbody></table>
+<h2 class="section-title">Metadata</h2>
+<table class="dl-table"><thead><tr><th>File</th><th>Description</th><th style="text-align:right;">Rows</th><th style="text-align:right;">Size (.gz)</th><th>Download</th></tr></thead><tbody><tr><td class="dl-fname">eclipse_metadata.tsv</td><td class="dl-desc">Country, isolation source, host, collection year, strain, assembly level</td><td class="dl-rows">431,592</td><td class="dl-size">5.6 MB</td><td><a class="dl-btn" href="data/eclipse_metadata.tsv.gz" download>&#11015; Download</a></td></tr></tbody></table>
+<h2 class="section-title">AMR</h2>
+<table class="dl-table"><thead><tr><th>File</th><th>Description</th><th style="text-align:right;">Rows</th><th style="text-align:right;">Size (.gz)</th><th>Download</th></tr></thead><tbody><tr><td class="dl-fname">amr_all.tsv</td><td class="dl-desc">One row per (genome × gene): gene, num_hits, best identity, class, subclass</td><td class="dl-rows">53,278</td><td class="dl-size">477.9 KB</td><td><a class="dl-btn" href="data/amr_all.tsv.gz" download>&#11015; Download</a></td></tr><tr><td class="dl-fname">amr_gene_freq.tsv</td><td class="dl-desc">One row per gene: num_genomes, prevalence %, occurrences, class</td><td class="dl-rows">6,143</td><td class="dl-size">37.2 KB</td><td><a class="dl-btn" href="data/amr_gene_freq.tsv.gz" download>&#11015; Download</a></td></tr></tbody></table>
+<h2 class="section-title">Virulence</h2>
+<table class="dl-table"><thead><tr><th>File</th><th>Description</th><th style="text-align:right;">Rows</th><th style="text-align:right;">Size (.gz)</th><th>Download</th></tr></thead><tbody><tr><td class="dl-fname">vfdb_all.tsv</td><td class="dl-desc">One row per (genome × gene): gene, num_hits, VFC class, VF category</td><td class="dl-rows">138,651</td><td class="dl-size">1.5 MB</td><td><a class="dl-btn" href="data/vfdb_all.tsv.gz" download>&#11015; Download</a></td></tr><tr><td class="dl-fname">vfdb_gene_freq.tsv</td><td class="dl-desc">One row per gene: num_genomes, prevalence %, VFC class</td><td class="dl-rows">541</td><td class="dl-size">5.2 KB</td><td><a class="dl-btn" href="data/vfdb_gene_freq.tsv.gz" download>&#11015; Download</a></td></tr></tbody></table>
+<h2 class="section-title">Plasmid</h2>
+<table class="dl-table"><thead><tr><th>File</th><th>Description</th><th style="text-align:right;">Rows</th><th style="text-align:right;">Size (.gz)</th><th>Download</th></tr></thead><tbody><tr><td class="dl-fname">plasmid_all.tsv</td><td class="dl-desc">One row per (genome × replicon): gene, num_hits, best identity</td><td class="dl-rows">6,016</td><td class="dl-size">35.8 KB</td><td><a class="dl-btn" href="data/plasmid_all.tsv.gz" download>&#11015; Download</a></td></tr><tr><td class="dl-fname">plasmid_gene_freq.tsv</td><td class="dl-desc">One row per replicon: num_genomes, prevalence %, occurrences</td><td class="dl-rows">81</td><td class="dl-size">1.0 KB</td><td><a class="dl-btn" href="data/plasmid_gene_freq.tsv.gz" download>&#11015; Download</a></td></tr></tbody></table>
+
+    </div>
+
+    <!-- ============ HOW TO USE ============ -->
+    <div class="note-block">
+        <h3>📖 How to use these files</h3>
+        <p>Every file is a gzipped TSV. Decompress and open with pandas, R, or the command line:</p>
+<pre>gunzip mlst_all.tsv.gz
+head -5 mlst_all.tsv</pre>
+        <p>Or read directly from Python without decompressing — pandas handles <code>.gz</code> automatically:</p>
+<pre>import pandas as pd
+
+mlst = pd.read_csv("mlst_all.tsv.gz", sep="\t")
+amr  = pd.read_csv("amr_all.tsv.gz",  sep="\t")
+meta = pd.read_csv("eclipse_metadata.tsv.gz", sep="\t")
+
+# Join typing + metadata on accession
+df = mlst.merge(meta, on="accession", how="left")
+df[df["ST"] == "131"].head()</pre>
+
+        <h3>🧬 Long-format gene tables</h3>
+        <p>
+            <code>amr_all.tsv</code>, <code>vfdb_all.tsv</code>, and
+            <code>plasmid_all.tsv</code> are in long format — one row per
+            (genome, gene) presence. To pivot to a wide presence/absence matrix:
+        </p>
+<pre>amr_wide = (amr.assign(present=1)
+               .pivot_table(index="accession", columns="gene",
+                            values="present", fill_value=0))</pre>
+
+        <h3>📎 Related resources</h3>
+        <ul>
+            <li>Source genomes: <a href="https://www.ncbi.nlm.nih.gov/datasets/genome/?taxon=562" target="_blank">NCBI Assembly — Escherichia coli</a></li>
+            <li>Download the genomes themselves:
+                <code>datasets download genome accession --inputfile list.txt</code></li>
+            <li>Typing pipeline: <a href="https://github.com/bbeckley-hub/EcoliTyper" target="_blank">EcoliTyper on GitHub</a></li>
+            <li>Metadata source: <a href="https://www.ncbi.nlm.nih.gov/biosample/" target="_blank">NCBI BioSample</a></li>
+        </ul>
+
+        <h3>📚 Please cite</h3>
+        <p>
+            If you use these data in your research, please cite
+            <strong>EcoliTyper</strong>:
+        </p>
+        <p>
+            Beckley B, Amarh V. EcoliTyper: a species-optimized computational pipeline
+            for comprehensive genotyping and surveillance of <em>Escherichia coli</em>.
+            <em>BMC Bioinformatics</em>. 2026.
+            <a href="https://doi.org/10.1186/s12859-026-06529-6" target="_blank">doi:10.1186/s12859-026-06529-6</a>
+        </p>
+        <p>
+            Please also cite the specific downstream tools you used
+            (mlst, ClermonTyping, SerotypeFinder, CHTyper, AMRFinderPlus, ABRicate,
+            and their reference databases). The complete list is maintained in the
+            <a href="https://github.com/bbeckley-hub/EcoliTyper" target="_blank">EcoliTyper repository</a>.
+        </p>
+    </div>
+
+</main>
+
+<footer class="argus-footer">
+    <div class="footer-line full-name">
+        <strong>ECLIPSE</strong> — E. coli Library for Integrated Pathogen Surveillance and Epidemiology
+    </div>
+    <div class="footer-line">
+        Part of the <strong style="color:#d4af37;">ARGUS</strong> family ·
+        University of Ghana Medical School · MIT License
+    </div>
+    <div class="footer-line">
+        Data updated 2026-10-12 16:41:10 ·
+        <a href="https://github.com/bbeckley-hub/eclipse">GitHub</a> ·
+        <a href="about.html">About</a> ·
+        <a href="mailto:brownbeckley94@gmail.com">Contact</a>
+    </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About — ECLIPSE</title>
+<meta name="description" content="About ECLIPSE — a comprehensive, integrated genomic resource for Escherichia coli surveillance, part of the ARGUS family.">
+<style>
+
+:root {
+    --gold: #d4af37;
+    --navy: #0a1628;
+    --navy-2: #1e293b;
+    --accent: #7c3aed;
+    --accent-dark: #5b21b6;
+    --accent-light: #ede9fe;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --text: #1e293b;
+    --muted: #64748b;
+    --border: #e2e8f0;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- Nav ---------- */
+.argus-nav {
+    background: var(--navy); color: white;
+    padding: 20px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 24px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    position: sticky; top: 0; z-index: 100;
+    border-bottom: 2px solid var(--accent)44;
+}
+.argus-nav .brand {
+    display: flex; align-items: center; gap: 20px;
+    text-decoration: none; flex-shrink: 0;
+}
+.argus-nav .brand-emoji {
+    font-size: 5.6em; line-height: 1;
+    filter: drop-shadow(0 0 14px var(--accent)aa);
+    flex-shrink: 0;
+}
+.argus-nav .brand-text { display: flex; flex-direction: column; gap: 3px; }
+.argus-nav .brand-name {
+    font-weight: 900; font-size: 3.45em; letter-spacing: 2px;
+    color: var(--gold); line-height: 1;
+}
+.argus-nav .brand-tagline {
+    font-size: 1.0em; font-weight: 400;
+    color: #94a3b8; line-height: 1.15; max-width: 520px;
+}
+.argus-nav .links { display: flex; gap: 3px; align-items: center; flex-wrap: wrap; }
+.argus-nav .links a {
+    color: #cbd5e1; text-decoration: none;
+    padding: 7px 12px; border-radius: 6px;
+    font-size: 0.84em; font-weight: 500;
+    transition: all 0.15s; white-space: nowrap;
+}
+.argus-nav .links a:hover { background: rgba(255,255,255,0.08); color: white; }
+.argus-nav .links a.active {
+    background: var(--accent); color: white; font-weight: 700;
+    box-shadow: 0 3px 10px var(--accent)66;
+}
+
+/* ---------- Hero ---------- */
+.about-hero {
+    background:
+        radial-gradient(circle at 25% 30%, rgba(124,58,237,0.15) 0%, transparent 55%),
+        radial-gradient(circle at 75% 70%, rgba(236,72,153,0.10) 0%, transparent 50%),
+        linear-gradient(135deg, var(--navy) 0%, #2e1065 100%);
+    color: white;
+    padding: 70px 32px 55px;
+    text-align: center;
+    position: relative; overflow: hidden;
+}
+.about-hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+    background-size: 40px 40px;
+    opacity: 0.3; pointer-events: none;
+}
+.about-hero-inner { position: relative; max-width: 900px; margin: 0 auto; z-index: 1; }
+.about-hero h1 {
+    font-size: 2.8em; font-weight: 900;
+    color: #c4b5fd; letter-spacing: 2px;
+    margin-bottom: 12px;
+    text-shadow: 0 4px 24px rgba(124,58,237,0.4);
+}
+.about-hero .hero-sub {
+    font-size: 1.15em; color: #cbd5e1;
+    margin-bottom: 8px; font-weight: 500;
+}
+.about-hero .hero-tag {
+    display: inline-block;
+    background: rgba(124,58,237,0.18);
+    color: #c4b5fd;
+    padding: 6px 18px; border-radius: 20px;
+    font-size: 0.85em; font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-top: 10px;
+    border: 1px solid rgba(124,58,237,0.35);
+}
+
+/* ---------- Quote banner ---------- */
+.quote-banner {
+    background:
+        radial-gradient(circle at 30% 40%, rgba(124,58,237,0.12) 0%, transparent 55%),
+        radial-gradient(circle at 70% 60%, rgba(236,72,153,0.08) 0%, transparent 50%),
+        linear-gradient(135deg, #0a1628 0%, #1e293b 100%);
+    color: white;
+    padding: 56px 32px 44px;
+    text-align: center;
+    position: relative; overflow: hidden;
+    border-top: 1px solid rgba(124,58,237,0.2);
+    border-bottom: 1px solid rgba(124,58,237,0.2);
+}
+.quote-banner::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px);
+    background-size: 40px 40px;
+    opacity: 0.25; pointer-events: none;
+}
+.quote-banner .quote-inner {
+    position: relative; max-width: 900px; margin: 0 auto; z-index: 1;
+    min-height: 150px;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+}
+.quote-banner .quote-mark {
+    font-size: 3.2em; line-height: 1;
+    color: rgba(196,181,253,0.4);
+    font-family: Georgia, serif;
+    display: block; margin-bottom: -10px;
+}
+.quote-banner .quote-text {
+    font-size: 1.35em; font-style: italic;
+    color: #f8fafc; line-height: 1.55;
+    font-weight: 300;
+    transition: opacity 0.6s ease, transform 0.6s ease;
+    max-width: 780px; margin-bottom: 18px;
+}
+.quote-banner .quote-author {
+    font-size: 0.92em; color: #c4b5fd;
+    font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.quote-banner .quote-dots {
+    position: relative; z-index: 1;
+    display: flex; justify-content: center; gap: 6px;
+    margin-top: 22px; flex-wrap: wrap;
+    max-width: 600px;
+    margin-left: auto; margin-right: auto;
+}
+.quote-banner .quote-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    transition: all 0.3s ease;
+}
+.quote-banner .quote-dot.active {
+    background: #c4b5fd;
+    width: 20px; border-radius: 3px;
+}
+.quote-banner.fading .quote-text,
+.quote-banner.fading .quote-author {
+    opacity: 0; transform: translateY(-6px);
+}
+
+/* ---------- Main ---------- */
+main { max-width: 980px; margin: 0 auto; padding: 50px 32px 60px; }
+
+.about-section {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 34px 40px;
+    margin-bottom: 24px;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.about-section h2 {
+    font-size: 1.55em;
+    color: var(--navy);
+    margin-bottom: 18px;
+    display: flex; align-items: center; gap: 12px;
+    padding-bottom: 12px;
+    border-bottom: 3px solid var(--accent);
+    font-weight: 800;
+}
+.about-section h3 {
+    font-size: 1.1em;
+    color: #334155;
+    margin: 22px 0 10px;
+    font-weight: 700;
+}
+.about-section p {
+    color: #475569;
+    margin-bottom: 14px;
+    font-size: 1.0em;
+}
+.about-section ul, .about-section ol {
+    margin: 8px 0 16px 24px;
+    color: #475569;
+}
+.about-section li { margin-bottom: 8px; line-height: 1.65; }
+.about-section code {
+    background: #f1f5f9;
+    padding: 2px 7px;
+    border-radius: 5px;
+    font-family: 'SF Mono', Monaco, monospace;
+    font-size: 0.88em;
+    color: #334155;
+    border: 1px solid #e2e8f0;
+}
+.about-section a {
+    color: #6d28d9;
+    text-decoration: none;
+    font-weight: 600;
+    border-bottom: 1px dotted #6d28d9;
+}
+.about-section a:hover { color: var(--accent-dark); border-bottom-color: var(--accent-dark); }
+
+.lead {
+    font-size: 1.08em;
+    color: #334155;
+    line-height: 1.75;
+    margin-bottom: 18px;
+}
+
+/* Feature grid */
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 18px;
+    margin-top: 20px;
+}
+.feature-card {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 22px 20px;
+    border: 1px solid var(--border);
+    transition: all 0.2s;
+}
+.feature-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+    border-color: var(--accent);
+}
+.feature-card .f-icon {
+    font-size: 1.9em;
+    display: block; margin-bottom: 10px; line-height: 1;
+}
+.feature-card h4 {
+    color: var(--navy);
+    font-size: 1.05em; margin-bottom: 6px; font-weight: 700;
+}
+.feature-card p {
+    color: var(--muted);
+    font-size: 0.9em; margin: 0; line-height: 1.55;
+}
+
+/* Stat callouts */
+.stat-callout {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 14px;
+    margin: 20px 0 10px;
+}
+.stat-callout .s {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 100%);
+    color: white;
+    padding: 18px 14px;
+    border-radius: 10px;
+    text-align: center;
+}
+.stat-callout .s .s-num {
+    font-size: 1.9em;
+    font-weight: 800;
+    color: #c4b5fd;
+    display: block; line-height: 1.1; margin-bottom: 4px;
+}
+.stat-callout .s .s-lbl {
+    font-size: 0.78em;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+/* ---------- ARGUS family section ---------- */
+.argus-panel {
+    background: linear-gradient(135deg, #0a1628 0%, #1e1b4b 60%, #2e1065 100%);
+    color: white;
+    border-radius: 16px;
+    padding: 34px 40px;
+    margin-bottom: 24px;
+    border: 1px solid rgba(212,175,55,0.3);
+    position: relative; overflow: hidden;
+    box-shadow: 0 12px 40px rgba(10,22,40,0.25);
+}
+.argus-panel::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: radial-gradient(circle, rgba(212,175,55,0.12) 1px, transparent 1px);
+    background-size: 32px 32px;
+    opacity: 0.5; pointer-events: none;
+}
+.argus-panel .argus-header {
+    position: relative; z-index: 1;
+    display: flex; align-items: center; gap: 20px;
+    margin-bottom: 20px;
+    padding-bottom: 18px;
+    border-bottom: 2px solid rgba(212,175,55,0.3);
+}
+.argus-panel .argus-eye {
+    font-size: 3.2em; line-height: 1;
+    filter: drop-shadow(0 0 16px rgba(212,175,55,0.6));
+    flex-shrink: 0;
+}
+.argus-panel .argus-title-block h2 {
+    font-size: 1.8em; font-weight: 900;
+    color: #d4af37; letter-spacing: 2px;
+    margin-bottom: 2px;
+    border: none; padding: 0;
+    display: block;
+}
+.argus-panel .argus-title-block .argus-tagline {
+    font-size: 0.92em; color: #cbd5e1;
+    font-weight: 500; letter-spacing: 0.3px;
+}
+.argus-panel > p {
+    position: relative; z-index: 1;
+    color: #cbd5e1; font-size: 0.98em;
+    line-height: 1.7;
+    margin-bottom: 14px;
+}
+.argus-panel > p strong { color: #f8fafc; }
+.argus-grid {
+    position: relative; z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-top: 22px;
+}
+.pathogen-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 16px 18px;
+    text-decoration: none; color: inherit;
+    transition: all 0.2s;
+    display: flex; flex-direction: column; gap: 8px;
+    position: relative;
+}
+.pathogen-card:hover {
+    background: rgba(255,255,255,0.09);
+    border-color: var(--pc, #d4af37);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+.pathogen-card.current {
+    background: rgba(124,58,237,0.15);
+    border-color: rgba(124,58,237,0.55);
+    box-shadow: 0 0 0 1px rgba(124,58,237,0.3) inset;
+}
+.pathogen-card .pc-top {
+    display: flex; align-items: center; gap: 10px;
+}
+.pathogen-card .pc-emoji {
+    font-size: 1.6em; line-height: 1;
+    filter: drop-shadow(0 0 8px var(--pc, #d4af37) 88);
+}
+.pathogen-card .pc-name {
+    font-weight: 900; font-size: 1.05em;
+    letter-spacing: 1px;
+    color: var(--pc, #d4af37);
+}
+.pathogen-card .pc-pathogen {
+    font-size: 0.8em; color: #94a3b8;
+    font-style: italic;
+    line-height: 1.3;
+}
+.pathogen-card .pc-status {
+    display: inline-block;
+    padding: 3px 10px; border-radius: 12px;
+    font-size: 0.68em; font-weight: 800;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    align-self: flex-start;
+    margin-top: 4px;
+}
+.pc-status.live      { background: #10b981; color: #052e16; }
+.pc-status.progress  { background: #f59e0b; color: #451a03; }
+.pc-status.planned   { background: rgba(148,163,184,0.25); color: #cbd5e1; }
+
+.argus-footnote {
+    position: relative; z-index: 1;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    color: #94a3b8;
+    font-size: 0.88em;
+    font-style: italic;
+    line-height: 1.6;
+}
+
+/* Roadmap */
+.roadmap-list {
+    list-style: none;
+    margin-left: 0;
+    padding-left: 0;
+}
+.roadmap-list li {
+    padding: 12px 16px 12px 42px;
+    background: #f8fafc;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    border-left: 4px solid var(--border);
+    font-size: 0.95em;
+    position: relative;
+    color: #475569;
+}
+.roadmap-list li::before {
+    content: '○';
+    position: absolute; left: 16px; top: 50%;
+    transform: translateY(-50%);
+    color: #cbd5e1; font-weight: 700; font-size: 1.1em;
+}
+.roadmap-list li.done {
+    border-left-color: #10b981;
+    background: #f0fdf4;
+    color: #065f46;
+}
+.roadmap-list li.done::before { content: '✓'; color: #10b981; }
+.roadmap-list li.current {
+    border-left-color: var(--accent);
+    background: var(--accent-light);
+    color: var(--accent-dark);
+}
+.roadmap-list li.current::before { content: '▶'; color: var(--accent); }
+.roadmap-list li strong { color: inherit; }
+.roadmap-list li .badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 10px;
+    font-size: 0.75em;
+    font-weight: 700;
+    background: rgba(0,0,0,0.06);
+    margin-left: 6px;
+}
+.roadmap-list li.done .badge { background: #d1fae5; color: #065f46; }
+.roadmap-list li.current .badge { background: #ddd6fe; color: var(--accent-dark); }
+
+/* Methods list */
+.method-list {
+    list-style: none;
+    margin-left: 0; padding-left: 0;
+}
+.method-list li {
+    padding: 12px 16px;
+    background: #f8fafc;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    border-left: 4px solid var(--accent);
+    font-size: 0.95em;
+}
+.method-list li strong { color: var(--navy); }
+.method-list li .tool {
+    color: #64748b;
+    font-family: 'SF Mono', Monaco, monospace;
+    font-size: 0.88em;
+    background: white;
+    padding: 1px 6px;
+    border-radius: 4px;
+    border: 1px solid #e2e8f0;
+    margin-left: 6px;
+}
+
+/* Team */
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+    margin-top: 14px;
+}
+.team-card {
+    background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+    border-radius: 12px;
+    padding: 24px 22px;
+    border: 1px solid var(--border);
+    border-left: 5px solid var(--accent);
+}
+.team-card .t-name {
+    font-size: 1.15em; font-weight: 800;
+    color: var(--navy); margin-bottom: 4px;
+}
+.team-card .t-role {
+    font-size: 0.82em; font-weight: 700;
+    color: var(--accent-dark);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    margin-bottom: 10px;
+}
+.team-card .t-aff {
+    font-size: 0.9em; color: #475569;
+    line-height: 1.55; margin-bottom: 10px;
+}
+.team-card .t-links { font-size: 0.88em; }
+.team-card .t-links a {
+    color: #6d28d9; text-decoration: none;
+    font-weight: 600; margin-right: 10px;
+    border: none;
+}
+.team-card .t-links a:hover { color: var(--accent-dark); }
+
+/* Citations */
+.cite-primary {
+    background: linear-gradient(135deg, #ede9fe 0%, #f5f3ff 100%);
+    border-left: 6px solid var(--accent);
+    border-radius: 12px;
+    padding: 22px 26px;
+    margin-bottom: 18px;
+    color: #4c1d95;
+}
+.cite-primary .cp-label {
+    font-size: 0.78em; font-weight: 900;
+    color: var(--accent-dark);
+    text-transform: uppercase; letter-spacing: 1px;
+    margin-bottom: 8px;
+    display: flex; align-items: center; gap: 8px;
+}
+.cite-primary .cp-text {
+    font-size: 1.0em; color: #4c1d95;
+    line-height: 1.7; margin-bottom: 12px;
+    font-weight: 500;
+}
+.cite-primary .cp-links a {
+    display: inline-block;
+    padding: 8px 16px;
+    background: var(--accent); color: white;
+    border-radius: 8px;
+    text-decoration: none; font-weight: 800; font-size: 0.88em;
+    margin-right: 10px;
+    border: none;
+}
+.cite-primary .cp-links a.ghost {
+    background: white; color: var(--accent-dark);
+    border: 2px solid var(--accent);
+}
+.cite-primary .cp-links a:hover { transform: translateY(-1px); }
+
+.cite-note {
+    background: #f8fafc;
+    border-radius: 10px;
+    padding: 18px 22px;
+    border-left: 4px solid #cbd5e1;
+    color: #475569;
+    font-size: 0.94em;
+    line-height: 1.7;
+}
+.cite-note strong { color: var(--navy); }
+.cite-note code {
+    background: white; padding: 2px 7px; border-radius: 4px;
+    font-family: 'SF Mono', Monaco, monospace;
+    font-size: 0.85em; border: 1px solid #e2e8f0;
+}
+.cite-note a {
+    color: #6d28d9; text-decoration: none;
+    font-weight: 700; border-bottom: 1px dotted #6d28d9;
+}
+
+/* Acknowledgement block */
+.ack-block {
+    background: linear-gradient(135deg, #ede9fe 0%, #f5f3ff 100%);
+    border-left: 6px solid var(--accent);
+    border-radius: 12px;
+    padding: 22px 26px;
+    color: #4c1d95;
+}
+.ack-block h3 {
+    color: var(--accent-dark);
+    margin: 0 0 12px; font-size: 1.1em;
+}
+.ack-block p {
+    color: #5b21b6; font-size: 0.94em;
+    margin-bottom: 10px; line-height: 1.7;
+}
+.ack-block ul { color: #5b21b6; margin: 8px 0 4px 22px; }
+.ack-block li { margin-bottom: 6px; font-size: 0.94em; }
+.ack-block code { background: rgba(255,255,255,0.7); border: none; }
+
+/* Contact row */
+.contact-row {
+    display: flex; flex-wrap: wrap; gap: 12px; margin-top: 14px;
+}
+.contact-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 22px; border-radius: 10px;
+    text-decoration: none; font-size: 0.94em; font-weight: 700;
+    transition: all 0.15s; border: none;
+}
+.contact-btn.primary {
+    background: var(--navy); color: #c4b5fd;
+}
+.contact-btn.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(10,22,40,0.3);
+}
+.contact-btn.secondary {
+    background: white; color: var(--navy);
+    border: 2px solid var(--border);
+}
+.contact-btn.secondary:hover {
+    border-color: var(--accent);
+    color: var(--accent-dark);
+}
+
+/* Support section */
+.support-section {
+    background: linear-gradient(135deg, #0a1628 0%, #2e1065 100%);
+    color: white;
+    border-radius: 14px;
+    padding: 32px 36px;
+    margin-bottom: 24px;
+    border: 1px solid rgba(196,181,253,0.25);
+    position: relative; overflow: hidden;
+}
+.support-section::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: radial-gradient(circle, rgba(196,181,253,0.1) 1px, transparent 1px);
+    background-size: 30px 30px;
+    opacity: 0.4; pointer-events: none;
+}
+.support-section h2 {
+    color: #c4b5fd;
+    border-bottom-color: rgba(196,181,253,0.3);
+    position: relative; z-index: 1;
+}
+.support-section > p {
+    color: #cbd5e1;
+    font-size: 1.05em;
+    line-height: 1.75;
+    position: relative; z-index: 1;
+}
+.support-section strong { color: #f8fafc; }
+.support-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px; margin-top: 22px;
+    position: relative; z-index: 1;
+}
+.support-card {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 20px 22px;
+}
+.support-card .icon { font-size: 2em; margin-bottom: 8px; }
+.support-card .title {
+    font-weight: 800; font-size: 1.05em;
+    margin-bottom: 6px; color: #c4b5fd;
+}
+.support-card p {
+    font-size: 0.9em; color: #cbd5e1;
+    line-height: 1.55; margin-bottom: 14px;
+}
+.support-card a {
+    display: inline-block;
+    padding: 8px 16px;
+    background: var(--accent); color: white;
+    border-radius: 8px;
+    text-decoration: none; font-weight: 800; font-size: 0.88em;
+    border: none;
+}
+.support-card a.ghost {
+    background: rgba(255,255,255,0.08); color: white;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+/* Footer */
+.argus-footer {
+    background: var(--navy); color: #94a3b8;
+    padding: 40px 32px; text-align: center;
+    font-size: 0.88em; margin-top: 40px;
+    border-top: 2px solid var(--accent)33;
+}
+.argus-footer .footer-line { margin: 8px 0; }
+.argus-footer a {
+    color: var(--gold); text-decoration: none; font-weight: 600;
+}
+.argus-footer a:hover { text-decoration: underline; }
+.argus-footer .full-name {
+    color: #cbd5e1; font-size: 1em;
+    letter-spacing: 0.2px; margin-bottom: 14px;
+}
+.argus-footer .full-name strong { color: var(--gold); }
+
+@media (max-width: 900px) {
+    .argus-nav { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .argus-nav .brand-tagline { max-width: 100%; }
+    .argus-nav .brand-emoji { font-size: 3.6em; }
+    .argus-nav .brand-name { font-size: 2.2em; }
+    .about-hero { padding: 50px 20px 40px; }
+    .about-hero h1 { font-size: 2.2em; }
+    main { padding: 30px 20px 40px; }
+    .about-section { padding: 26px 22px; }
+    .support-section { padding: 24px 22px; }
+    .argus-panel { padding: 26px 22px; }
+    .argus-panel .argus-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+}
+@media (max-width: 700px) {
+    .argus-nav { padding: 14px 16px; }
+    .about-section h2 { font-size: 1.3em; }
+    .quote-banner { padding: 40px 20px 32px; }
+    .quote-banner .quote-text { font-size: 1.05em; }
+    .quote-banner .quote-inner { min-height: 130px; }
+}
+
+</style>
+</head>
+<body>
+
+<nav class="argus-nav">
+    <a class="brand" href="index.html">
+        <span class="brand-emoji">🌑</span>
+        <span class="brand-text">
+            <span class="brand-name"><span style="color:#7c3aed">E</span><span style="color:#6366f1">C</span><span style="color:#3b82f6">L</span><span style="color:#06b6d4">I</span><span style="color:#10b981">P</span><span style="color:#f59e0b">S</span><span style="color:#ec4899">E</span></span>
+            <span class="brand-tagline">E. coli Library for Integrated Pathogen Surveillance and Epidemiology</span>
+        </span>
+    </a>
+    <div class="links">        <a href="index.html">Home</a>
+        <a href="pages/mlst.html">MLST</a>
+        <a href="pages/phylogroups.html">Phylogroups</a>
+        <a href="pages/serotypes.html">Serotypes</a>
+        <a href="pages/chtyper.html">CHTyper</a>
+        <a href="master.html">Master</a>
+        <a href="pages/amr.html">AMR</a>
+        <a href="pages/vfdb.html">Virulence</a>
+        <a href="pages/plasmid.html">Plasmid</a>
+        <a href="statistics.html">Statistics</a>
+        <a href="geography.html">Geography</a>
+        <a href="lineages.html">Lineages</a>
+        <a href="downloads.html">Downloads</a>
+        <a href="about.html" class="active">About</a></div>
+</nav>
+
+<header class="about-hero">
+    <div class="about-hero-inner">
+        <h1>About ECLIPSE</h1>
+        <p class="hero-sub">A free, open, integrated genomic resource for <em>Escherichia coli</em> surveillance</p>
+        <span class="hero-tag">OPEN ACCESS · NO LOGIN · NO TRACKING · MIT LICENSE</span>
+        <div style="margin-top:22px;">
+            <a href="https://github.com/bbeckley-hub/eclipse" target="_blank"
+               style="display:inline-flex;align-items:center;gap:10px;padding:12px 26px;
+                      background:rgba(196,181,253,0.15);color:#c4b5fd;
+                      border:2px solid rgba(196,181,253,0.5);border-radius:12px;
+                      text-decoration:none;font-weight:800;font-size:1.02em;
+                      letter-spacing:0.3px;transition:all 0.2s;">
+                ⭐ Star us on GitHub
+            </a>
+        </div>
+    </div>
+</header>
+
+<!-- ============ ROTATING SCIENCE QUOTE ============ -->
+<section class="quote-banner" id="quote-banner">
+    <div class="quote-inner">
+        <span class="quote-mark">"</span>
+        <p class="quote-text" id="quote-text">Loading inspiration…</p>
+        <p class="quote-author" id="quote-author"></p>
+    </div>
+    <div class="quote-dots" id="quote-dots"></div>
+</section>
+
+<main>
+
+    <!-- ============ WHAT ============ -->
+    <section class="about-section">
+        <h2>🔬 What is ECLIPSE?</h2>
+        <p class="lead">
+            <strong>ECLIPSE</strong> (E. coli Library for Integrated Pathogen Surveillance
+            and Epidemiology) is a comprehensive genomic resource that integrates typing,
+            lineage, and epidemiological metadata for publicly available
+            <em>Escherichia coli</em> genomes into a single, queryable, and user-friendly
+            interface.
+        </p>
+        <p>
+            <em>E. coli</em> is simultaneously the most-studied organism in molecular
+            biology and one of the most important human pathogens on the planet. It is a
+            commensal, a foodborne pathogen, an extraintestinal pathogen, and one of the
+            major reservoirs of antimicrobial resistance genes. Existing resources
+            present fragments of this picture — a typing database here, a serotype
+            catalogue there, an AMR matrix somewhere else. ECLIPSE brings them together.
+        </p>
+
+        <div class="stat-callout">
+            <div class="s"><span class="s-num">431K</span><span class="s-lbl">Genomes Indexed</span></div>
+            <div class="s"><span class="s-num">173</span><span class="s-lbl">Countries</span></div>
+            <div class="s"><span class="s-num">4</span><span class="s-lbl">Typing Modules</span></div>
+            <div class="s"><span class="s-num">95%</span><span class="s-lbl">Country Coverage</span></div>
+            <div class="s"><span class="s-num">92%</span><span class="s-lbl">Year Coverage</span></div>
+            <div class="s"><span class="s-num">100%</span><span class="s-lbl">Open Access</span></div>
+        </div>
+    </section>
+
+    <!-- ============ ARGUS FAMILY ============ -->
+    <div class="argus-panel">
+        <div class="argus-header">
+            <span class="argus-eye">👁️</span>
+            <div class="argus-title-block">
+                <h2>ARGUS</h2>
+                <div class="argus-tagline">Antimicrobial Resistance Genomic Unified Surveillance</div>
+            </div>
+        </div>
+        <p>
+            ECLIPSE is one resource in <strong>ARGUS</strong> — a family of
+            independent, open genomic surveillance sites, each dedicated to one of the
+            WHO priority ESKAPE pathogens. Every resource shares the same
+            architecture: accession-first, metadata-integrated, no login, no install,
+            MIT-licensed. Each has its own name, its own DOI, and its own community.
+        </p>
+        <p>
+            Named for <strong>Argus Panoptes</strong> — the hundred-eyed giant of
+            Greek myth who never slept — the umbrella is a bet that AMR surveillance
+            has to be <em>unified</em> to be useful, and that the pathogens driving
+            the crisis deserve the same treatment.
+        </p>
+        <div class="argus-grid">
+            <a class="pathogen-card" style="--pc: #3b82f6;" href="https://bbeckley-hub.github.io/saurus/">
+                <div class="pc-top">
+                    <span class="pc-emoji">🦖</span>
+                    <span class="pc-name">SAURUS</span>
+                </div>
+                <div class="pc-pathogen">Staphylococcus aureus</div>
+                <span class="pc-status live">LIVE</span>
+            </a>
+
+            <a class="pathogen-card current" style="--pc: #7c3aed;" href="index.html">
+                <div class="pc-top">
+                    <span class="pc-emoji">🌑</span>
+                    <span class="pc-name">ECLIPSE</span>
+                </div>
+                <div class="pc-pathogen">Escherichia coli</div>
+                <span class="pc-status progress">IN PROGRESS</span>
+            </a>
+
+            <div class="pathogen-card" style="--pc: #0d9488;">
+                <div class="pc-top">
+                    <span class="pc-emoji">🌊</span>
+                    <span class="pc-name">ABYSS</span>
+                </div>
+                <div class="pc-pathogen">Acinetobacter baumannii</div>
+                <span class="pc-status planned">PLANNED</span>
+            </div>
+
+            <div class="pathogen-card" style="--pc: #dc2626;">
+                <div class="pc-top">
+                    <span class="pc-emoji">🏆</span>
+                    <span class="pc-name">KLEOS</span>
+                </div>
+                <div class="pc-pathogen">Klebsiella pneumoniae</div>
+                <span class="pc-status planned">PLANNED</span>
+            </div>
+
+            <div class="pathogen-card" style="--pc: #06b6d4;">
+                <div class="pc-top">
+                    <span class="pc-emoji">💧</span>
+                    <span class="pc-name">PSEUDA</span>
+                </div>
+                <div class="pc-pathogen">Pseudomonas aeruginosa</div>
+                <span class="pc-status planned">PLANNED</span>
+            </div>
+
+            <div class="pathogen-card" style="--pc: #f59e0b;">
+                <div class="pc-top">
+                    <span class="pc-emoji">👑</span>
+                    <span class="pc-name">EMPIRE</span>
+                </div>
+                <div class="pc-pathogen">Enterococcus faecium</div>
+                <span class="pc-status planned">PLANNED</span>
+            </div>
+
+            <div class="pathogen-card" style="--pc: #475569;">
+                <div class="pc-top">
+                    <span class="pc-emoji">🌀</span>
+                    <span class="pc-name">ENTROPY</span>
+                </div>
+                <div class="pc-pathogen">Enterobacter spp.</div>
+                <span class="pc-status planned">PLANNED</span>
+            </div>
+        </div>
+        <p class="argus-footnote">
+            Status as of 2026-10-12. SAURUS launched first (S. aureus); ECLIPSE is
+            the second resource and the first full extension of the ARGUS architecture.
+            The remaining pathogens are on the roadmap and will ship as their pipelines
+            are built and validated.
+        </p>
+    </div>
+
+    <!-- ============ WHY ============ -->
+    <section class="about-section">
+        <h2>🎯 Why ECLIPSE?</h2>
+        <p>
+            <em>E. coli</em> is the leading cause of gram-negative bloodstream infections
+            worldwide and a major driver of the antimicrobial-resistance crisis. A small
+            number of successful clones — most notably <strong>ST131-H30</strong> —
+            have spread globally, acquiring extended-spectrum beta-lactamases and
+            carbapenemases along the way. Tracking them requires three things that have
+            historically been hard to combine: <strong>typing</strong>,
+            <strong>lineage context</strong>, and <strong>epidemiological metadata</strong>.
+        </p>
+        <p>
+            The data exists. Over 431,000 <em>E. coli</em> genomes have been sequenced
+            and publicly deposited. What hasn't existed is a way to <strong>actually
+            use it</strong> without weeks of setup.
+        </p>
+
+        <h3 style="font-size:1.25em;display:flex;align-items:center;gap:10px;"><span style="font-size:1.8em;line-height:1;">🔒</span> <span>The retrieval bottleneck</span></h3>
+        <p>
+            A typical surveillance question — <em>"give me all ST131 isolates from
+            urinary sources in West Africa that carry CTX-M-15"</em> — requires, in the
+            current ecosystem, that you either:
+        </p>
+        <ul>
+            <li><strong>Download and re-annotate the entire repository locally</strong>
+                (weeks of compute, hundreds of GB, requires a bioinformatics pipeline)</li>
+            <li><strong>Write custom scripts to query static TSV archives</strong>
+                (days of setup, breaks with every upstream update)</li>
+            <li><strong>Manually navigate multiple standalone tools</strong>
+                (hours per query, error-prone, doesn't scale to real collections)</li>
+        </ul>
+        <p>
+            None of these options works for a researcher in a low-resource setting with
+            a laptop and an internet connection. None of them works for a clinical
+            microbiologist who needs an answer this afternoon. And none of them produces
+            the one thing every downstream tool actually consumes: <strong>a clean
+            accession list.</strong>
+        </p>
+
+        <h3 style="font-size:1.35em;display:flex;align-items:center;gap:12px;"><span style="font-size:2.2em;line-height:1;">🌑</span> <span>What ECLIPSE changes</span></h3>
+        <p>
+            ECLIPSE places <strong>accession retrieval at the centre of the interface.</strong>
+            Filter by genotype, geography, or lineage — combine any criteria — and
+            download a plain-text list ready for
+            <code>datasets download genome accession --inputfile list.txt</code>.
+            One click. No scripting. No install. No account.
+        </p>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <span class="f-icon">⚡</span>
+                <h4>Filter → export in seconds</h4>
+                <p>Combine ST, phylogroup, serotype, CH type, country, source, host,
+                and collection year. Get the accession list instantly.</p>
+            </div>
+            <div class="feature-card">
+                <span class="f-icon">🔗</span>
+                <h4>Four typings, one table</h4>
+                <p>MLST · Phylogroups · Serotypes · CHTyper — integrated into a single
+                master view, searchable and exportable.</p>
+            </div>
+            <div class="feature-card">
+                <span class="f-icon">🌍</span>
+                <h4>Epidemiology, not just genotypes</h4>
+                <p>Country of origin, isolation source, host species, and collection
+                year for the full collection — filterable and exportable.</p>
+            </div>
+            <div class="feature-card">
+                <span class="f-icon">📊</span>
+                <h4>Interactive statistics</h4>
+                <p>A live dashboard with filterable donuts, rankings, timelines, and
+                a crosstab explorer for any two dimensions.</p>
+            </div>
+            <div class="feature-card">
+                <span class="f-icon">🧬</span>
+                <h4>ST131-aware design</h4>
+                <p>Integrated CHTyper typing (fumC + fimH) so ST131 and its subclades
+                are directly searchable.</p>
+            </div>
+            <div class="feature-card">
+                <span class="f-icon">🌐</span>
+                <h4>Zero barrier to entry</h4>
+                <p>No login. No API key. No cost. No rate limit. Runs entirely in your
+                browser over HTTPS. Works on a phone.</p>
+            </div>
+        </div>
+
+        <p style="margin-top:24px;padding:16px 20px;background:#f0fdf4;border-left:4px solid #10b981;border-radius:8px;color:#065f46;font-size:0.95em;">
+            <strong>Why it matters:</strong> Genomic surveillance belongs to everyone,
+            not just to labs with clusters and bioinformaticians on staff. ECLIPSE
+            exists to close that gap — one accession list at a time.
+        </p>
+    </section>
+
+    <!-- ============ ROADMAP ============ -->
+    <section class="about-section">
+        <h2>🗺️ Roadmap — toward complete public <em>E. coli</em> annotation</h2>
+        <p>
+            ECLIPSE is built incrementally toward a single milestone:
+            <strong>complete typing annotation of every public <em>E. coli</em>
+            genome in the NCBI Assembly database.</strong>
+        </p>
+
+        <ul class="roadmap-list">
+            <li class="done">
+                <strong>v0.1 — Metadata foundation</strong>
+                <span class="badge">LIVE</span><br>
+                431,592 accessions indexed with country, source, host, and year from
+                NCBI BioSample. GCA↔GCF deduplication complete. Geography page live.
+            </li>
+            <li class="current">
+                <strong>v0.2 — RefSeq typing</strong>
+                <span class="badge">IN PROGRESS</span><br>
+                RefSeq genomes typed through <strong>EcoliTyper</strong> — Achtman MLST,
+                Clermont phylogroups, SerotypeFinder (CGE), and CHTyper. Master table,
+                statistics dashboard, and lineages catalogue coming online.
+            </li>
+            <li>
+                <strong>v0.3 — AMR &amp; virulence modules</strong><br>
+                ABRicate-based AMR (CARD, ResFinder, ARG-ANNOT, MEGARes) and virulence
+                (VFDB) modules added. Plasmid replicons via PlasmidFinder.
+            </li>
+            <li>
+                <strong>v0.5 — Full collection</strong><br>
+                All 431,592 genomes typed — RefSeq and GenBank unified in a single
+                master table. Pathotypes inferred from virulence-gene rules.
+            </li>
+            <li>
+                <strong>v1.0 — Full resource</strong><br>
+                All genomes typed · citable Zenodo DOI · frozen, versioned release ·
+                peer-reviewed methods manuscript.
+            </li>
+        </ul>
+    </section>
+
+    <!-- ============ DATA SOURCES ============ -->
+    <section class="about-section">
+        <h2>📦 Data sources</h2>
+        <p>
+            ECLIPSE combines four publicly available resources into a single
+            integrated view:
+        </p>
+
+        <h3>1. Genome assemblies — NCBI Assembly</h3>
+        <p>
+            Every genome in ECLIPSE is sourced from the <strong>NCBI Assembly</strong>
+            database. Accessions are the primary key. Where both a GenBank
+            (<code>GCA_</code>) and RefSeq (<code>GCF_</code>) version exist, the
+            RefSeq version is preferred; assemblies with no RefSeq counterpart are
+            kept as GenBank.
+        </p>
+
+        <h3>2. Epidemiological metadata — NCBI BioSample</h3>
+        <p>
+            Country of origin, isolation source, host species, and collection year
+            were extracted from <strong>NCBI BioSample</strong> records attached to
+            each assembly. Source values were normalised into broad clinical,
+            environmental, food, and animal categories while preserving the raw
+            submitter strings for provenance. Coverage across the collection:
+            <strong>95%</strong> for country, <strong>73%</strong> for isolation
+            source, <strong>78%</strong> for host, and <strong>92%</strong> for
+            collection year.
+        </p>
+
+        <h3>3. Typing annotations — generated by EcoliTyper</h3>
+        <p>
+            MLST, phylogroup, serotype, and CHTyper annotations were produced with
+            <strong>EcoliTyper</strong>, the species-optimized typing pipeline built
+            for ECLIPSE. Each module page documents the tool used, the reference
+            database version, and the success rate.
+        </p>
+
+        <h3>4. Lineage catalogue — curated from the literature</h3>
+        <p>
+            The list of clinically and epidemiologically important sequence types
+            (ST131, ST95, ST73, ST69, ST405, ST1193, ST410, ST648, and others)
+            is curated from published <em>E. coli</em> surveillance literature and
+            is updated as new high-risk clones emerge.
+        </p>
+
+        <h3>What ECLIPSE adds on top of these</h3>
+        <ul>
+            <li>Unified accession identifier — <code>GCA_XXXXXXXXX.Y</code> format throughout</li>
+            <li>Cross-module querying — combine typing filters with metadata filters</li>
+            <li>One-click accession export — plain text, TSV, CSV, or JSON</li>
+            <li>Ecotype and serogroup classifications for fast screening</li>
+            <li>Coverage indicator showing how many typings resolved per genome</li>
+            <li>Interactive statistics dashboard with live cross-tabulation</li>
+        </ul>
+    </section>
+
+    <!-- ============ METHODS ============ -->
+    <section class="about-section">
+        <h2>⚙️ Methods &amp; tools</h2>
+        <p>
+            All typing annotations in ECLIPSE are produced by
+            <strong>EcoliTyper</strong> — a species-optimized computational
+            pipeline for comprehensive genotyping and surveillance of
+            <em>Escherichia coli</em>. EcoliTyper wraps the following
+            community-standard tools:
+        </p>
+        <ul class="method-list">
+            <li><strong>MLST</strong> — Multi-locus sequence typing of 7 housekeeping genes (Achtman scheme) <span class="tool">mlst (Seemann)</span> + <span class="tool">PubMLST</span></li>
+            <li><strong>Phylogroup</strong> — Clermont classification (A, B1, B2, C, D, E, F, G) <span class="tool">ClermonTyping</span></li>
+            <li><strong>Serotype</strong> — O:H serotyping from O-antigen and H-flagellar biosynthesis genes <span class="tool">SerotypeFinder (CGE)</span></li>
+            <li><strong>CHTyper</strong> — fumC + fimH allele typing for rapid ST131 detection <span class="tool">CHTyper</span></li>
+            <li><strong>AMR genes</strong> — Resistance determinant presence/absence <span class="tool">AMRFinderPlus + ABRicate (CARD, ResFinder, ARG-ANNOT, MEGARes)</span></li>
+            <li><strong>Virulence factors</strong> — VFDB gene screening <span class="tool">ABRicate + VFDB</span></li>
+            <li><strong>Plasmid replicons</strong> — Replicon typing <span class="tool">PlasmidFinder (CGE)</span></li>
+        </ul>
+        <p style="margin-top:18px;">
+            The EcoliTyper pipeline is open source and available on
+            <a href="https://github.com/bbeckley-hub/EcoliTyper" target="_blank">GitHub</a>.
+            The ECLIPSE website generator code is available at
+            <a href="https://github.com/bbeckley-hub/eclipse" target="_blank">github.com/bbeckley-hub/eclipse</a>.
+        </p>
+    </section>
+
+    <!-- ============ DOWNSTREAM TOOLS ============ -->
+    <section class="about-section">
+        <h2>🔧 Downstream tools &amp; pipelines</h2>
+        <p>
+            ECLIPSE provides the accession list and the typing context. The next
+            step — phylogenetics, outbreak investigation, pangenome analysis — is
+            done with the tools below. Each is a well-validated, open-source
+            solution that complements ECLIPSE in a standard <em>E. coli</em>
+            workflow.
+        </p>
+
+        <h3>🔬 Integrated pipelines</h3>
+        <ul class="method-list">
+            <li><strong>EcoliTyper</strong> — The typing pipeline that powers ECLIPSE. Reusable independently on any <em>E. coli</em> assemblies. <span class="tool">Python · Beckley</span></li>
+            <li><strong>Bactopia</strong> — Complete bacterial genome analysis pipeline. Accepts raw reads or assemblies. <span class="tool">Nextflow</span></li>
+            <li><strong>Enterobase</strong> — Curated <em>E. coli</em>/<em>Salmonella</em> typing and phylogeny resource from Warwick. <span class="tool">Web database</span></li>
+            <li><strong>Pathogenwatch</strong> — Rapid genomic surveillance and visual analytics for bacterial pathogens. <span class="tool">Web · Sanger</span></li>
+        </ul>
+
+        <h3>🧬 Extended typing</h3>
+        <ul class="method-list">
+            <li><strong>chewBBACA</strong> — cgMLST and wgMLST allele calling for higher-resolution outbreak tracing. <span class="tool">Python · B-UMMI</span></li>
+            <li><strong>PopPUNK</strong> — Population-level clustering and lineage assignment. <span class="tool">Python · Lees</span></li>
+            <li><strong>SerotypeFinder</strong> — The serotyping tool used by EcoliTyper (CGE). Standalone use supported. <span class="tool">CGE · DTU</span></li>
+            <li><strong>ClermonTyping</strong> — The phylogroup tool used by EcoliTyper. <span class="tool">Python · Beghain</span></li>
+        </ul>
+
+        <h3>🌳 Phylogenetics &amp; recombination</h3>
+        <ul class="method-list">
+            <li><strong>IQ-TREE 3</strong> — Maximum-likelihood phylogenetics with model selection. <span class="tool">C++ · Minh</span></li>
+            <li><strong>Gubbins</strong> — Removes recombination from whole-genome alignments before tree inference. <span class="tool">Python · Croucher</span></li>
+            <li><strong>ClonalFrameML</strong> — Maps recombination events onto a clonal genealogy. <span class="tool">C++ · Didelot</span></li>
+            <li><strong>Snippy</strong> — Rapid haplotypes and SNP calling against a reference. <span class="tool">Perl · Seemann</span></li>
+        </ul>
+
+        <h3>💊 AMR &amp; virulence confirmation</h3>
+        <ul class="method-list">
+            <li><strong>AMRFinderPlus</strong> — NCBI's curated AMR gene and point-mutation detection. <span class="tool">C++ · NCBI</span></li>
+            <li><strong>ABRicate</strong> — Mass screening against CARD, ResFinder, VFDB, PlasmidFinder, and others. <span class="tool">Perl · Seemann</span></li>
+            <li><strong>CARD</strong> — Comprehensive Antibiotic Resistance Database. <span class="tool">McMaster</span></li>
+            <li><strong>VFDB</strong> — Virulence Factor Database. <span class="tool">Cao et al.</span></li>
+        </ul>
+
+        <h3>📊 Visualization</h3>
+        <ul class="method-list">
+            <li><strong>Microreact</strong> — Interactive phylogeny + metadata visualization. <span class="tool">Web · Sanger</span></li>
+            <li><strong>iTOL</strong> — Interactive Tree Of Life. <span class="tool">Web · Letunic &amp; Bork</span></li>
+            <li><strong>Phandango</strong> — Interactive visualization of bacterial phylogenies with metadata layers. <span class="tool">JS · Hadfield</span></li>
+        </ul>
+    </section>
+
+    <!-- ============ TEAM ============ -->
+    <section class="about-section">
+        <h2>👥 The team</h2>
+        <div class="team-grid">
+            <div class="team-card">
+                <div class="t-name">Brown Beckley</div>
+                <div class="t-role">Lead Developer · Project Lead</div>
+                <div class="t-aff">
+                    Department of Medical Biochemistry,<br>
+                    University of Ghana Medical School<br>
+                    <span style="color:#94a3b8;font-size:0.9em;">&amp; Department of Biochemistry and Biotechnology, KNUST</span>
+                </div>
+                <div class="t-links">
+                    <a href="mailto:brownbeckley94@gmail.com">✉️ Email</a>
+                    <a href="https://github.com/bbeckley-hub" target="_blank">🐙 GitHub</a>
+                </div>
+            </div>
+            <div class="team-card">
+                <div class="t-name">Vincent Amarh</div>
+                <div class="t-role">Co-Investigator</div>
+                <div class="t-aff">
+                    Department of Medical Biochemistry,<br>
+                    University of Ghana Medical School
+                </div>
+                <div class="t-links">
+                    <a href="mailto:vincent.amarh@gmail.com">✉️ Email</a>
+                </div>
+            </div>
+        </div>
+        <p style="margin-top:20px;font-size:0.92em;color:#64748b;">
+            ECLIPSE is an independent, unfunded project born out of a need for open,
+            accessible genomic surveillance tools in low- and middle-income settings.
+            We welcome collaborations, bug reports, and feature suggestions.
+        </p>
+    </section>
+
+    <!-- ============ SUPPORT ============ -->
+    <section class="support-section">
+        <h2 style="display:flex;align-items:center;gap:12px;border-bottom:3px solid rgba(196,181,253,0.3);padding-bottom:12px;margin-bottom:18px;font-size:1.55em;font-weight:800;">⭐ Support ECLIPSE</h2>
+        <p>
+            ECLIPSE is an <strong>independent, unfunded project</strong> built on a
+            shared HPC cluster and GitHub Pages. If you find it useful in your
+            research, there are three easy ways to help it reach more people.
+        </p>
+        <div class="support-grid">
+            <div class="support-card">
+                <div class="icon">⭐</div>
+                <div class="title">Star the repo</div>
+                <p>A GitHub star helps other researchers discover ECLIPSE when they
+                search for <em>E. coli</em> tooling. It takes 2 seconds.</p>
+                <a href="https://github.com/bbeckley-hub/eclipse" target="_blank">⭐ Star on GitHub</a>
+            </div>
+            <div class="support-card">
+                <div class="icon">📚</div>
+                <div class="title">Cite us</div>
+                <p>Citations are the strongest signal that open resources deserve
+                funding. Cite EcoliTyper and the tools you used in your Methods.</p>
+                <a href="#citation" class="ghost">📚 See citation</a>
+            </div>
+            <div class="support-card">
+                <div class="icon">🐛</div>
+                <div class="title">Report &amp; suggest</div>
+                <p>Found a call that doesn't match the literature? Want a new filter?
+                Open an issue — every report improves the resource.</p>
+                <a href="https://github.com/bbeckley-hub/eclipse/issues" target="_blank" class="ghost">🐛 Open an issue</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ CITATION ============ -->
+    <section class="about-section" id="citation">
+        <h2>📚 Citation</h2>
+
+        <div class="cite-primary">
+            <div class="cp-label">🧬 Main citation · EcoliTyper</div>
+            <div class="cp-text">
+                Beckley B, Amarh V. <strong>EcoliTyper: a species-optimized
+                computational pipeline for comprehensive genotyping and surveillance
+                of <em>Escherichia coli</em></strong>. <em>BMC Bioinformatics</em>.
+                2026.
+            </div>
+            <div class="cp-links">
+                <a href="https://doi.org/10.1186/s12859-026-06529-6" target="_blank">DOI</a>
+                <a class="ghost" href="https://github.com/bbeckley-hub/EcoliTyper" target="_blank">GitHub</a>
+            </div>
+        </div>
+
+        <div class="cite-note">
+            <p style="margin-bottom:10px;">
+                If you use ECLIPSE in your research, please cite
+                <strong>EcoliTyper</strong> above. The pipeline wraps several
+                well-established community tools — <strong>mlst</strong>,
+                <strong>ClermonTyping</strong>, <strong>SerotypeFinder</strong>,
+                <strong>CHTyper</strong>, <strong>ABRicate</strong>,
+                <strong>AMRFinderPlus</strong>, <strong>PlasmidFinder</strong> —
+                and their reference databases.
+            </p>
+            <p style="margin-bottom:0;">
+                <strong>Please also cite the specific tools you used</strong> in
+                your Methods section, exactly as you would with any other
+                bioinformatics pipeline. The complete list of underlying
+                publications is maintained in the
+                <a href="https://github.com/bbeckley-hub/EcoliTyper" target="_blank">EcoliTyper repository</a>
+                under <code>CITATION.md</code>.
+            </p>
+        </div>
+    </section>
+
+    <!-- ============ ACKNOWLEDGEMENTS ============ -->
+    <section class="about-section" style="padding:0;border:none;box-shadow:none;background:transparent;">
+        <div class="ack-block">
+            <h3>🙏 Acknowledgements</h3>
+            <p>
+                ECLIPSE would not be possible without the open-source community.
+                We are deeply grateful to the developers, curators, and maintainers
+                whose work is wrapped inside EcoliTyper and ECLIPSE:
+            </p>
+            <ul>
+                <li><strong>Torsten Seemann</strong> — for <code>mlst</code> and <code>ABRicate</code></li>
+                <li><strong>Center for Genomic Epidemiology (DTU)</strong> — for <code>SerotypeFinder</code> and <code>PlasmidFinder</code></li>
+                <li><strong>Olivier Clermont &amp; Erick Denamur</strong> — for the phylogrouping framework</li>
+                <li><strong>Julie Beghain</strong> — for <code>ClermonTyping</code></li>
+                <li><strong>Louise Roer &amp; Statens Serum Institut</strong> — for <code>CHTyper</code></li>
+                <li><strong>NCBI</strong> — for the <code>datasets</code> CLI, <code>AMRFinderPlus</code>, and the Assembly and BioSample databases</li>
+                <li><strong>PubMLST</strong> — for the Achtman allele and ST reference databases</li>
+                <li>The <strong>open-source community</strong> — Python, pandas, Chart.js, and every library we rely on</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- ============ CONTACT ============ -->
+    <section class="about-section">
+        <h2>📬 Contact &amp; contribute</h2>
+        <p>
+            Found a bug? Have a feature suggestion? Want to collaborate?
+            We'd love to hear from you.
+        </p>
+        <div class="contact-row">
+            <a class="contact-btn primary" href="mailto:brownbeckley94@gmail.com">
+                ✉️ brownbeckley94@gmail.com
+            </a>
+            <a class="contact-btn secondary" href="https://github.com/bbeckley-hub/eclipse" target="_blank">
+                🐙 GitHub · Star the repo
+            </a>
+            <a class="contact-btn secondary" href="https://github.com/bbeckley-hub/eclipse/issues" target="_blank">
+                🐛 Report an issue
+            </a>
+        </div>
+        <p style="margin-top:20px;font-size:0.92em;color:#64748b;">
+            ECLIPSE is released under the <strong>MIT License</strong>. You are free
+            to use, modify, and redistribute it. Attribution is appreciated.
+        </p>
+    </section>
+
+</main>
+
+<footer class="argus-footer">
+    <div class="footer-line full-name">
+        <strong>ECLIPSE</strong> — E. coli Library for Integrated Pathogen Surveillance and Epidemiology
+    </div>
+    <div class="footer-line">
+        Part of the <strong style="color:#d4af37;">ARGUS</strong> family ·
+        University of Ghana Medical School · MIT License
+    </div>
+    <div class="footer-line">
+        <a href="https://github.com/bbeckley-hub/eclipse">GitHub</a> ·
+        <a href="mailto:brownbeckley94@gmail.com">Contact</a> ·
+        Updated 2026-10-12
+    </div>
+</footer>
+
+<script>
+(function() {
+    const QUOTES = [{"text": "Imagination is more important than knowledge.", "author": "Albert Einstein"}, {"text": "The important thing is not to stop questioning. Curiosity has its own reason for existing.", "author": "Albert Einstein"}, {"text": "Nothing in life is to be feared, it is only to be understood.", "author": "Marie Curie"}, {"text": "Somewhere, something incredible is waiting to be known.", "author": "Carl Sagan"}, {"text": "We are made of star-stuff.", "author": "Carl Sagan"}, {"text": "Extraordinary claims require extraordinary evidence.", "author": "Carl Sagan"}, {"text": "The good thing about science is that it's true whether or not you believe in it.", "author": "Neil deGrasse Tyson"}, {"text": "The first principle is that you must not fool yourself — and you are the easiest person to fool.", "author": "Richard Feynman"}, {"text": "I would rather have questions that can't be answered than answers that can't be questioned.", "author": "Richard Feynman"}, {"text": "In science, there are no shortcuts to truth.", "author": "Karl Popper"}, {"text": "If I have seen further, it is by standing on the shoulders of giants.", "author": "Isaac Newton"}, {"text": "Science is not only a disciple of reason but also one of romance and passion.", "author": "Stephen Hawking"}, {"text": "Science and everyday life cannot and should not be separated.", "author": "Rosalind Franklin"}, {"text": "The reward for work well done is the opportunity to do more.", "author": "Jonas Salk"}, {"text": "The saddest aspect of life right now is that science gathers knowledge faster than society gathers wisdom.", "author": "Isaac Asimov"}, {"text": "Chance favors the prepared mind.", "author": "Louis Pasteur"}, {"text": "Science knows no country, because knowledge belongs to humanity.", "author": "Louis Pasteur"}, {"text": "The microbe is nothing; the terrain is everything.", "author": "Louis Pasteur"}, {"text": "Gentlemen, it is the microbes who will have the last word.", "author": "Louis Pasteur"}, {"text": "The pure culture is the foundation for all research on infectious disease.", "author": "Robert Koch"}, {"text": "One sometimes finds what one is not looking for.", "author": "Alexander Fleming"}, {"text": "Medicine is a science of uncertainty and an art of probability.", "author": "William Osler"}, {"text": "It is not the strongest of the species that survives, but the one most responsive to change.", "author": "Charles Darwin"}, {"text": "Somewhere in the world there is a gene that will change how we see disease.", "author": "Siddhartha Mukherjee"}, {"text": "Better is possible. It does not take genius. It takes diligence, moral clarity, and ingenuity.", "author": "Atul Gawande"}, {"text": "Argus Panoptes never slept. Neither should surveillance.", "author": "Brown Beckley"}, {"text": "E. coli is the workhorse of molecular biology and the bellwether of antimicrobial resistance — every genome tells both stories.", "author": "Brown Beckley"}, {"text": "ST131-H30 did not spread because we were watching. It spread because we were not.", "author": "Brown Beckley"}, {"text": "Behind every sequence type, every phylogroup, every serotype, there is a patient, a farm, or a river.", "author": "Brown Beckley"}, {"text": "Open data saves lives. Surveillance belongs to everyone.", "author": "Brown Beckley"}, {"text": "Where a pathogen comes from is half the story of where it goes next.", "author": "Brown Beckley"}];
+    const ROTATE_MS = 10000;
+
+    const banner   = document.getElementById('quote-banner');
+    const textEl   = document.getElementById('quote-text');
+    const authorEl = document.getElementById('quote-author');
+    const dotsEl   = document.getElementById('quote-dots');
+
+    let idx = Math.floor(Math.random() * QUOTES.length);
+
+    dotsEl.innerHTML = QUOTES.map(() => '<span class="quote-dot"></span>').join('');
+    const dots = dotsEl.querySelectorAll('.quote-dot');
+
+    function show(i) {
+        const q = QUOTES[i];
+        textEl.textContent = q.text;
+        authorEl.textContent = '— ' + q.author;
+        dots.forEach((d, k) => d.classList.toggle('active', k === i));
+    }
+
+    function rotate() {
+        banner.classList.add('fading');
+        setTimeout(() => {
+            idx = (idx + 1) % QUOTES.length;
+            show(idx);
+            banner.classList.remove('fading');
+        }, 600);
+    }
+
+    show(idx);
+    setInterval(rotate, ROTATE_MS);
+})();
+</script>
+
+</body>
+</html>

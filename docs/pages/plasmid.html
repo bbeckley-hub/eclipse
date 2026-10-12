@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plasmid Replicons — ECLIPSE</title>
+<meta name="description" content="Interactive plasmid replicons retrieval for E. coli genomes in the ECLIPSE resource.">
+<style>
+
+:root {
+    --gold: #d4af37;
+    --navy: #0a1628;
+    --accent: #7c3aed;
+    --accent-dark: #5b21b6;
+    --accent-light: #7c3aed22;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --text: #1e293b;
+    --muted: #64748b;
+    --border: #e2e8f0;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+}
+
+.argus-nav {
+    background: var(--navy); color: white; padding: 20px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    position: sticky; top: 0; z-index: 100;
+    border-bottom: 2px solid #7c3aed44;
+}
+.argus-nav .brand { display: flex; align-items: center; gap: 20px;
+    text-decoration: none; flex-shrink: 0; }
+.argus-nav .brand-emoji {
+    font-size: 5.6em; line-height: 1;
+    filter: drop-shadow(0 0 14px #7c3aedaa); flex-shrink: 0;
+}
+.argus-nav .brand-text { display: flex; flex-direction: column; gap: 3px; }
+.argus-nav .brand-name {
+    font-weight: 900; font-size: 3.45em; letter-spacing: 2px;
+    color: var(--gold); line-height: 1;
+}
+.argus-nav .brand-tagline {
+    font-size: 1.0em; font-weight: 400;
+    color: #94a3b8; line-height: 1.15; max-width: 520px;
+}
+.argus-nav .links { display: flex; gap: 3px; align-items: center; flex-wrap: wrap; }
+.argus-nav .links a {
+    color: #cbd5e1; text-decoration: none;
+    padding: 7px 12px; border-radius: 6px;
+    font-size: 0.84em; font-weight: 500;
+    transition: all 0.15s; white-space: nowrap;
+}
+.argus-nav .links a:hover { background: rgba(255,255,255,0.08); color: white; }
+.argus-nav .links a.active {
+    background: #7c3aed; color: white; font-weight: 700;
+    box-shadow: 0 3px 10px #7c3aed66;
+}
+
+.page-header {
+    background:
+        radial-gradient(circle at 20% 30%, #7c3aed22 0%, transparent 55%),
+        radial-gradient(circle at 80% 70%, #7c3aed14 0%, transparent 45%),
+        linear-gradient(135deg, #0a1628 0%, #1e293b 55%, #5b21b655 100%);
+    color: white; padding: 44px 32px 36px;
+    position: relative; overflow: hidden;
+}
+.page-header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px);
+    background-size: 36px 36px;
+    opacity: 0.6; pointer-events: none;
+}
+.page-header .inner { position: relative; z-index: 1; max-width: 1400px; }
+.page-header .module-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 0.78em; font-weight: 800; letter-spacing: 1.5px;
+    text-transform: uppercase; color: #7c3aed;
+    padding: 5px 14px; border-radius: 20px;
+    background: #7c3aed22; border: 1px solid #7c3aed44;
+    margin-bottom: 12px;
+}
+.page-header h1 {
+    font-size: 2.6em; margin-bottom: 6px; font-weight: 900;
+    letter-spacing: -0.5px; line-height: 1.1;
+}
+.page-header .subtitle { color: #cbd5e1; font-size: 1.05em; margin-bottom: 24px; }
+
+main { max-width: 1500px; margin: 0 auto; padding: 24px 32px 60px; }
+
+.tab-strip {
+    display: flex; gap: 6px; margin-bottom: 20px;
+    background: var(--card); padding: 8px;
+    border-radius: 12px; border: 1px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    width: fit-content;
+}
+.tab-btn {
+    padding: 10px 22px; border: none; border-radius: 8px;
+    background: transparent; color: var(--muted);
+    font-size: 0.92em; font-weight: 700;
+    cursor: pointer; transition: all 0.15s; font-family: inherit;
+}
+.tab-btn:hover { background: #f1f5f9; color: var(--text); }
+.tab-btn.active { background: #7c3aed; color: white; box-shadow: 0 3px 10px #7c3aed55; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+.gene-picker {
+    background: var(--card); border-radius: 12px;
+    border: 1px solid var(--border);
+    padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    margin-bottom: 18px;
+}
+.picker-label {
+    font-size: 0.82em; color: var(--muted);
+    font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.5px; margin-bottom: 10px;
+    display: block;
+}
+.chip-row {
+    display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px;
+}
+.gene-chip {
+    padding: 6px 14px; border-radius: 16px;
+    border: 2px solid var(--border); background: white;
+    color: var(--text); font-size: 0.85em;
+    font-weight: 700; cursor: pointer;
+    transition: all 0.15s; font-family: 'SF Mono', Monaco, monospace;
+}
+.gene-chip:hover { border-color: #7c3aed; color: #7c3aed; }
+.gene-chip.selected {
+    background: #7c3aed; border-color: #7c3aed;
+    color: white; box-shadow: 0 3px 8px #7c3aed55;
+}
+.gene-chip.disabled { opacity: 0.4; cursor: not-allowed; background: #f1f5f9; }
+.gene-chip .prevalence {
+    font-size: 0.85em; opacity: 0.7;
+    margin-left: 4px; font-weight: 600;
+}
+
+.search-wrap {
+    position: relative; margin-bottom: 14px;
+}
+.search-wrap input {
+    width: 100%; padding: 12px 14px 12px 42px;
+    border: 2px solid var(--border); border-radius: 10px;
+    font-size: 0.95em; font-family: inherit; outline: none;
+    transition: border 0.15s;
+}
+.search-wrap input:focus { border-color: #7c3aed; box-shadow: 0 0 0 3px #7c3aed22; }
+.search-wrap::before {
+    content: '\1F50D'; position: absolute; left: 14px; top: 50%;
+    transform: translateY(-50%); font-size: 15px; opacity: 0.6;
+}
+.autocomplete {
+    position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+    background: white; border: 1px solid var(--border);
+    border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    max-height: 380px; overflow-y: auto;
+    z-index: 50; display: none;
+}
+.autocomplete.open { display: block; }
+.autocomplete .ac-item {
+    padding: 10px 16px; cursor: pointer; border-bottom: 1px solid #f1f5f9;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.autocomplete .ac-item:last-child { border-bottom: none; }
+.autocomplete .ac-item:hover, .autocomplete .ac-item.active { background: #7c3aed11; }
+.autocomplete .ac-gene { font-family: 'SF Mono', Monaco, monospace; font-weight: 700; color: var(--text); font-size: 0.9em; }
+.autocomplete .ac-meta { font-size: 0.78em; color: var(--muted); }
+.autocomplete .ac-pct { font-family: 'SF Mono', Monaco, monospace; font-weight: 700; color: #7c3aed; font-size: 0.82em; }
+.autocomplete .ac-empty { padding: 20px; text-align: center; color: var(--muted); font-size: 0.9em; }
+
+.selected-bar {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 16px; border-radius: 10px;
+    background: #f8fafc; border: 1px solid var(--border);
+    margin-bottom: 14px;
+    min-height: 54px; flex-wrap: wrap;
+}
+.selected-bar .label {
+    font-size: 0.82em; color: var(--muted);
+    font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.selected-gene {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 12px; border-radius: 16px;
+    background: #7c3aed; color: white;
+    font-size: 0.85em; font-weight: 700;
+    font-family: 'SF Mono', Monaco, monospace;
+}
+.selected-gene .remove { cursor: pointer; font-weight: 900; padding: 0 4px; opacity: 0.85; }
+.selected-gene .remove:hover { opacity: 1; }
+.selected-empty { color: var(--muted); font-style: italic; font-size: 0.9em; }
+.mode-toggle {
+    display: flex; gap: 4px; background: #f1f5f9;
+    padding: 4px; border-radius: 8px; margin-left: auto;
+}
+.mode-btn {
+    padding: 6px 16px; border: none; border-radius: 6px;
+    background: transparent; cursor: pointer;
+    font-size: 0.85em; font-weight: 700;
+    color: var(--muted); font-family: inherit;
+    transition: all 0.15s;
+}
+.mode-btn.active { background: white; color: #7c3aed; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+
+.result-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; margin-bottom: 14px; flex-wrap: wrap;
+}
+.result-count { font-size: 1.05em; font-weight: 700; color: var(--text); }
+.result-count strong { color: #7c3aed; font-size: 1.15em; }
+.result-hint { color: var(--muted); font-size: 0.92em; }
+.export-bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.export-btn {
+    padding: 9px 16px; border: none; border-radius: 8px;
+    font-size: 0.88em; font-weight: 700; cursor: pointer;
+    transition: all 0.15s; color: white; background: #7c3aed; font-family: inherit;
+}
+.export-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 12px #7c3aed55; }
+.export-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.export-btn.secondary { background: #64748b; }
+
+.table-wrap {
+    background: var(--card); border-radius: 12px;
+    border: 1px solid var(--border);
+    overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.table-scroll { max-height: 68vh; overflow: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.88em; }
+thead th {
+    background: #f1f5f9; padding: 11px 13px; text-align: left;
+    font-weight: 800; color: #334155; font-size: 0.78em;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    position: sticky; top: 0; z-index: 5;
+    cursor: pointer; user-select: none;
+    border-bottom: 2px solid var(--border); white-space: nowrap;
+}
+thead th:hover { background: #e2e8f0; }
+thead th.sortable::after { content: ' \21C5'; opacity: 0.35; font-size: 0.85em; }
+thead th.sorted-asc::after { content: ' \25B2'; opacity: 1; color: #7c3aed; }
+thead th.sorted-desc::after { content: ' \25BC'; opacity: 1; color: #7c3aed; }
+tbody td { padding: 10px 13px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+tbody tr:hover td { background: #fafbfc; }
+.accession-cell {
+    font-family: 'SF Mono', Monaco, monospace;
+    font-weight: 700; color: var(--text); font-size: 0.85em;
+}
+.meta-cell { font-size: 0.85em; color: #475569; }
+.match-yes { color: #059669; font-weight: 900; font-size: 1.1em; text-align: center; }
+.match-no  { color: #e2e8f0; text-align: center; }
+.copy-btn {
+    padding: 4px 10px; font-size: 0.78em; font-weight: 700;
+    border-radius: 6px; border: 1px solid var(--border);
+    background: white; cursor: pointer; font-family: inherit;
+    color: var(--muted); transition: all 0.15s;
+}
+.copy-btn:hover { border-color: #7c3aed; color: #7c3aed; }
+
+.freq-controls {
+    display: flex; gap: 12px; margin-bottom: 14px; flex-wrap: wrap;
+    background: var(--card); padding: 14px 18px;
+    border-radius: 12px; border: 1px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    align-items: center;
+}
+.freq-controls input, .freq-controls select {
+    padding: 9px 12px; border: 2px solid var(--border);
+    border-radius: 8px; font-size: 0.9em; font-family: inherit;
+    color: var(--text); outline: none;
+}
+.freq-controls input { flex: 1; min-width: 200px; }
+.freq-controls input:focus, .freq-controls select:focus { border-color: #7c3aed; }
+.prev-bar-track { flex: 1; height: 10px; background: #f1f5f9; border-radius: 5px; overflow: hidden; }
+.prev-bar-fill { height: 100%; background: linear-gradient(90deg, #7c3aed 0%, #5b21b6 100%); border-radius: 5px; }
+.prev-cell { display: flex; align-items: center; gap: 10px; min-width: 200px; }
+.prev-value { font-weight: 700; font-size: 0.88em; min-width: 52px; text-align: right; }
+.num-cell { font-family: 'SF Mono', Monaco, monospace; font-weight: 700; color: #334155; text-align: right; }
+.gene-name { font-family: 'SF Mono', Monaco, monospace; font-weight: 700; color: var(--text); }
+.family-pill {
+    display: inline-block; padding: 2px 9px; border-radius: 12px;
+    background: #f1f5f9; color: #475569;
+    font-family: 'SF Mono', Monaco, monospace;
+    font-weight: 700; font-size: 0.78em;
+}
+.add-gene-btn {
+    padding: 3px 10px; font-size: 0.78em; font-weight: 700;
+    border: 1px solid #7c3aed33; border-radius: 6px;
+    background: white; color: #7c3aed; cursor: pointer;
+    font-family: inherit; transition: all 0.15s;
+}
+.add-gene-btn:hover { background: #7c3aed; color: white; border-color: #7c3aed; }
+
+.pagination {
+    display: flex; gap: 12px; align-items: center; justify-content: center;
+    padding: 14px 18px; background: #f8fafc;
+    border-top: 1px solid var(--border); font-size: 0.88em; flex-wrap: wrap;
+}
+.pagination button {
+    padding: 7px 14px; border: 1px solid var(--border); background: white;
+    border-radius: 6px; cursor: pointer; font-weight: 600;
+    color: var(--text); font-family: inherit;
+}
+.pagination button:hover:not(:disabled) { background: #7c3aed; color: white; border-color: #7c3aed; }
+.pagination button:disabled { opacity: 0.4; cursor: not-allowed; }
+.pagination .page-info { color: var(--muted); font-weight: 600; }
+.page-size-label { display: flex; align-items: center; gap: 6px; font-size: 0.85em; color: var(--muted); font-weight: 700; margin-left: auto; white-space: nowrap; }
+.page-size-label select { padding: 5px 8px; border: 1px solid var(--border); border-radius: 6px; background: white; font-family: inherit; font-size: 1em; cursor: pointer; font-weight: 700; color: var(--text); }
+
+.empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+.empty-state .icon { font-size: 3em; opacity: 0.4; margin-bottom: 12px; }
+
+.about-content {
+    background: var(--card); border-radius: 12px;
+    padding: 30px 36px; border: 1px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    max-width: 900px;
+}
+.about-content h2 { color: var(--navy); margin-bottom: 14px; font-size: 1.5em; border-bottom: 3px solid #7c3aed; padding-bottom: 10px; display: inline-block; }
+.about-content h3 { color: #334155; margin: 24px 0 10px; font-size: 1.1em; }
+.about-content p { margin-bottom: 12px; color: #475569; }
+.about-content ul, .about-content ol { padding-left: 24px; margin-bottom: 14px; }
+.about-content li { margin-bottom: 6px; color: #475569; }
+.about-content code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 0.9em; font-family: 'SF Mono', Monaco, monospace; }
+.about-content a { color: #7c3aed; text-decoration: none; font-weight: 700; }
+.about-content a:hover { text-decoration: underline; }
+
+.argus-footer {
+    background: var(--navy); color: #94a3b8; padding: 32px;
+    text-align: center; font-size: 0.86em; margin-top: 60px;
+    border-top: 2px solid #7c3aed33;
+}
+.argus-footer a { color: var(--gold); text-decoration: none; }
+.argus-footer a:hover { text-decoration: underline; }
+.argus-footer .footer-line { margin: 6px 0; }
+.argus-footer .full-name { color: #cbd5e1; font-size: 0.95em; letter-spacing: 0.2px; font-weight: 600; }
+.argus-footer .full-name strong { color: var(--gold); }
+
+@media (max-width: 900px) {
+    .argus-nav { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .argus-nav .brand-tagline { max-width: 100%; }
+    .argus-nav .brand-emoji { font-size: 3.6em; }
+    .argus-nav .brand-name { font-size: 2.2em; }
+}
+@media (max-width: 700px) {
+    .page-header { padding: 28px 20px 24px; }
+    .page-header h1 { font-size: 1.8em; }
+    main { padding: 20px 16px 40px; }
+    .argus-nav { padding: 14px 16px; }
+    .tab-strip { width: 100%; }
+    .mode-toggle { margin-left: 0; }
+    .freq-controls { flex-direction: column; align-items: stretch; }
+}
+
+</style>
+</head>
+<body>
+
+<nav class="argus-nav">
+    <a class="brand" href="../index.html">
+        <span class="brand-emoji">🌑</span>
+        <span class="brand-text">
+            <span class="brand-name"><span style="color:#7c3aed">E</span><span style="color:#6366f1">C</span><span style="color:#3b82f6">L</span><span style="color:#06b6d4">I</span><span style="color:#10b981">P</span><span style="color:#f59e0b">S</span><span style="color:#ec4899">E</span></span>
+            <span class="brand-tagline">E. coli Library for Integrated Pathogen Surveillance and Epidemiology</span>
+        </span>
+    </a>
+    <div class="links"><a href="../index.html">Home</a><a href="mlst.html">MLST</a><a href="phylogroups.html">Phylogroups</a><a href="serotypes.html">Serotypes</a><a href="chtyper.html">CHTyper</a><a href="../master.html">Master</a><a href="amr.html">AMR</a><a href="vfdb.html">Virulence</a><a href="plasmid.html" class="active">Plasmid</a><a href="../statistics.html">Statistics</a><a href="../geography.html">Geography</a><a href="../lineages.html">Lineages</a><a href="../downloads.html">Downloads</a><a href="../about.html">About</a></div>
+</nav>
+
+<header class="page-header">
+    <div class="inner">
+        <div class="module-eyebrow">🔌 GENE MODULE</div>
+        <h1>Plasmid Replicons</h1>
+        <div class="subtitle">Replicon typing · ABRicate + PlasmidFinder</div>
+    </div>
+</header>
+
+<main>
+    <div class="tab-strip">
+        <button class="tab-btn active" data-tab="search">🔎 Gene Search</button>
+        <button class="tab-btn" data-tab="freq">📊 All Genes</button>
+        <button class="tab-btn" data-tab="about">ℹ️ About</button>
+    </div>
+
+    <!-- ============ TAB 1: SEARCH ============ -->
+    <div class="tab-panel active" id="tab-search">
+        <div class="gene-picker">
+            <span class="picker-label">🔍 Search genes (autocomplete over all 81 genes)</span>
+            <div class="search-wrap">
+                <input type="text" id="gene-search" placeholder="Type a gene name — e.g. blaCTX-M-15, mcr-1, stx2, IncFIB">
+                <div class="autocomplete" id="autocomplete"></div>
+            </div>
+            <span class="picker-label">Quick pick — most discriminative genes</span>
+            <div class="chip-row" id="chip-row"></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.82em;color:#94a3b8;">
+                <span>Pick up to 5 genes. Match ALL = samples must carry every selected gene.</span>
+                <span id="load-status" style="display:none;font-weight:600;color:#059669;"></span>
+            </div>
+        </div>
+
+        <div class="selected-bar" id="selected-bar"></div>
+
+        <div class="result-bar">
+            <div class="result-count" id="result-count"><span class="result-hint">No genes selected</span></div>
+            <div class="export-bar">
+                <button class="export-btn" data-fmt="tsv" disabled>⬇ TSV</button>
+                <button class="export-btn" data-fmt="csv" disabled>⬇ CSV</button>
+                <button class="export-btn" data-fmt="json" disabled>⬇ JSON</button>
+                <button class="export-btn secondary" data-fmt="accessions" disabled>🧬 Accessions</button>
+            </div>
+        </div>
+
+        <div class="table-wrap">
+            <div class="table-scroll">
+                <table>
+                    <thead id="table-head"></thead>
+                    <tbody id="table-body"></tbody>
+                </table>
+            </div>
+            <div class="pagination" id="pagination"></div>
+        </div>
+    </div>
+
+    <!-- ============ TAB 2: ALL GENES ============ -->
+    <div class="tab-panel" id="tab-freq">
+        <div class="freq-controls">
+            <input type="text" id="freq-search" placeholder="🔍 Search gene name or class...">
+            
+            <input type="number" id="freq-min-pct" value="0" min="0" max="100" step="1"
+                   style="width:140px;" placeholder="Min prevalence %">
+        </div>
+        <div class="table-wrap">
+            <div class="table-scroll">
+                <table>
+                    <thead id="freq-head"></thead>
+                    <tbody id="freq-body"></tbody>
+                </table>
+            </div>
+        </div>
+        <p style="margin-top:14px;font-size:0.86em;color:#94a3b8;">
+            Showing up to 2,000 rows. For the complete list including all variant alleles,
+            download <a href="../downloads.html" style="color:#7c3aed;font-weight:700;">plasmid_gene_freq.tsv.gz</a> from the Downloads page.
+        </p>
+    </div>
+
+    <!-- ============ TAB 3: ABOUT ============ -->
+    <div class="tab-panel" id="tab-about">
+        <div class="about-content">
+            <h2>About this module</h2>
+            <p>
+                This page lets you retrieve E. coli genomes by <strong>plasmid replicons</strong>.
+                Pick up to five genes, choose whether samples must match
+                <strong>any</strong> or <strong>all</strong> of them, and download the
+                accession list — ready for
+                <code>datasets download genome accession --inputfile list.txt</code>.
+            </p>
+
+            <h3>Source</h3>
+            <p>ABRicate against the PlasmidFinder database.</p>
+
+            <h3>How to use it</h3>
+            <ol>
+                <li>Click a quick-pick chip, or use the autocomplete search to find any of the 81 genes</li>
+                <li>Add up to 5 genes — the results table updates instantly</li>
+                <li>Switch between <strong>Match ANY</strong> (union) and <strong>Match ALL</strong> (intersection)</li>
+                <li>Click <strong>🧬 Accessions</strong> to download the accession list as plain text</li>
+                <li>Or use TSV/CSV/JSON for per-gene presence flags plus metadata</li>
+            </ol>
+
+            <h3>Coverage in this build</h3>
+            <ul>
+                <li><strong>1,650</strong> genomes carry at least one plasmid replicons determinant</li>
+                <li><strong>81</strong> unique replicons</li>
+                <li><strong>6,483</strong> presence records</li>
+            </ul>
+
+            <h3>Full data download</h3>
+            <p>
+                For the complete presence matrix (long format:
+                <code>accession | gene | num_hits | identities</code>)
+                and the full frequency table, go to the
+                <a href="../downloads.html">Downloads page</a>. All files are gzipped TSVs.
+            </p>
+
+            <h3>Cite</h3>
+            <ul>
+                <li>EcoliTyper: Beckley B, Amarh V. <em>BMC Bioinformatics</em> 2026.
+                    <a href="https://doi.org/10.1186/s12859-026-06529-6" target="_blank">DOI</a></li>
+            </ul>
+        </div>
+    </div>
+</main>
+
+<footer class="argus-footer">
+    <div class="footer-line full-name">
+        <strong>ECLIPSE</strong> — E. coli Library for Integrated Pathogen Surveillance and Epidemiology
+    </div>
+    <div class="footer-line">
+        Part of the <strong style="color:#d4af37;">ARGUS</strong> family ·
+        University of Ghana Medical School · MIT License
+    </div>
+    <div class="footer-line">
+        Data updated 2026-10-12 16:40:46 ·
+        <a href="https://github.com/bbeckley-hub/eclipse">GitHub</a> ·
+        <a href="../about.html">About</a> ·
+        <a href="mailto:brownbeckley94@gmail.com">Contact</a>
+    </div>
+</footer>
+
+<script>
+
+const MODULE_KEY = "plasmid";
+const MAX_GENES = 5;
+const INDEX_URL = "../data/plasmid_index.json";
+
+let indexLoaded = false;
+let indexLoading = false;
+let geneMeta = [];             // [{id, label, n, pct}, ...]
+let sampleData = {};            // {acc: {g: [idx], c: "…", s: "…", y: "…"}}
+let selected = [];              // array of gene indices
+let matchMode = 'ANY';
+let results = [];
+let currentPage = 1;
+let pageSize = 100;
+let sortKey = null;
+let sortAsc = true;
+
+// ---- DOM ----
+const searchEl = document.getElementById('gene-search');
+const autocompleteEl = document.getElementById('autocomplete');
+const chipRow = document.getElementById('chip-row');
+const selectedBar = document.getElementById('selected-bar');
+const resultCountEl = document.getElementById('result-count');
+const theadEl = document.getElementById('table-head');
+const tbodyEl = document.getElementById('table-body');
+const paginationEl = document.getElementById('pagination');
+const loadStatus = document.getElementById('load-status');
+
+// =========================================================================
+// Load index (lazy)
+// =========================================================================
+async function ensureIndex() {
+    if (indexLoaded || indexLoading) return;
+    indexLoading = true;
+    loadStatus.textContent = 'Loading sample index…';
+    loadStatus.style.display = 'inline-block';
+    try {
+        const resp = await fetch(INDEX_URL);
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const data = await resp.json();
+        geneMeta = data.genes || [];
+        sampleData = data.samples || {};
+        indexLoaded = true;
+        loadStatus.textContent = '✓ Loaded (' + Object.keys(sampleData).length.toLocaleString() + ' samples)';
+        setTimeout(function() { loadStatus.style.display = 'none'; }, 2500);
+        renderChips();
+        renderSelectedBar();
+        runSearch();
+    } catch (e) {
+        loadStatus.textContent = '⚠️ Could not load index: ' + e.message;
+        loadStatus.style.color = '#dc2626';
+        const parent = loadStatus.closest('.gene-picker');
+        if (parent && !parent.querySelector('.file-help')) {
+            const help = document.createElement('div');
+            help.className = 'file-help';
+            help.style.cssText = 'margin-top:12px;padding:12px 14px;background:#fef3c7;border-left:4px solid #f59e0b;border-radius:6px;color:#78350f;font-size:0.88em;line-height:1.5;';
+            help.innerHTML =
+                '<strong>⚠️ Browser blocked the data fetch</strong><br>' +
+                'Serve the folder over HTTP, not <code>file://</code>:<br>' +
+                '<code style="display:inline-block;margin-top:6px;padding:3px 8px;background:#fff;border-radius:3px;font-family:monospace;">cd ~/eclipse/docs &amp;&amp; python3 -m http.server 8000</code><br>' +
+                'Then open <code>http://localhost:8000/pages/plasmid.html</code>';
+            parent.appendChild(help);
+        }
+    } finally {
+        indexLoading = false;
+    }
+}
+
+// =========================================================================
+// Helpers
+// =========================================================================
+function esc(s) {
+    return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+function download(filename, content, mime) {
+    const blob = new Blob([content], { type: mime + ';charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename; a.click();
+    URL.revokeObjectURL(url);
+}
+
+// =========================================================================
+// Chips
+// =========================================================================
+function renderChips() {
+    if (!indexLoaded) {
+        chipRow.innerHTML = '<div style="color:#94a3b8;font-size:0.9em;padding:8px;">Loading gene list…</div>';
+        return;
+    }
+    // Show genes sorted by prevalence descending (universals first? No —
+    // show more discriminative genes first, i.e., 5%–95% range)
+    const displayed = geneMeta.slice()
+        .sort(function(a, b) {
+            const aDist = Math.abs(a.pct - 50);
+            const bDist = Math.abs(b.pct - 50);
+            return aDist - bDist;
+        })
+        .slice(0, 60);
+
+    chipRow.innerHTML = displayed.map(function(g) {
+        const isSel = selected.includes(geneMeta.indexOf(g));
+        const isDisabled = !isSel && selected.length >= MAX_GENES;
+        const cls = 'gene-chip' + (isSel ? ' selected' : '') + (isDisabled ? ' disabled' : '');
+        return '<button class="' + cls + '" data-gene-idx="' + geneMeta.indexOf(g) + '" ' +
+            'title="' + g.n.toLocaleString() + ' genomes (' + g.pct + '%)">' +
+            esc(g.label) +
+            '<span class="prevalence">' + g.pct.toFixed(1) + '%</span>' +
+            '</button>';
+    }).join('');
+    chipRow.querySelectorAll('.gene-chip').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const idx = parseInt(btn.dataset.geneIdx);
+            toggleGene(idx);
+        });
+    });
+}
+
+function toggleGene(idx) {
+    const pos = selected.indexOf(idx);
+    if (pos >= 0) {
+        selected.splice(pos, 1);
+    } else if (selected.length < MAX_GENES) {
+        selected.push(idx);
+    }
+    renderChips();
+    renderSelectedBar();
+    runSearch();
+}
+
+// =========================================================================
+// Selected bar
+// =========================================================================
+function renderSelectedBar() {
+    if (selected.length === 0) {
+        selectedBar.innerHTML =
+            '<span class="label">Selected genes</span>' +
+            '<span class="selected-empty">Pick up to ' + MAX_GENES +
+            ' genes from the chips or search box above</span>';
+        return;
+    }
+    const chips = selected.map(function(idx) {
+        const g = geneMeta[idx];
+        return '<span class="selected-gene">' + esc(g.label) +
+            '<span class="remove" data-idx="' + idx + '">×</span></span>';
+    }).join('');
+    selectedBar.innerHTML =
+        '<span class="label">Selected (' + selected.length + '/' + MAX_GENES + ')</span>' +
+        chips +
+        '<div class="mode-toggle">' +
+            '<button class="mode-btn ' + (matchMode === 'ANY' ? 'active' : '') + '" data-mode="ANY">Match ANY</button>' +
+            '<button class="mode-btn ' + (matchMode === 'ALL' ? 'active' : '') + '" data-mode="ALL">Match ALL</button>' +
+        '</div>';
+    selectedBar.querySelectorAll('.remove').forEach(function(el) {
+        el.addEventListener('click', function() {
+            const idx = parseInt(el.dataset.idx);
+            selected = selected.filter(function(x) { return x !== idx; });
+            renderChips();
+            renderSelectedBar();
+            runSearch();
+        });
+    });
+    selectedBar.querySelectorAll('.mode-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            matchMode = btn.dataset.mode;
+            renderSelectedBar();
+            runSearch();
+        });
+    });
+}
+
+// =========================================================================
+// Autocomplete
+// =========================================================================
+searchEl.addEventListener('input', function() {
+    const term = searchEl.value.trim().toLowerCase();
+    if (!term || !indexLoaded) {
+        autocompleteEl.classList.remove('open');
+        return;
+    }
+    const matches = geneMeta
+        .map(function(g, idx) { return { g: g, idx: idx }; })
+        .filter(function(x) {
+            return x.g.label.toLowerCase().indexOf(term) !== -1 ||
+                   x.g.id.toLowerCase().indexOf(term) !== -1;
+        })
+        .slice(0, 30);
+
+    if (matches.length === 0) {
+        autocompleteEl.innerHTML = '<div class="ac-empty">No genes match "' + esc(term) + '"</div>';
+        autocompleteEl.classList.add('open');
+        return;
+    }
+    autocompleteEl.innerHTML = matches.map(function(x) {
+        return '<div class="ac-item" data-idx="' + x.idx + '">' +
+            '<div><div class="ac-gene">' + esc(x.g.label) + '</div>' +
+            '<div class="ac-meta">' + x.g.n.toLocaleString() + ' genomes</div></div>' +
+            '<div class="ac-pct">' + x.g.pct.toFixed(1) + '%</div>' +
+            '</div>';
+    }).join('');
+    autocompleteEl.classList.add('open');
+    autocompleteEl.querySelectorAll('.ac-item').forEach(function(item) {
+        item.addEventListener('click', function() {
+            const idx = parseInt(item.dataset.idx);
+            if (!selected.includes(idx) && selected.length < MAX_GENES) {
+                selected.push(idx);
+                renderChips();
+                renderSelectedBar();
+                runSearch();
+            }
+            searchEl.value = '';
+            autocompleteEl.classList.remove('open');
+        });
+    });
+});
+document.addEventListener('click', function(e) {
+    if (!searchEl.contains(e.target) && !autocompleteEl.contains(e.target)) {
+        autocompleteEl.classList.remove('open');
+    }
+});
+
+// =========================================================================
+// Search
+// =========================================================================
+function runSearch() {
+    if (!indexLoaded || selected.length === 0) {
+        results = [];
+        currentPage = 1;
+        renderResults();
+        return;
+    }
+    const selSet = new Set(selected);
+    const matches = [];
+    for (const acc in sampleData) {
+        const rec = sampleData[acc];
+        const genes = rec.g || [];
+        const presentSet = new Set(genes);
+        let ok = false;
+        let okFlags;
+        if (matchMode === 'ANY') {
+            okFlags = selected.map(function(i) { return presentSet.has(i); });
+            ok = okFlags.some(function(x) { return x; });
+        } else {
+            okFlags = selected.map(function(i) { return presentSet.has(i); });
+            ok = okFlags.every(function(x) { return x; });
+        }
+        if (ok) matches.push({ acc: acc, rec: rec, okFlags: okFlags });
+    }
+    results = matches;
+    currentPage = 1;
+    renderResults();
+}
+
+// =========================================================================
+// Results table
+// =========================================================================
+function renderResults() {
+    // Header
+    let html = '<tr><th>Accession</th>';
+    for (const idx of selected) {
+        html += '<th style="text-align:center;">' + esc(geneMeta[idx].label) + '</th>';
+    }
+    html += '<th>Country</th><th>Source</th><th>Year</th><th>Copy</th></tr>';
+    theadEl.innerHTML = html;
+
+    if (selected.length === 0) {
+        resultCountEl.innerHTML = '<span class="result-hint">No genes selected</span>';
+        tbodyEl.innerHTML = '<tr><td colspan="99"><div class="empty-state">' +
+            '<div class="icon">🧬</div>' +
+            '<div>Pick one or more genes above to retrieve matching genomes</div>' +
+            '</div></td></tr>';
+        paginationEl.innerHTML = '';
+        updateExportButtons();
+        return;
+    }
+    if (!indexLoaded) {
+        resultCountEl.innerHTML = '<span class="result-hint">Waiting for index…</span>';
+        tbodyEl.innerHTML = '<tr><td colspan="99"><div class="empty-state">' +
+            '<div class="icon">⏳</div><div>Loading…</div></div></td></tr>';
+        paginationEl.innerHTML = '';
+        updateExportButtons();
+        return;
+    }
+
+    const n = results.length;
+    resultCountEl.innerHTML = '<strong>' + n.toLocaleString() + '</strong> genome' +
+        (n === 1 ? '' : 's') + ' match';
+
+    if (n === 0) {
+        tbodyEl.innerHTML = '<tr><td colspan="99"><div class="empty-state">' +
+            '<div class="icon">🔍</div><div>No genomes match your selection</div>' +
+            '</div></td></tr>';
+        paginationEl.innerHTML = '';
+        updateExportButtons();
+        return;
+    }
+
+    const totalPages = Math.max(1, Math.ceil(n / pageSize));
+    if (currentPage > totalPages) currentPage = totalPages;
+    const start = (currentPage - 1) * pageSize;
+    const slice = results.slice(start, start + pageSize);
+
+    tbodyEl.innerHTML = slice.map(function(r) {
+        let cells = '<td class="accession-cell">' + esc(r.acc) + '</td>';
+        for (const ok of r.okFlags) {
+            cells += '<td class="' + (ok ? 'match-yes' : 'match-no') + '">' +
+                (ok ? '✓' : '·') + '</td>';
+        }
+        cells += '<td class="meta-cell">' + esc(r.rec.c) + '</td>';
+        cells += '<td class="meta-cell">' + esc(r.rec.s) + '</td>';
+        cells += '<td class="meta-cell">' + esc(r.rec.y) + '</td>';
+        cells += '<td><button class="copy-btn" data-acc="' + esc(r.acc) + '">📋</button></td>';
+        return '<tr>' + cells + '</tr>';
+    }).join('');
+
+    tbodyEl.querySelectorAll('.copy-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            navigator.clipboard.writeText(btn.dataset.acc);
+            const old = btn.textContent;
+            btn.textContent = '✓';
+            setTimeout(function() { btn.textContent = old; }, 1200);
+        });
+    });
+
+    paginationEl.innerHTML =
+        '<button id="prev-page"' + (currentPage === 1 ? ' disabled' : '') + '>← Prev</button>' +
+        '<span class="page-info">Page ' + currentPage + ' / ' + totalPages + ' · ' +
+        n.toLocaleString() + ' matches</span>' +
+        '<button id="next-page"' + (currentPage === totalPages ? ' disabled' : '') + '>Next →</button>' +
+        '<label class="page-size-label">Show <select id="page-size">' +
+        '<option value="50"' + (pageSize === 50 ? ' selected' : '') + '>50</option>' +
+        '<option value="100"' + (pageSize === 100 ? ' selected' : '') + '>100</option>' +
+        '<option value="500"' + (pageSize === 500 ? ' selected' : '') + '>500</option>' +
+        '</select> per page</label>';
+
+    const prevBtn = document.getElementById('prev-page');
+    const nextBtn = document.getElementById('next-page');
+    const pageSizeSel = document.getElementById('page-size');
+    if (prevBtn) prevBtn.addEventListener('click', function() {
+        if (currentPage > 1) { currentPage--; renderResults(); }
+    });
+    if (nextBtn) nextBtn.addEventListener('click', function() {
+        if (currentPage < totalPages) { currentPage++; renderResults(); }
+    });
+    if (pageSizeSel) pageSizeSel.addEventListener('change', function(e) {
+        pageSize = parseInt(e.target.value);
+        currentPage = 1;
+        renderResults();
+    });
+
+    updateExportButtons();
+}
+
+function updateExportButtons() {
+    document.querySelectorAll('.export-btn').forEach(function(b) {
+        b.disabled = selected.length === 0 || results.length === 0;
+    });
+}
+
+// =========================================================================
+// Exports
+// =========================================================================
+document.querySelectorAll('.export-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        if (selected.length === 0 || results.length === 0) return;
+        const fmt = btn.dataset.fmt;
+        const stamp = new Date().toISOString().slice(0, 10);
+        const geneIds = selected.map(function(i) { return geneMeta[i].id; }).join('_');
+        const base = 'eclipse_' + MODULE_KEY + '_' + geneIds + '_' + stamp;
+
+        if (fmt === 'accessions') {
+            download(base + '_accessions.txt', results.map(function(r) { return r.acc; }).join('\n'), 'text/plain');
+            return;
+        }
+
+        const geneLabels = selected.map(function(i) { return geneMeta[i].label; });
+        const headers = ['Accession'].concat(geneLabels).concat(['Country', 'Source', 'Year']);
+
+        if (fmt === 'tsv' || fmt === 'csv') {
+            const sep = fmt === 'tsv' ? '\t' : ',';
+            const q = fmt === 'csv';
+            const lines = [headers.map(function(h) { return q ? '"' + h + '"' : h; }).join(sep)];
+            for (const r of results) {
+                const vals = [r.acc]
+                    .concat(r.okFlags.map(function(ok) { return ok ? '1' : '0'; }))
+                    .concat([r.rec.c, r.rec.s, r.rec.y]);
+                lines.push(vals.map(function(v) {
+                    const s = String(v);
+                    if (q) return '"' + s.replace(/"/g, '""') + '"';
+                    return s.replace(/\t/g, ' ');
+                }).join(sep));
+            }
+            download(base + '.' + fmt, lines.join('\n'),
+                fmt === 'tsv' ? 'text/tab-separated-values' : 'text/csv');
+        } else if (fmt === 'json') {
+            const out = results.map(function(r) {
+                const o = { accession: r.acc };
+                selected.forEach(function(i, k) {
+                    o[geneMeta[i].label] = r.okFlags[k];
+                });
+                o.country = r.rec.c;
+                o.source = r.rec.s;
+                o.year = r.rec.y;
+                return o;
+            });
+            download(base + '.json', JSON.stringify(out, null, 2), 'application/json');
+        }
+    });
+});
+
+// =========================================================================
+// Frequency table (Tab 2)
+// =========================================================================
+const FREQ_DATA = [{"gene": "IncFIB(AP001918)_1", "n": 993, "pct": 59.32, "occ": 994}, {"gene": "IncFIA_1", "n": 601, "pct": 35.9, "occ": 601}, {"gene": "Col(pHAD28)_1", "n": 535, "pct": 31.96, "occ": 747}, {"gene": "Col156_1", "n": 495, "pct": 29.57, "occ": 586}, {"gene": "Col(MG828)_1", "n": 335, "pct": 20.01, "occ": 454}, {"gene": "IncI1_1_Alpha", "n": 319, "pct": 19.06, "occ": 324}, {"gene": "Col(BS512)_1", "n": 258, "pct": 15.41, "occ": 267}, {"gene": "IncFII(pRSB107)_1_pRSB107", "n": 231, "pct": 13.8, "occ": 236}, {"gene": "IncY_1", "n": 210, "pct": 12.54, "occ": 211}, {"gene": "IncFIC(FII)_1", "n": 208, "pct": 12.43, "occ": 210}, {"gene": "IncFII_1", "n": 204, "pct": 12.19, "occ": 205}, {"gene": "ColRNAI_1", "n": 153, "pct": 9.14, "occ": 168}, {"gene": "IncX3_1", "n": 147, "pct": 8.78, "occ": 148}, {"gene": "IncX1_1", "n": 86, "pct": 5.14, "occ": 86}, {"gene": "IncB/O/K/Z_2", "n": 76, "pct": 4.54, "occ": 76}, {"gene": "ColpVC_1", "n": 74, "pct": 4.42, "occ": 74}, {"gene": "IncFIB(H89-PhagePlasmid)_1", "n": 67, "pct": 4.0, "occ": 67}, {"gene": "IncFII(pAMA1167-NDM-5)_1_pAMA1167-NDM-5", "n": 66, "pct": 3.94, "occ": 66}, {"gene": "p0111_1", "n": 66, "pct": 3.94, "occ": 66}, {"gene": "IncFIB(K)_1_Kpn3", "n": 62, "pct": 3.7, "occ": 62}, {"gene": "ColpEC648", "n": 55, "pct": 3.29, "occ": 55}, {"gene": "IncFIB(pB171)_1_pB171", "n": 53, "pct": 3.17, "occ": 53}, {"gene": "IncFIA(HI1)_1_HI1", "n": 52, "pct": 3.11, "occ": 52}, {"gene": "IncFII(pCoo)_1_pCoo", "n": 52, "pct": 3.11, "occ": 54}, {"gene": "IncFII(29)_1_pUTI89", "n": 46, "pct": 2.75, "occ": 46}, {"gene": "IncR_1", "n": 41, "pct": 2.45, "occ": 41}, {"gene": "IncFII(pHN7A8)_1_pHN7A8", "n": 34, "pct": 2.03, "occ": 34}, {"gene": "IncN4_1", "n": 34, "pct": 2.03, "occ": 34}, {"gene": "IncHI2_1", "n": 31, "pct": 1.85, "occ": 31}, {"gene": "IncI_Gamma_1", "n": 31, "pct": 1.85, "occ": 31}, {"gene": "IncHI2A_1", "n": 30, "pct": 1.79, "occ": 30}, {"gene": "IncB/O/K/Z_4", "n": 28, "pct": 1.67, "occ": 28}, {"gene": "IncI2_1_Delta", "n": 28, "pct": 1.67, "occ": 28}, {"gene": "Col440I_1", "n": 21, "pct": 1.25, "occ": 22}, {"gene": "IncX4_1", "n": 21, "pct": 1.25, "occ": 21}, {"gene": "Col(MP18)_1", "n": 18, "pct": 1.08, "occ": 19}, {"gene": "IncFII(pSE11)_1_pSE11", "n": 18, "pct": 1.08, "occ": 18}, {"gene": "IncB/O/K/Z_1", "n": 16, "pct": 0.96, "occ": 16}, {"gene": "IncHI1A_1", "n": 15, "pct": 0.9, "occ": 15}, {"gene": "IncHI1B(R27)_1_R27", "n": 13, "pct": 0.78, "occ": 13}, {"gene": "IncX10_1", "n": 13, "pct": 0.78, "occ": 13}, {"gene": "IncFII_1_pSFO", "n": 11, "pct": 0.66, "occ": 12}, {"gene": "IncN_1", "n": 11, "pct": 0.66, "occ": 11}, {"gene": "IncA/C2_1", "n": 10, "pct": 0.6, "occ": 10}, {"gene": "IncFIB(Mar)_1_pNDM-Mar", "n": 10, "pct": 0.6, "occ": 10}, {"gene": "IncI2_1", "n": 10, "pct": 0.6, "occ": 10}, {"gene": "IncX4_2", "n": 10, "pct": 0.6, "occ": 10}, {"gene": "RepB_1_pC39", "n": 10, "pct": 0.6, "occ": 10}, {"gene": "Col(IRGK)_1", "n": 9, "pct": 0.54, "occ": 9}, {"gene": "IncFII(pEH01)_1", "n": 9, "pct": 0.54, "occ": 9}, {"gene": "IncX1_4", "n": 9, "pct": 0.54, "occ": 9}, {"gene": "IncL/M(pOXA-48)_1_pOXA-48", "n": 7, "pct": 0.42, "occ": 7}, {"gene": "IncB/O/K/Z_3", "n": 6, "pct": 0.36, "occ": 6}, {"gene": "IncHI1B(CIT)_1_pNDM-CIT", "n": 6, "pct": 0.36, "occ": 6}, {"gene": "pEC4115_1", "n": 6, "pct": 0.36, "occ": 6}, {"gene": "Col(IMGS31)_1", "n": 5, "pct": 0.3, "occ": 5}, {"gene": "Col440II_1", "n": 5, "pct": 0.3, "occ": 5}, {"gene": "IncQ1_1", "n": 5, "pct": 0.3, "occ": 5}, {"gene": "IncFIB(pKPHS1)_1_pKPHS1", "n": 4, "pct": 0.24, "occ": 4}, {"gene": "IncN2_1", "n": 4, "pct": 0.24, "occ": 4}, {"gene": "IncX2_1", "n": 3, "pct": 0.18, "occ": 3}, {"gene": "repB(R1701)_1", "n": 3, "pct": 0.18, "occ": 3}, {"gene": "Col8282_1", "n": 2, "pct": 0.12, "occ": 2}, {"gene": "IncA/C_1", "n": 2, "pct": 0.12, "occ": 2}, {"gene": "IncFIB(pECLA)_1_pECLA", "n": 2, "pct": 0.12, "occ": 2}, {"gene": "IncFII(p14)_1_p14", "n": 2, "pct": 0.12, "occ": 2}, {"gene": "IncFII(pCRY)_1_pCRY", "n": 2, "pct": 0.12, "occ": 2}, {"gene": "IncFII(pECLA)_1_pECLA", "n": 2, "pct": 0.12, "occ": 2}, {"gene": "IncX9_1", "n": 2, "pct": 0.12, "occ": 2}, {"gene": "pSL483_1", "n": 2, "pct": 0.12, "occ": 2}, {"gene": "Col(KPHS6)_1", "n": 1, "pct": 0.06, "occ": 1}, {"gene": "IncFIB(K)(pCAV1099-114)_1", "n": 1, "pct": 0.06, "occ": 1}, {"gene": "IncFII(S)_1", "n": 1, "pct": 0.06, "occ": 1}, {"gene": "IncFII(SARC14)_1_SARC14", "n": 1, "pct": 0.06, "occ": 1}, {"gene": "IncP1_3", "n": 1, "pct": 0.06, "occ": 1}, {"gene": "rep14a_1_CDS2(pEFNP1)", "n": 1, "pct": 0.06, "occ": 1}, {"gene": "rep14a_4_rep(AUS0004p3)", "n": 1, "pct": 0.06, "occ": 1}, {"gene": "rep21_9_rep(pKH12)", "n": 1, "pct": 0.06, "occ": 1}, {"gene": "rep9a_1_repA(pAD1)", "n": 1, "pct": 0.06, "occ": 1}, {"gene": "repHI5B_1_pC39", "n": 1, "pct": 0.06, "occ": 1}, {"gene": "repUS43_1_CDS12738(DOp1)", "n": 1, "pct": 0.06, "occ": 1}];
+
+let freqSortKey = 'pct';
+let freqSortAsc = false;
+
+function freqRender() {
+    const termEl = document.getElementById('freq-search');
+    const clsEl = document.getElementById('freq-class');
+    const minEl = document.getElementById('freq-min-pct');
+    const term = (termEl ? termEl.value : '').toLowerCase();
+    const cls = clsEl ? clsEl.value : '';
+    const minPct = parseFloat(minEl ? minEl.value : '0') || 0;
+
+    let rows = FREQ_DATA.filter(function(r) {
+        if (term) {
+            const hay = (r.gene + ' ' + (r.cls || '') + ' ' + (r.sub || '')).toLowerCase();
+            if (hay.indexOf(term) === -1) return false;
+        }
+        if (cls && r.cls !== cls) return false;
+        if (r.pct < minPct) return false;
+        return true;
+    });
+
+    rows.sort(function(a, b) {
+        const av = a[freqSortKey], bv = b[freqSortKey];
+        if (typeof av === 'number' && typeof bv === 'number')
+            return freqSortAsc ? av - bv : bv - av;
+        return freqSortAsc
+            ? String(av).localeCompare(String(bv))
+            : String(bv).localeCompare(String(av));
+    });
+
+    const thead2 = document.getElementById('freq-head');
+    const tbody2 = document.getElementById('freq-body');
+
+    const hasClass = FREQ_DATA.length > 0 && FREQ_DATA[0].cls !== undefined;
+    const hasSub   = FREQ_DATA.length > 0 && FREQ_DATA[0].sub !== undefined;
+    const cols = [
+        { key: 'gene', label: 'Gene' },
+    ];
+    if (hasClass) cols.push({ key: 'cls', label: 'Class' });
+    if (hasSub)   cols.push({ key: 'sub', label: 'Subclass' });
+    cols.push({ key: 'n',   label: 'Genomes',     right: true });
+    cols.push({ key: 'pct', label: 'Prevalence',  right: false });
+    cols.push({ key: 'occ', label: 'Occurrences', right: true });
+    cols.push({ key: '_add', label: '' });
+
+    thead2.innerHTML = '<tr>' + cols.map(function(c) {
+        if (c.key === '_add') return '<th></th>';
+        const s = freqSortKey === c.key ? (freqSortAsc ? 'sorted-asc' : 'sorted-desc') : '';
+        return '<th class="sortable ' + s + '" data-fkey="' + c.key + '">' + c.label + '</th>';
+    }).join('') + '</tr>';
+
+    thead2.querySelectorAll('th.sortable').forEach(function(th) {
+        th.addEventListener('click', function() {
+            const k = th.dataset.fkey;
+            if (freqSortKey === k) freqSortAsc = !freqSortAsc;
+            else { freqSortKey = k; freqSortAsc = false; }
+            freqRender();
+        });
+    });
+
+    if (rows.length === 0) {
+        tbody2.innerHTML = '<tr><td colspan="' + cols.length + '"><div class="empty-state">' +
+            '<div class="icon">🔍</div><div>No genes match</div></div></td></tr>';
+        return;
+    }
+
+    tbody2.innerHTML = rows.slice(0, 2000).map(function(r) {
+        let cells = '<td><span class="gene-name">' + esc(r.gene) + '</span></td>';
+        if (hasClass) cells += '<td>' + (r.cls ? '<span class="family-pill">' + esc(r.cls) + '</span>' : '—') + '</td>';
+        if (hasSub)   cells += '<td>' + (r.sub ? '<span class="family-pill">' + esc(r.sub) + '</span>' : '—') + '</td>';
+        cells += '<td class="num-cell">' + r.n.toLocaleString() + '</td>';
+        const barW = Math.max(0.5, Math.min(100, r.pct));
+        const color = r.pct >= 50 ? '#991b1b' : (r.pct >= 10 ? '#b45309' : '#64748b');
+        cells += '<td><div class="prev-cell">' +
+            '<div class="prev-bar-track"><div class="prev-bar-fill" style="width:' + barW + '%;"></div></div>' +
+            '<span class="prev-value" style="color:' + color + '">' + r.pct.toFixed(2) + '%</span>' +
+            '</div></td>';
+        cells += '<td class="num-cell">' + r.occ.toLocaleString() + '</td>';
+        // Add button only if gene is in the headline set (index by label match)
+        const inHeadline = geneMeta.findIndex(function(g) { return g.label === r.gene; });
+        if (inHeadline >= 0) {
+            cells += '<td><button class="add-gene-btn" data-idx="' + inHeadline + '">+ Add</button></td>';
+        } else {
+            cells += '<td></td>';
+        }
+        return '<tr>' + cells + '</tr>';
+    }).join('');
+
+    tbody2.querySelectorAll('.add-gene-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const idx = parseInt(btn.dataset.idx);
+            if (!selected.includes(idx) && selected.length < MAX_GENES) {
+                selected.push(idx);
+                renderChips();
+                renderSelectedBar();
+                runSearch();
+                // Switch to search tab
+                document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+                document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+                document.querySelector('.tab-btn[data-tab="search"]').classList.add('active');
+                document.getElementById('tab-search').classList.add('active');
+            }
+        });
+    });
+}
+
+// =========================================================================
+// Tabs
+// =========================================================================
+document.querySelectorAll('.tab-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+        document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+        btn.classList.add('active');
+        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+        if (btn.dataset.tab === 'freq') freqRender();
+    });
+});
+
+// =========================================================================
+// Frequency table wiring
+// =========================================================================
+['freq-search', 'freq-class', 'freq-min-pct'].forEach(function(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('input', function() {
+        clearTimeout(window._ft);
+        window._ft = setTimeout(freqRender, 200);
+    });
+    el.addEventListener('change', freqRender);
+});
+
+// =========================================================================
+// Init
+// =========================================================================
+renderChips();
+renderSelectedBar();
+renderResults();
+freqRender();
+
+// Trigger index load on first user interaction with the picker
+document.addEventListener('click', function() {
+    ensureIndex();
+}, { once: true });
+
+</script>
+</body>
+</html>
